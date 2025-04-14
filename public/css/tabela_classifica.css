@@ -1,0 +1,398 @@
+
+* {
+    padding: 0;
+    box-sizing: border-box;
+}
+.main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+
+}
+
+#tabela-wrapper {
+    /* background-color: rgba(255, 255, 255, 0); */
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(106, 0, 255);
+    width: auto;
+    margin-top: 1%;
+    margin-bottom: 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.grupo-container {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.grupo-header {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    margin-left: 30px;
+    text-align: left;
+}
+
+.tabela-flex {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.tabela-flex-header, .tabela-flex-row {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid #dddddd59;
+}
+
+.tabela-flex-row:hover {
+    background-color: #dddddd54;
+}
+
+.tabela-flex-header {
+    background-color: #f2f2f283;
+}
+
+.tabela-flex-header > div, .tabela-flex-row > div {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+}
+
+.tabela-flex-header > div:last-child, .tabela-flex-row > div:last-child {
+    border-right: none;
+}
+
+.logo-time {
+    max-width: 50px;
+    max-height: 50px;
+    vertical-align: middle;
+    margin-right: 5px;
+    border-radius: 10%;
+    margin-left: 10px;
+}
+
+/* Estilo das colunas pequenas e grandes */
+.small-col {
+    min-width: 70px;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+.larger-col {
+    min-width: 70px;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+/* Estilo dos resultados */
+.resultado-vitoria {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: green;
+    border-radius: 50%;
+    margin-right: 2px;
+}
+
+.resultado-derrota {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: rgb(15, 3, 3);
+    border-radius: 50%;
+    margin-right: 2px;
+}
+
+.resultado-empate {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: gray;
+    border-radius: 50%;
+    margin-right: 2px;
+}
+
+.resultado-indefinido {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: lightgray;
+    border-radius: 50%;
+    margin-right: 2px;
+}
+
+/* Estilo da legenda de símbolos */
+#legenda-simbolos {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+    text-align: left;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.simbolo {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 5px;
+}
+
+.descricao {
+    display: inline-block;
+    margin-left: 5px;
+}
+
+/* Estilos do modo escuro */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode #tabela-wrapper {
+    background-color: #1e1e1e;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .tabela-flex-header {
+    background-color: #333333;
+}
+
+body.dark-mode .tabela-flex-row {
+    background-color: #333333;
+    color: #e0e0e0;
+}
+
+body.dark-mode #legenda-simbolos {
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+}
+
+/* Estilo do botão de modo escuro */
+.dark-mode-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.dark-mode-button:hover {
+    background-color: #0056b3;
+}
+
+/* Estilo das informações do time */
+.time-info {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 270px; /* Largura mínima */
+    min-height: 80px;
+    max-width: 270px;
+    max-height: 80px;
+    overflow: hidden;
+}
+
+.clube {
+    min-width: 270px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.posicao_num {
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.time-name {
+    display: flex;
+    align-items: center;
+    flex: 1; 
+    overflow: hidden; 
+    text-overflow: ellipsis; /* Adiciona '...' ao final do texto que excede o limite */
+    white-space: nowrap; /* Evita que o texto quebre em várias linhas */
+}
+
+.inf {
+    display: inline-block; 
+    width: 10px; 
+    height: 10px; 
+    background-color: green; 
+    border-radius: 50%; 
+    margin-right: 2px;
+}
+
+/* 2 = red , 3 = gray, 4 = lightgray */
+.inf2 {
+    display: inline-block; 
+    width: 10px; 
+    height: 10px; 
+    background-color: rgb(14, 0, 41); 
+    border-radius: 50%; 
+    margin-right: 2px;
+}
+
+.inf3 {
+    display: inline-block; 
+    width: 10px; 
+    height: 10px; 
+    background-color: gray; 
+    border-radius: 50%; 
+    margin-right: 2px;
+}
+
+.inf4 {
+    display: inline-block; 
+    width: 10px; 
+    height: 10px; 
+    background-color: lightgray; 
+    border-radius: 50%; 
+    margin-right: 2px;
+}
+
+.fade-in {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.fade-in.visible {
+    opacity: 1;
+}
+
+#carregamento {
+    display: block;
+    text-align: center;
+    padding: 20px;
+}
+h1{
+    margin-top: 80px;
+}
+
+@media (min-width: 350px) and (max-width: 1000px) {
+    h1{
+        font-size: 16px;
+        margin: none;
+    }
+    .larger-col {
+        min-width: 50px;
+        max-width: 50px;
+        font-size: 8px;
+    }
+    .inf, .inf2, .inf3, .inf4 {
+        width: 5px;
+        height: 5px;
+    }
+
+    .grupo-header {
+        font-size: 10px;
+    }
+
+    #tabela-wrapper {
+        width: 100%;
+        background-color: none;
+        border: none;
+        box-shadow: none;
+        padding: none;
+    }
+
+    #legenda-simbolos {
+        width: 70%;
+        max-height: 30%;
+        background-color: rgba(245, 222, 179, 0.116);
+    }
+
+    .descricao {
+        font-size: 9px;
+        margin: none;
+    }
+
+    .simbolo {
+        width: 9px;
+        height: 9px;
+        margin: none;
+    }
+
+    .tabela-flex-header > div, .tabela-flex-row > div {
+        padding: 0px;
+        margin-top: 4px;
+        margin-bottom: 4px;
+    }
+
+    .time-info {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        min-width: 80px; /* Largura mínima */
+        min-height: 8px;
+        max-width: 200px;
+        max-height: 20px;
+        overflow: hidden;
+    }
+
+    .tabela-flex-header {
+        font-size: 10px;
+    }
+
+    .logo-time {
+        margin-left: 2px;
+        margin-right: 4px;
+        min-width: 20px;
+        max-width: 20px;
+        max-height: 20px;
+        min-height: 20px;
+    }
+
+    .posicao_num {
+        font-size: 10px;
+        margin-left: 4px;
+        margin-right: 0px;
+    }
+
+    .time-name {
+        font-size: 7px;
+        min-width: 100px;
+        height: 70px;
+        max-width: 100px;
+    }
+
+    h4 {
+        font-size: 7px;
+    }
+}
+
+/* teste */
+@media (min-width: 350px) and (max-width: 1000px){
+    .small-col {
+        min-width: 0%;
+        max-width: 100px;
+        text-align: center;
+        font-size: 8px;
+    }
+    .clube {
+        min-width: 80px; 
+        max-width: auto;
+    }
+
+}

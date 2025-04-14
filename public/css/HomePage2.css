@@ -1,0 +1,7 @@
+/* GLOBAL STYLES */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box; /* Inclui padding e border na largura total dos elementos */
+    font-family: Arial, Helvetica, sans-serif;
+}

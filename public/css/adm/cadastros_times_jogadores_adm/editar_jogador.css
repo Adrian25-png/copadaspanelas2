@@ -1,0 +1,136 @@
+.main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.container {
+    width: 50%;
+    max-width: 50%;
+    background-color: rgba(240, 248, 255, 0.301);
+    margin-top: 5%;
+    margin-bottom: 5%;
+    border-radius: 10px;
+    padding: 5px;
+    border:#666 1px solid;
+    display: flex;
+    justify-content: center;
+}
+
+.form-container {
+    padding: 20px;
+    width: 80%;
+    display: inline-block;
+}
+.form-container h2 {
+    text-align: center;
+    margin: none;
+    font-size: 40px;
+    font-family: 'Roboto', Courier, monospace;
+    white-space: nowrap; 
+    overflow: hidden;    
+    position: relative;  
+    width: 0; 
+    animation: typing 4s steps(40, end) 1s forwards;
+}
+
+.form-container h2::after {
+    content: '|'; 
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: red;
+    animation: blink-caret .75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink-caret {
+    from, to { color: transparent; }
+    50% { color: red; }
+}
+
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+label {
+    font-size: 20px;
+    margin-bottom: 5px;
+    margin-left: 14px;
+    font-weight: bold;
+}
+input[type="text"], input[type="number"], select {
+    padding: 20px;
+    border-radius: 40px;
+    margin-bottom: 15px;
+    font-size: 18px;
+    border: none;
+    color: rgba(15, 10, 2, 0.466);
+    background-color:rgba(255, 255, 255, 0.459);
+    border:#666 1px solid;
+}
+input[type="file"] {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 5px;
+}
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; 
+}
+.button-container input[type="submit"],
+.button-container .btn-cancel {
+    margin: 0 10px; 
+}
+input[type="submit"] {
+    padding: 15px;
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+input[type="submit"]:hover {
+    background-color: #218838;
+}
+.btn-cancel {
+    padding: 15px;
+    background-color: #dc3545;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+.btn-cancel:hover {
+    background-color: #c82333;
+}
+#imagem-preview {
+    max-width: 100px;
+    height: auto;
+    display: block;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+input[type="number"] {
+    -moz-appearance: textfield; 
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none; 
+    margin: 0;
+}
+.hidden {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out; 
+}

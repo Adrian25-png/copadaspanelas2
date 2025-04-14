@@ -1,0 +1,250 @@
+.main {
+    font-family: 'Roboto', sans-serif;
+    color: #333; 
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    user-select: none;
+    background-color: #f5f5f5; 
+}
+
+h1 {
+    font-size: 2em;
+    color: #333; 
+    margin-top: 20px;
+}
+
+.form-container {
+    width: 40%;
+    background-color: #ffffff; 
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    min-width: 30%;
+    margin-top: 5%;
+    margin-bottom: 10%;
+}
+
+fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+legend {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #333; 
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    color: #333; 
+}
+
+input[type="number"], select {
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 1px solid #ccc; 
+    background-color: #fff; 
+    width: 90%;
+    -webkit-appearance: none;
+    -moz-appearance: textfield !important;
+    appearance: none;
+}
+
+#faseFinal {
+    width: 97%;
+}
+button {
+    background-color: #e41010; 
+    color: #fff; 
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    margin: 10px 0;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+button:hover {
+    background-color: #da4518a2; 
+}
+
+.error-message, .success-message {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.error-message {
+    color: #e74c3c; 
+}
+
+.success-message {
+    color: #2ecc71; 
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd; 
+    background-color: #fafafa; 
+}
+
+th {
+    background-color: #e0e0e0; 
+}
+
+iframe {
+    display: none;
+}
+
+.btn-toggle-mode {
+    width: 60px;
+    font-size: 10px;
+    background-color: #444; 
+    color: #fff; 
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+body.dark-mode {
+    background-color: #121212; 
+    color: #e0e0e0; 
+}
+
+body.dark-mode .main {
+    background-color: #121212; 
+}
+
+body.dark-mode h1 {
+    color: #fafafa; 
+}
+
+body.dark-mode .form-container {
+    background-color: #1e1e1e; 
+    color: #e0e0e0; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode legend,
+body.dark-mode label {
+    color: #e0e0e0; 
+}
+
+body.dark-mode input[type="number"], 
+body.dark-mode select {
+    border: 1px solid #555; 
+    background-color: #333; 
+    color: #e0e0e0; 
+}
+
+body.dark-mode table th, 
+body.dark-mode table td {
+    background-color: #222; 
+    color: #e0e0e0; 
+    border-bottom: 1px solid #444; 
+}
+
+body.dark-mode .error-message {
+    color: #e74c3c; 
+    background-color: #333; 
+}
+
+body.dark-mode .success-message {
+    color: #2ecc71; 
+    background-color: #333; 
+}
+
+body.dark-mode .btn-toggle-mode {
+    background-color: #e0e0e0; 
+    color: #121212; 
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        width: 80%;
+        padding: 20px;
+        margin-top: 10%;
+        margin-bottom: 5%;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .btn-toggle-mode {
+        width: 50px;
+        font-size: 8px;
+    }
+
+    table {
+        font-size: 0.9em;
+    }
+
+    .error-message, .success-message {
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-container {
+        width: 70%;
+        padding: 15px;
+        margin-top: 15%;
+        margin-bottom: 5%;
+    }
+
+    h1 {
+        font-size: 14px;
+    }
+
+    button {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .btn-toggle-mode {
+        width: 40px;
+        font-size: 6px;
+    }
+
+    table {
+        font-size: 10px;
+    }
+    legend, label{
+        font-size: 14px;
+    }
+    input, select{
+        padding: 0px !important;
+        font-size: 12px !important;
+    }
+    select{
+        width: 90% !important;
+    }
+    .error-message, .success-message {
+        font-size: 0.9em;
+    }
+}

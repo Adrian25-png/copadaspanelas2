@@ -1,0 +1,91 @@
+header {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;  
+    background: linear-gradient(90deg, rgb(92, 0, 197), rgb(0, 0, 0));
+    user-select: none;
+    position: relative; 
+}
+
+#Icon {
+    width: 100px;
+    height: 200px;
+    flex-shrink: 0;
+    position:relative;
+    left: 43%;
+ 
+}
+
+#Icon img {
+    width: 200%;
+
+
+}
+
+.cadastro {
+    font-size: 1.1em;
+    text-decoration: none;
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.cadastro a {
+    text-decoration: none;
+    color: white;
+}
+
+.cadastro a i {
+    padding-right: 8px;
+}
+
+.cadastro:hover {
+    background-color: rgb(255, 255, 255);
+    transition: 0.8s;
+}
+
+.cadastro a:hover {
+    color: rgb(12, 0, 187);
+    transition: 0.3s;
+}
+
+@media only screen and (max-width: 768px) {
+    header {
+        height: 70px;
+        padding: 10px;
+    }
+    #titulo {
+        font-size: 20px;
+        }
+    #Icon {
+        width: auto;
+        height: auto;
+  
+    }
+    #titulo-container {
+        font-size: 12px; 
+        left: 50%;
+        transform: translateX(-50%); 
+    }
+    .cadastro {
+        font-size: 10px;
+        padding: 0 !important;
+        margin-right: 20px;
+    }
+    .menu-toggle {
+        font-size: 18px !important;
+        padding: 0;
+    }
+    .cadastro:hover {
+        background-color: none;
+        padding: none;
+    }
+
+    .cadastro a {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+}
+
