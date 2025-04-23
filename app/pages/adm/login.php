@@ -71,29 +71,28 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="../../../public/css/cadastro_adm/login.css">
+    <link rel="stylesheet" href="../../../public/css/cadastro_adm/login.css?v=1.0.1">
+
+    
 </head>
 <body>
-
-    <?php include 'header_adm.php';?>
-
     <div class="form-container">
         <form action="login.php" method="post">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-            <label for="cod_adm">Código do Administrador:</label>
-            <input type="text" id="cod_adm" name="cod_adm" required>
-            <label for="senha">Senha:</label>
-            <input type="password" id="senha" name="senha" required>
+            <div class="input-field">    
+                <input type="text" id="cod_adm" name="cod_adm" required>
+                <label for="cod_adm">Código do Administrador</label>
+            </div>
+            <div class="input-field">
+                <input type="password" id="senha" name="senha" required>
+                <label for="senha">Senha</label>
+            </div>
             <button type="submit">Login</button>
+
             <?php if (!empty($mensagem_erro)): ?>
                 <p class="senha_incorreta"><?php echo htmlspecialchars($mensagem_erro); ?></p>
             <?php endif; ?>
         </form>
     </div>
-    
-    <a href="../adm/cadastro_adm.php">Cadastro ADM</a>
-                
-
-
 </body>
 </html>
