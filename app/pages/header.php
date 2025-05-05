@@ -5,14 +5,9 @@
 
     <!--Ícone da copa.-->
     <div id="Icon">
-        <a href="HomePage.php"><img src="../../public/img/ESCUDO COPA DAS PANELAS.png" alt="Logo"></a>
+        <a href="HomePage2.php"><img src="../../public/img/ESCUDO COPA DAS PANELAS.png" alt="Logo"></a>
     </div>
-
-    <!--Título da copa.-->
-    <!-- <div id="titulo-container">
-        <div id="titulo">COPA DAS PANELAS</div>
-    </div> -->
-
+    
     <!--Login.-->
     <div class="cadastro">
                 

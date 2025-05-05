@@ -27,7 +27,7 @@ $usuarioLogado = isset($_SESSION['admin_id']);
 
             <div class="footerNav">
                 <ul>
-                    <li><a href="../pages/HomePage.php">Página Inicial</a></li>
+                    <li><a href="../pages/HomePage2.php">Página Inicial</a></li>
                     <li><a href="../pages/sobreNosTeam.php">Sobre Nós</a></li>
                     <li><a href="../pages/equipedev.php">Equipe Dev</a></li>
                 </ul>
