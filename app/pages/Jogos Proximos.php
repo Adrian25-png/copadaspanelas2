@@ -38,9 +38,9 @@ session_start();
         ";
 
         $stmt = $conn->prepare($sqlJogos);
-        if ($stmt === false) {
-            die('Prepare failed: ' . htmlspecialchars($conn->error));
-        }
+        // if ($stmt == false) {
+        //     die('Prepare failed: ' .htmlspecialchars($conn->error));
+        // }
 
         $stmt->bind_param("i", $numeroDeJogos);
         $stmt->execute();
