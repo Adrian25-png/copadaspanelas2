@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="../../public/css/HomePage2.css">
     <link rel="stylesheet" href="../../public/css/cssheader.css">
     <link rel="stylesheet" href="../../public/css/cssfooter.css">
-    <!-- LINK do LOGIN-->
+    <!-- LINK da imagem de LOGIN e icones do YOUTUBE e INSTAGRAM do FOOTER-->
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"> -->
     <link rel="shortcut icon" href="../../public/imgs/ESCUDO COPA DAS PANELAS.png" type="image/x-icon">    
     <title>Copa das Panelas</title>
@@ -82,12 +82,10 @@
         </div>
 
     <!-- Conteúdo -->
-    <h1 class="titulohome">CONTEÚDO</h1>
-        <div class="image">
+        <h1 class="titulohome">CONTEÚDO</h1>
             <div class="news-card">
                 <img src="../../public/img/IMG-20240404-WA0002.jpg" alt="Imagem Descritiva">
             </div>
-        </div>
   </main>
 
     

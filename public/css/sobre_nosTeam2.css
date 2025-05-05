@@ -1,0 +1,110 @@
+/* Reset básico */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Space Grotesk', sans-serif;
+    text-decoration: none;
+  }
+  
+  /* Corpo da página */
+  body {
+    background: radial-gradient(#281c3e, #0f051d);
+    color: #E0E0E0;
+    line-height: 1.6;
+  }
+  
+  /* Título principal */
+  .titulohome {
+    color: white;
+    font-size: 40px;
+    text-align: center;
+    margin: 40px 0 30px 0;
+  }
+  
+  /* Conteúdo principal */
+  main {
+    padding: 30px;
+    max-width: 1200px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+  }
+  
+  /* Cards de informação */
+  .news-card {
+    background-color: #1E1E1E;
+    border-left: 4px solid #7B1FA2;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s;
+  }
+  
+  .news-card:hover {
+    transform: translateY(-5px);
+    background-color: #252525;
+  }
+  
+  /* Imagens dos criadores */
+  .foto-criadores {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    border: 2px solid #7B1FA2;
+  }
+  
+  /* Nome dos criadores */
+  .news-card span {
+    display: inline-block;
+    margin-top: 10px;
+    background-color: rgba(123, 31, 162, 0.1);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #E1BEE7;
+  }
+  
+  /* Rodapé */
+  footer {
+    background-color: #1F1B24;
+    text-align: center;
+    padding: 15px;
+    color: #888;
+    margin-top: 40px;
+  }
+  
+  /* Responsivo */
+  @media (max-width: 768px) {
+    .titulohome {
+      font-size: 32px;
+    }
+  
+    .foto-criadores {
+      width: 120px;
+      height: 120px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .titulohome {
+      font-size: 26px;
+    }
+  
+    .foto-criadores {
+      width: 100px;
+      height: 100px;
+    }
+  
+    .news-card span {
+      font-size: 0.9rem;
+      padding: 6px 10px;
+    }
+  }
+  
