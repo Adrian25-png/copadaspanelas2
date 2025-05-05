@@ -63,7 +63,7 @@
   <!-- Conteúdo Principal -->
   <main>
     <!-- Notícia 1 -->
-     <h1 class="titulohome">NOTÍCIAS</h1>
+    <h1 class="titulohome">NOTÍCIAS</h1>
         <div class="news-card">
             <h2>Clássico termina em empate no Maracanã</h2>
             hFlamengo e Fluminense empataram em 2 a 2 em um jogo emocionante marcado por gols no final do segundo tempo.</p>
@@ -80,7 +80,6 @@
             <h2>Real Madrid classificado para a final da Champions</h2>
             <p>Com show de Vinicius Jr., o Real Madrid derrotou o Manchester City e garantiu vaga na final da Liga dos Campeões.</p>
         </div>
-  </main>
 
     <!-- Conteúdo -->
     <h1 class="titulohome">CONTEÚDO</h1>
@@ -89,6 +88,9 @@
                 <img src="../../public/img/IMG-20240404-WA0002.jpg" alt="Imagem Descritiva">
             </div>
         </div>
+  </main>
+
+    
 
 
 
