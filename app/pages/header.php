@@ -12,9 +12,9 @@
     <div class="cadastro">
                 
                 <?php if (isset($_SESSION['admin_id'])): ?>
-                <a href="../adm/rodadas_adm.php" class="fas fa-user"> Entrar</a>
+                <a href="../adm/rodadas_adm.php">Entrar</a>
                 <?php else: ?>
-                <a href="../pages/adm/login.php" class="fas fa-user">Login</a>
+                <a href="../pages/adm/login.php">Login</a>
                 <?php endif; ?>
                 
     

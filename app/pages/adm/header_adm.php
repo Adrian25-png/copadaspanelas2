@@ -84,9 +84,7 @@ $usuarioLogado = isset($_SESSION['admin_id']);
 
         <?php if ($usuarioLogado): ?>
             <div class="has-submenu" id="deslogar">
-                <a href="../adm/logout.php">
-                    <i class="fas fa-user"></i> Deslogar
-                </a>
+                <a href="../adm/logout.php">Deslogar</a>
             </div>
         <?php endif; ?>
     </div>

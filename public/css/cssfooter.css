@@ -17,7 +17,6 @@ footer {
     text-align: center;
     padding: 15px;
     color: #888;
-    margin-top: 40px; /* Pode aumentar esse valor para mais espaçamento se necessário */
 }
 
 .footerContain {
@@ -37,7 +36,7 @@ footer {
     text-decoration: none;
     background-color: white;
     margin: 10px;
-    border-radius: 50%; /* Faz o botão ser circular */
+    border-radius: 100%; /* Faz o botão ser circular */
     width: 60px;  /* Tamanho fixo do círculo */
     height: 60px; /* Tamanho fixo do círculo */
     display: flex;
@@ -47,7 +46,7 @@ footer {
 }
 
 .socialIcons a i {
-    font-size: 1.5em;  /* Ajusta o tamanho do ícone */
+    font-size: 2.4em;  /* Ajusta o tamanho do ícone */
     color: black;
 }
 

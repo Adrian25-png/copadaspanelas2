@@ -22,7 +22,7 @@ $usuarioLogado = isset($_SESSION['admin_id']);
             </svg>
         </button>
         <div class="logo_header">
-            <a href="../pages/HomePage.php">            
+            <a href="../pages/HomePage2.php">            
                 <img src="../../../public/img/ESCUDO COPA DAS PANELAS.png" alt="Escudo da CP" class="img_logo_header">
             </a>
         </div>
@@ -33,7 +33,7 @@ $usuarioLogado = isset($_SESSION['admin_id']);
                 </svg>
             </button>
             <div id="ativo" class="has-submenu">
-                <a href="../pages/HomePage.php" id="ativo">Home</a>
+                <a href="../pages/HomePage2.php" id="ativo">Home</a>
             </div>
             <div class="has-submenu">
                 <div id="ativo" >
