@@ -4,14 +4,19 @@
     <title>Rodadas das Fases de Grupo</title>
     <link rel="stylesheet" href="../../public/css/adm/rodadas_adm.css">
     <link rel="stylesheet" href="../../public/css/cssfooter.css">
+    <link rel="stylesheet" href="../../public/css/header_adm.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="shortcut icon" href="../../public/imgs/ESCUDO COPA DAS PANELAS.png" type="image/x-icon">    
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
 </head>
 <body>
 <?php include 'header_adm.php'; ?>
 
 
-<h1 id="dynamic-text">FASES DE GRUPO</h1>
-<div class="rodada_container1">
-<div id="rodadas-wrapper">
+<h1 id="dynamic-text" class="fade-in">FASES DE GRUPO</h1>
+<div class="rodada_container1 fade-in">
+<div id="rodadas-wrapper" class="fade-in">
     <div class="nav-arrow left" onclick="previousRodada()"><img src="../../public/img/esquerda.svg" alt=""></div>
     <div class="table-container">
         <?php exibirRodadas(); ?>
@@ -114,7 +119,14 @@ function exibirRodadas() {
     }
 
     showRodada(currentRodadaIndex);
+
+    document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.fade-in').forEach(function(el, i) {
+                setTimeout(() => el.classList.add('visible'), i * 20);
+            });
+        });
 </script>
+
 
 <?php include 'footer.php'?>   
 </body>

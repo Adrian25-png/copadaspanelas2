@@ -5,17 +5,17 @@
 	font-family: 'Space Grotesk', sans-serif;
 	text-decoration: none;
 }
-/* Novo wrapper que envolve a .team */
-.team-wrapper {
-    margin-bottom: 80px; /* Aqui é onde adicionamos o espaçamento entre a seção e o footer */
-}
 
+body {
+    background: radial-gradient(#281c3e,#0f051d);
+    color: #E0E0E0; /* Texto claro */
+    line-height: 1.6;
+  }
 /* Seção .team */
 .team {
     position: relative;
     width: 100%;
     height: 100vh; /* Mantendo 100vh caso a altura da tela seja muito grande */
-    background: radial-gradient(#281c3e, #0f051d);
     display: flex;
     align-items: center;
     justify-content: center;

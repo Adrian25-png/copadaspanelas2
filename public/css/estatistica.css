@@ -1,19 +1,39 @@
+/* Reset básico */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Space Grotesk', sans-serif;
+    text-decoration: none;
+}
 
+/* Corpo da página */
+body {
+    background: radial-gradient(#281c3e, #0f051d);
+    color: #E0E0E0;
+    line-height: 1.6;
+    padding-top: 5rem;
+}
+
+/* Área principal */
 .main {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    font-family: "Times New Roman", serif;
+    text-align: center;
+    flex-direction: column;
 }
+
 
 .container {
     width: 80%;
     padding: 30px;
     border-radius: 15px;
-    background-color: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 0 10px rgba(255, 0, 0, 1.8);
+    background-color: #1E1E1E;
+    box-shadow: 0 4px 8px #7b1fa299;
     margin-bottom: 10%;
 }
+
 #tituloh1{
     font-size: 40px;
     margin-top: 4%;
@@ -35,15 +55,15 @@
     display: flex;
     align-items: center;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid #1E1E1E;
     margin-bottom: 10px;
     border-radius: 5px;
-    background-color: #fff;
+    background-color: #1a1a1a;
     transition: background-color 0.3s;
 }
 
 .player-card:hover {
-    background-color: #f0f0f0;
+    background-color: #3b3b3b;
 }
 
 .player-card img {
@@ -84,33 +104,13 @@
     width: 30px;
 }
 
-.dark-mode {
-    background-color: #121212;
-    color: #e0e0e0;
+/* Efeitos visuais */
+.fade-in {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
 }
-
-.dark-mode .container {
-    background-color: #1e1e1e;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-}
-
-.dark-mode .section h1 {
-    color: #ffffff;
-}
-
-.dark-mode .player-card {
-    background-color: #333;
-    border: 1px solid #444;
-}
-
-.dark-mode .player-card img {
-    border: 1px solid #ffffff;
-}
-
-.dark-mode .player-card .info .name,
-.dark-mode .player-card .info .stat,
-.dark-mode .player-card .info .team {
-    color: #ffffff;
+.fade-in.visible {
+    opacity: 1;
 }
 
 @media (max-width: 768px) {

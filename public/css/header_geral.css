@@ -1,3 +1,7 @@
+body {
+    padding-top: 150px;
+}
+
 /* HEADER PRINCIPAL */
 header {
     width: 100%;
@@ -51,11 +55,11 @@ header {
     background: linear-gradient(90deg, rgb(92, 0, 197), rgb(0, 0, 0));
     height: 60px;
     width: 100%;
-    margin-top: 80px; /* espaço para não cobrir o header fixo */
+    margin-top: 125px; /* espaço para não cobrir o header fixo */
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 4 7px 0px rgba(0, 0, 0, 0.2);
     position: relative;
     z-index: 999;
 }
@@ -78,7 +82,7 @@ header {
 }
 
 #nav-menu a:hover {
-    color: rgb(189, 189, 255);
+    color: rgb(213, 180, 255);
 }
 
 #nav-menu li {

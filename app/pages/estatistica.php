@@ -72,12 +72,17 @@ $conn->close();
     <title>Estatísticas dos Jogadores</title>
     <link rel="stylesheet" href="../../public/css/cssfooter.css">
     <link rel="stylesheet" href="../../public/css/estatistica.css">
+    <link rel="stylesheet" href="../../public/css/header_adm.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="shortcut icon" href="../../public/imgs/ESCUDO COPA DAS PANELAS.png" type="image/x-icon">    
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
 </head>
 <body>
-    <?php include '../pages/header_class.php'; ?>
+    <?php include '../pages/header_adm.php'; ?>
     <div class="main">
-    <h1 id="tituloh1">Estatísticas dos Jogadores</h1>
-    <div class="container">
+    <h1 id="tituloh1" class="fade-in">Estatísticas dos Jogadores</h1>
+    <div class="container fade-in">
 
         <!-- Seção de Gols -->
         <div class="section">
@@ -169,6 +174,15 @@ $conn->close();
 
     </div>
 </div>
+
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.fade-in').forEach(function(el, i) {
+                setTimeout(() => el.classList.add('visible'), i * 20);
+            });
+        });
+    </script>
+
 <?php include 'footer.php'?>  
 </body>
 </html>

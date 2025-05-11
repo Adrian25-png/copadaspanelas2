@@ -17,29 +17,6 @@
 
     <?php  require_once 'header_geral.php'?> 
     
-    <nav id="nav-menu">
-        <ul>
-            <li><a href="../pages/HomePage.php">Home</a></li>
-            <li>
-                <a href="">Tabelas de Jogos ▾</a>
-                <ul class="dropdown">
-                   <li><a href="../pages/tabela_de_classificacao.php">Grupos</a></li>
-                   <li><a href="../pages/exibir_finais.php">Eliminatórias</a></li>
-                   <li><a href="../pages/rodadas.php">Rodadas</a></li>
-                </ul>     
-            </li>
-            <li>
-                <a href="">Dados da Copa ▾</a>
-                <ul class="dropdown">
-                    <li><a href="../pages/publicacoes.php">Publicações</a></li>
-                    <li><a href="../pages/sobreNosTeam.php">História</a></li>
-                    <li><a href="">Estatísticas</a></li> <!--Criar um dropdown para os outros arquivos de estatistica de jogador-->
-                </ul>
-            </li>
-            <li><a href="Jogos Proximos.php">Transmissão</a></li>
-            <li><a href="../pages/sobreNosTeam.php">Sobre nós</a></li>
-        </ul>
-    </nav>
     <div class="container">
     <h1>História da copa</h1>
 

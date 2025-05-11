@@ -12,6 +12,7 @@
     justify-content: space-between;
     padding: 0 1em;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    background: linear-gradient(90deg, rgb(92, 0, 197), rgb(0, 0, 0));
 }
 
 /* Ícone da Copa Centralizado */
@@ -33,20 +34,21 @@
 }
 
 .navegacao_header a {
-    color: var(--cor-branca);
+    color: var(--cor-branca, white);
     text-decoration: none;
     font-weight: bold;
     transition: 0.3s;
+    
 }
 
 .navegacao_header a:hover {
-    color: var(--cor-hover);
+    color:  rgb(213, 180, 255);
 }
 
 .btn_icon_header {
     background: none;
     border: none;
-    color: var(--cor-branca);
+    color: var(--cor-branca, white);
     cursor: pointer;
     display: none;
 }

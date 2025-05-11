@@ -1,0 +1,197 @@
+/* Reset básico */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Space Grotesk', sans-serif;
+    text-decoration: none;
+}
+
+/* Corpo da página */
+body {
+    background: radial-gradient(#281c3e, #0f051d);
+    color: #E0E0E0;
+    line-height: 1.6;
+    padding-top: 5rem;
+}
+
+/* Área principal */
+.main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+}
+
+#titulo_eli{
+font-size: 30px;
+margin-bottom: 10px;
+text-align: center;
+}
+.container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    border: 1px solid #7b1fa299;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px #7b1fa299;
+    max-width: 1200px; 
+    overflow: hidden;
+    background-color: #1E1E1E;
+    background-size: 15% auto;
+    background-position: top center;
+    background-repeat: no-repeat;
+    margin-bottom: 10%;
+}
+
+.bracket {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: nowrap; /* Garantir que as colunas não quebrem para a próxima linha */
+    align-items: center;
+}
+
+.column {
+    flex: 1;
+    margin-left: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 200px; /* Ajustar conforme necessário */
+}
+
+.match {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px red;
+    text-align: center;
+    box-sizing: border-box; /* Inclui padding e border no tamanho total */
+}
+
+.team {
+    display: flex;
+    align-items: center;
+    text-align: left; /* Alinha o texto à esquerda */
+    padding: 10px;
+    box-sizing: border-box; /* Inclui padding e border no tamanho total */
+}
+
+/* Estilos das Imagens das Bandeiras */
+.flag {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    object-fit: contain;
+}
+
+/* Estilos dos Nomes dos Times */
+.team-name {
+    font-weight: bold;
+    margin-right: 10px;
+    max-width: 150px; /* Limitar a largura máxima do nome do time */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* Estilos para o Placar dos Jogos */
+.score {
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: auto; /* Move o placar para o lado esquerdo */
+    font-size: 1.2em;
+}
+
+/* Estilos Específicos para a Final */
+.final-match {
+    display: flex;
+    justify-content: space-between;
+    width: 100%; /* Garantir que ocupa a largura total da coluna */
+}
+
+/* Estilos dos Separadores */
+.vs {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 0 10px;
+}
+
+h1{
+    margin-top: 5%;
+}
+
+/* Efeitos visuais */
+.fade-in {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+.fade-in.visible {
+    opacity: 1;
+}
+
+/* Media Queries para iPhone 12 e dispositivos similares */
+@media (max-width: 768px) { /* iPhone 12 portrait mode */
+    .container {
+        padding: 10px;
+        max-width: 100%; /* Ajustar a largura para ocupar 100% da tela */
+    }
+
+    .column {
+        margin: 5px;
+        max-width: 100%; /* Ajustar a largura máxima para 100% */
+    }
+
+    .flag {
+        width: 30px; /* Reduzir o tamanho das bandeiras */
+        height: 30px;
+    }
+
+    .team-name {
+        max-width: 120px; /* Reduzir a largura máxima do nome do time */
+    }
+}
+
+
+@media (max-width: 480px) { /* iPhone 12 mini e outros dispositivos menores */
+    .container {
+        /* flex-direction: column; Empilhar os elementos verticalmente */
+        width: 80%;
+        overflow-x:auto;
+    }
+    .match {
+        font-size: 10px;
+        width: auto;
+        height: auto;
+        padding: 0;
+    }
+    h1{
+        margin-top: 20%;
+    }
+    /* Estilos do Layout dos Confrontos */
+    .bracket {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: nowrap; /* Garantir que as colunas não quebrem para a próxima linha */
+        align-items: center;
+    }
+
+    .flag {
+        width: 25px; /* Reduzir ainda mais o tamanho das bandeiras */
+        height: 25px;
+    }
+    .column{
+        margin: 0;
+    }
+}
