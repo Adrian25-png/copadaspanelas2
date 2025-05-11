@@ -1,0 +1,130 @@
+.texto{
+	  font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600; /* mais forte que o normal */
+  }
+
+  .texto a {
+    pointer-events: auto; /* libera o clique */
+  }
+
+.destaque {
+    color: #ae00ff;       /* cor do link */
+    font-weight: 700;     /* mais grosso */
+    text-decoration: none; /* remove sublinhado padrão */
+  }
+  
+.destaque:hover {
+    text-decoration: underline; /* sublinhado ao passar o mouse */
+  }
+
+/*Slides*/
+
+[type=radio] {
+    display: none;
+  }
+  
+  #slider {
+    height: 35vw;
+    position: relative;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+  }
+  
+  #slider label {
+    margin: auto;
+    width: 60%;
+    height: 100%;
+    border-radius: 4px;
+    position: absolute;
+    left: 0; right: 0;
+    cursor: pointer;
+    transition: transform 0.4s ease;
+  }
+  
+  /*Texto com a imagem*/
+  
+  #slider label .texto {
+    opacity: 0;
+    transform: translateY(20px);
+    color: white;
+    text-align: center;
+    font-size: 1.5rem;
+    position: absolute;
+    bottom: 10%;
+    left: 0; right: 0;
+    pointer-events: none;
+  }
+
+  /*Keyframe do texto*/
+  @keyframes subirAparecendo {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /*Animação dos slides*/
+  
+  #s1:checked ~ #slide4, #s2:checked ~ #slide5,
+  #s3:checked ~ #slide1, #s4:checked ~ #slide2,
+  #s5:checked ~ #slide3 {
+    box-shadow: 0 1px 4px 0 rgba(0,0,0,.37);
+    transform: translate3d(-30%,0,-200px);
+    filter: blur(2px) brightness(0.5); /* Embaça e escurece */
+  }
+  
+  #s1:checked ~ #slide5, #s2:checked ~ #slide1,
+  #s3:checked ~ #slide2, #s4:checked ~ #slide3,
+  #s5:checked ~ #slide4 {
+    box-shadow: 0 6px 10px 0 rgba(0,0,0,.3), 0 2px 2px 0 rgba(0,0,0,.2);
+    transform: translate3d(-15%,0,-100px);
+    filter: blur(1px) brightness(0.9); /* Embaça e escurece */
+  }
+  
+  #s1:checked ~ #slide1, #s2:checked ~ #slide2,
+  #s3:checked ~ #slide3, #s4:checked ~ #slide4,
+  #s5:checked ~ #slide5 {
+    box-shadow: 0 13px 25px 0 rgba(0,0,0,.3), 0 11px 7px 0 rgba(0,0,0,.19);
+    transform: translate3d(0,0,0);
+  }
+  
+  #s1:checked ~ #slide2, #s2:checked ~ #slide3,
+  #s3:checked ~ #slide4, #s4:checked ~ #slide5,
+  #s5:checked ~ #slide1 {
+    box-shadow: 0 6px 10px 0 rgba(0,0,0,.3), 0 2px 2px 0 rgba(0,0,0,.2);
+    transform: translate3d(15%,0,-100px);
+    filter: blur(1px) brightness(0.9); /* Embaça e escurece */
+  
+  }
+  
+  #s1:checked ~ #slide3, #s2:checked ~ #slide4,
+  #s3:checked ~ #slide5, #s4:checked ~ #slide1,
+  #s5:checked ~ #slide2 {
+    box-shadow: 0 1px 4px 0 rgba(0,0,0,.37);
+    transform: translate3d(30%,0,-200px);
+    filter: blur(2px) brightness(0.5); /* Embaça e escurece */
+  }
+  
+  /*Animação dos textos*/
+  #s1:checked ~ #slide1 .texto,
+  #s2:checked ~ #slide2 .texto,
+  #s3:checked ~ #slide3 .texto,
+  #s4:checked ~ #slide4 .texto,
+  #s5:checked ~ #slide5 .texto {
+    animation: subirAparecendo 0.6s ease forwards;
+  }
+  
+  #slide1 {
+    background-image: url('../img/sobrenos.jpg');
+    background-size: cover;     /* Garante que a imagem preencha tudo mesmo que corte um pouco */
+    background-repeat: no-repeat; /* Evita que a imagem se repita */
+    background-position: center;  /* Centraliza a imagem no espaço */
+  }
+  #slide2 { background: #4CAF50 }
+  #slide3 { background: #CDDC39 }
+  #slide4 { background: #FFC107 }
+  #slide5 { background: #FF5722 }

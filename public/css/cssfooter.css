@@ -11,11 +11,13 @@ body {
 main {
     flex: 1;
 }
+
 footer {
-    background-color: rgb(27, 25, 25);
-    width: 100%;
-    position: relative;
-    bottom: 0;
+    background-color: #1F1B24;
+    text-align: center;
+    padding: 15px;
+    color: #888;
+    margin-top: 40px; /* Pode aumentar esse valor para mais espaçamento se necessário */
 }
 
 .footerContain {
@@ -33,26 +35,29 @@ footer {
 
 .socialIcons a {
     text-decoration: none;
-    padding: 10px;
     background-color: white;
     margin: 10px;
-    border-radius: 50px;
+    border-radius: 50%; /* Faz o botão ser circular */
+    width: 60px;  /* Tamanho fixo do círculo */
+    height: 60px; /* Tamanho fixo do círculo */
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente o ícone */
+    align-items: center;     /* Centraliza verticalmente o ícone */
+    transition: 0.3s ease;
 }
 
 .socialIcons a i {
-    font-size: 2em;
+    font-size: 1.5em;  /* Ajusta o tamanho do ícone */
     color: black;
-    opacity: 0.9;
 }
 
 .socialIcons a:hover {
-    background-color: #111;
-    transition: 0.5s;
+    background-color: #111;  /* Cor de fundo do botão ao passar o mouse */
 }
 
 .socialIcons a:hover i {
-    color: white;
-    transition: 0.5s;
+    color: white;  /* Cor do ícone ao passar o mouse */
+    transition: 0.3s ease;
 }
 
 .footerNav {
@@ -114,28 +119,27 @@ footer {
 @media only screen and (max-width: 768px) {
     .socialIcons {
         flex-wrap: wrap;
-        justify-content: center; 
+        justify-content: center;
     }
 
     .socialIcons a {
-        margin: 5px; 
+        margin: 5px;
     }
 
     .footerNav {
-        padding: 20px 0; 
+        padding: 20px 0;
     }
 
     .footerNav ul {
         flex-direction: column;
-        align-items: center; 
+        align-items: center;
     }
 
     .footerNav ul li a {
-        padding: 10px; 
+        padding: 10px;
     }
 
     .footerButton p {
-        font-size: 0.9em; 
+        font-size: 0.9em;
     }
 }
-

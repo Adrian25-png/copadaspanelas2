@@ -71,15 +71,6 @@
     color: #E1BEE7;
   }
   
-  /* Rodapé */
-  footer {
-    background-color: #1F1B24;
-    text-align: center;
-    padding: 15px;
-    color: #888;
-    margin-top: 40px;
-  }
-  
   /* Responsivo */
   @media (max-width: 768px) {
     .titulohome {

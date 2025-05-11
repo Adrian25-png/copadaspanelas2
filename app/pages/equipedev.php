@@ -18,81 +18,81 @@
 <body>
     <?php include 'header.php' ?>
 
-   
-	<section class="team">
-		<div class="center">
-			<h1>Nosso Time</h1>
-		</div>
+	<div class="team-wrapper"> <!-- Adicionando um wrapper para controlar melhor o espaçamento -->
+        <section class="team">
+            <div class="center">
+                <h1>Nosso Time</h1>
+            </div>
 
-		<div class="team-content">
-			<div class="box">
-				<img src="../../public/img/Dev's/thwatt.jpg">
-				<h3>Thwaverton</h3>
-				<h5>Tec. Informatica</h5>
-				<div class="icons">
-					<a href="#"><i class="ri-twitter-fill"></i></a>
-					<a href="https://github.com/"><i class="fa-brands fa-square-github"></i></i></a>
-					<a href="https://www.instagram.com/thwaverton/"><i class="ri-instagram-fill"></i></a>
+			<div class="team-content">
+				<div class="box">
+					<img src="../../public/img/Dev_s/thwatt.jpg">
+					<h3>Thwaverton</h3>
+					<h5>Tec. Informatica</h5>
+					<div class="icons">
+						<a href="#"><i class="ri-twitter-fill"></i></a>
+						<a href="https://github.com/"><i class="fa-brands fa-square-github"></i></i></a>
+						<a href="https://www.instagram.com/thwaverton/"><i class="ri-instagram-fill"></i></a>
+					</div>
+				</div>
+
+				<div class="box">
+					<img src="../../public/img/Dev_s/luizatt.jpg">
+					<h3>Luiz</h3>
+					<h5>Tec. Informatica</h5>
+					<div class="icons">
+						<a href="#"><i class="ri-twitter-fill"></i></a>
+						<a href="https://github.com/Kizzo-liso"><i class="fa-brands fa-square-github"></i></i></a>
+						<a href="https://www.instagram.com/luiz_bjl/"><i class="ri-instagram-fill"></i></a>
+					</div>
+				</div>
+
+				<div class="box">
+					<img src="../../public/img/Dev_s/Eduardo.jfif">
+					<h3>Eduardo</h3>
+					<h5>Tec. Informatica</h5>
+					<div class="icons">
+						<a href="#"><i class="ri-twitter-fill"></i></a>
+						<a href="https://github.com/Napoleoni-TheCreator"><i class="fa-brands fa-square-github"></i></a>
+						<a href="https://www.instagram.com/"><i class="ri-instagram-fill"></i></a>
+					</div>
+				</div>
+
+				<div class="box">
+					<img src="../../public/img/Dev_s/sharaia.jpg">
+					<h3>Shaiara</h3>
+					<h5>Tec. Informatica</h5>
+					<div class="icons">
+						<a href="#"><i class="ri-twitter-fill"></i></a>
+						<a href="https://github.com/"><i class="fa-brands fa-square-github"></i></i></a>
+						<a href="https://www.instagram.com/shayara_mary/"><i class="ri-instagram-fill"></i></a>
+					</div>
+				</div>
+
+				<div class="box">
+					<img src="../../public/img/Dev_s/riqqueleat.png">
+					<h3>Riquele</h3>
+					<h5>Tec. Informatica</h5>
+					<div class="icons">
+						<a href="#"><i class="ri-twitter-fill"></i></a>
+						<a href="https://github.com/"><i class="fa-brands fa-square-github"></i></i></a>
+						<a href="https://www.instagram.com/riquelecostaa/"><i class="ri-instagram-fill"></i></a>
+					</div>
+				</div>
+
+				<div class="box">
+					<img src="../../public/img/Dev_s/rafaelatt.jpg">
+					<h3>Rafael</h3>
+					<h5>Tec. Informatica</h5>
+					<div class="icons">
+						<a href="#"><i class="ri-twitter-fill"></i></a>
+						<a href="https://github.com/"><i class="fa-brands fa-square-github"></i></i></a>
+						<a href="https://www.instagram.com/offx.moreira/"><i class="ri-instagram-fill"></i></a>
+					</div>
 				</div>
 			</div>
-
-			<div class="box">
-				<img src="../../public/img/Dev's/luizatt.jpg">
-				<h3>Luiz</h3>
-				<h5>Tec. Informatica</h5>
-				<div class="icons">
-					<a href="#"><i class="ri-twitter-fill"></i></a>
-					<a href="https://github.com/Kizzo-liso"><i class="fa-brands fa-square-github"></i></i></a>
-					<a href="https://www.instagram.com/luiz_bjl/"><i class="ri-instagram-fill"></i></a>
-				</div>
-			</div>
-
-			<div class="box">
-				<img src="../../public/img/Dev's/Eduardo.jfif">
-				<h3>Eduardo</h3>
-				<h5>Tec. Informatica</h5>
-				<div class="icons">
-					<a href="#"><i class="ri-twitter-fill"></i></a>
-					<a href="https://github.com/Napoleoni-TheCreator"><i class="fa-brands fa-square-github"></i></a>
-					<a href="https://www.instagram.com/"><i class="ri-instagram-fill"></i></a>
-				</div>
-			</div>
-
-			<div class="box">
-				<img src="../../public/img/Dev's/sharaia.jpg">
-				<h3>Shaiara</h3>
-				<h5>Tec. Informatica</h5>
-				<div class="icons">
-					<a href="#"><i class="ri-twitter-fill"></i></a>
-					<a href="https://github.com/"><i class="fa-brands fa-square-github"></i></i></a>
-					<a href="https://www.instagram.com/shayara_mary/"><i class="ri-instagram-fill"></i></a>
-				</div>
-			</div>
-
-            <div class="box">
-				<img src="../../public/img/Dev's/riqqueleat.png">
-				<h3>Riquele</h3>
-				<h5>Tec. Informatica</h5>
-				<div class="icons">
-					<a href="#"><i class="ri-twitter-fill"></i></a>
-					<a href="https://github.com/"><i class="fa-brands fa-square-github"></i></i></a>
-					<a href="https://www.instagram.com/riquelecostaa/"><i class="ri-instagram-fill"></i></a>
-				</div>
-			</div>
-
-            <div class="box">
-				<img src="../../public/img/Dev's/rafaelatt.jpg">
-				<h3>Rafael</h3>
-				<h5>Tec. Informatica</h5>
-				<div class="icons">
-					<a href="#"><i class="ri-twitter-fill"></i></a>
-					<a href="https://github.com/"><i class="fa-brands fa-square-github"></i></i></a>
-					<a href="https://www.instagram.com/offx.moreira/"><i class="ri-instagram-fill"></i></a>
-				</div>
-			</div>
-		</div>
-	</section>
-
+		</section>
+	</div> <!-- Fim do wrapper -->
 
     <?php include 'footer.php' ?>
 </body>

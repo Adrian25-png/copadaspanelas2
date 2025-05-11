@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>História da Copa das Panelas</title>
-    <link rel="stylesheet" href="../../public/css/HomePage.css">
+    <link rel="stylesheet" href="../../public/css/HomePage2.css">
     <link rel="stylesheet" href="../../public/css/cssheader.css">
     <link rel="stylesheet" href="../../public/css/cssfooter.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="shortcut icon" href="../../public/imgs/ESCUDO COPA DAS PANELAS.png" type="image/x-icon">
-    <link rel="stylesheet" href="../../public/css/sobre_nosHistory.css">
+    <link rel="stylesheet" href="../../public/css/sobre_nosHistory2.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
 <body>

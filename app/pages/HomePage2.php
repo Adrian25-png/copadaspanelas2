@@ -6,9 +6,11 @@
     <link rel="stylesheet" href="../../public/css/HomePage2.css">
     <link rel="stylesheet" href="../../public/css/cssheader.css">
     <link rel="stylesheet" href="../../public/css/cssfooter.css">
+    <link rel="stylesheet" href="../../public/css/slidesHome.css">
     <!-- LINK da imagem de LOGIN e icones do YOUTUBE e INSTAGRAM do FOOTER-->
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="shortcut icon" href="../../public/imgs/ESCUDO COPA DAS PANELAS.png" type="image/x-icon">    
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <title>Copa das Panelas</title>
 </head>
 <body>
@@ -28,7 +30,7 @@
 
     <nav id="nav-menu">
         <ul>
-            <li><a href="../pages/HomePage.php">Home</a></li>
+            <li><a href="../pages/HomePage2.php">Home</a></li>
 
             <!--<li>
                 <a href="">Cadastros ▾</a>
@@ -82,10 +84,24 @@
         </div>
 
     <!-- Conteúdo -->
-        <h1 class="titulohome">CONTEÚDO</h1>
-            <div class="news-card">
-                <img src="../../public/img/IMG-20240404-WA0002.jpg" alt="Imagem Descritiva">
-            </div>
+    <h1 class="titulohome">CONTEÚDO</h1>
+    <section id="slider">
+        <input type="radio" name="slider" id="s1" checked> 
+        <input type="radio" name="slider" id="s2">
+        <input type="radio" name="slider" id="s3">
+        <input type="radio" name="slider" id="s4">
+        <input type="radio" name="slider" id="s5">
+        <label for="s1" id="slide1"></label>
+        <label for="s2" id="slide2"></label>
+        <label for="s3" id="slide3"></label>
+        <label for="s4" id="slide4"></label>
+        <label for="s5" id="slide5"></label>
+
+        <label for="s1" id="slide1">
+            <div class="texto">História da <a href="../pages/sobreNosHistory.php" class="destaque">COPA</a></div>
+        </label>
+  <!-- repete para os outros slides... -->
+    </section>
   </main>
 
     

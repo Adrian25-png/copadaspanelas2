@@ -18,11 +18,8 @@ $usuarioLogado = isset($_SESSION['admin_id']);
     <footer>
         <div class="footerContain">
             <div class="socialIcons">
-            <a href="https://www.youtube.com/@copadaspanelasifbjl4623" target="_blank class="><i class= "fa-brands fa-youtube"></i></a>
+                <a href="https://www.youtube.com/@copadaspanelasifbjl4623" target="_blank class="><i class= "fa-brands fa-youtube"></i></a>
                 <a href="https://www.instagram.com/pan_cup/" target= "_blank class="><i class= "fa-brands fa-instagram"></i></a>
-
-
-
             </div>
 
             <div class="footerNav">
@@ -38,7 +35,6 @@ $usuarioLogado = isset($_SESSION['admin_id']);
                 <p>Instituto Federal de Educação, Ciência e Tecnologia Baiano – Campus Bom Jesus da Lapa
                     BR 349, Km 14 - Zona Rural, Bom Jesus da Lapa - Bahia, CEP: 47600-000</p>
             </div>
-
 
         </div>
     </footer>
