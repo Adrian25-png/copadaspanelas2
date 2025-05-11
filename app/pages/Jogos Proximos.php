@@ -13,14 +13,14 @@ session_start();
     <script src="https://www.youtube.com/iframe_api"></script>
     <script src="../../public/js/jogosProximos.js"></script>
     <link rel="stylesheet" href="../../public/css/style_live.css">
-    <link rel="stylesheet" href="../../public/css/cssheader.css">
+    <link rel="stylesheet" href="../../public/css/header_geral.css">
     <link rel="stylesheet" href="../../public/css/cssfooter.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
 <body>
 
-    <?php include 'header.php' ?>
+    <?php include 'header_geral.php' ?>
 
     <?php
     function exibirProximosJogosFaseGrupos($numeroDeJogos = 3)

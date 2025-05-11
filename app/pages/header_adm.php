@@ -11,7 +11,7 @@ $usuarioLogado = isset($_SESSION['admin_id']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu Responsivo | GN</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="../../../public/css/header_princ.css">
+    <link rel="stylesheet" href="../../../public/css/header_adm.css">
 </head>
 <body>
     <div class="overlay" id="overlay"></div>
@@ -21,10 +21,8 @@ $usuarioLogado = isset($_SESSION['admin_id']);
                 <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
             </svg>
         </button>
-        <div class="logo_header">
-            <a href="../pages/HomePage2.php">            
-                <img src="../../../public/img/ESCUDO COPA DAS PANELAS.png" alt="Escudo da CP" class="img_logo_header">
-            </a>
+        <div class="Icon">
+            <a href="../pages/HomePage2.php"><img src="../../public/img/ESCUDO COPA DAS PANELAS.png" alt="logo"></a>
         </div>
         <div class="navegacao_header" id="navegacao_header">
             <button onclick="toggleSidebar()" class="btn_icon_header" id="btn_close">
@@ -43,7 +41,6 @@ $usuarioLogado = isset($_SESSION['admin_id']);
                 <div class="submenu">
                     <a href="rodadas_adm.php">Administrar Rodadas</a>
                     <a href="adicionar_grupo.php">Criar novo campeonato</a>
-                    <!-- <a href="salvar_historico.php">Salvar historico</a> -->
                     <a href="adicionar_times.php">Adicionar times</a>
                     <a href="editar_time.php">Editar times</a>
                     <a href="adicionar_times_de_forma_aleatoria.php">Adicionar times forma aleatória</a>
@@ -81,9 +78,6 @@ $usuarioLogado = isset($_SESSION['admin_id']);
                 <?php endif; ?>
             </div>
         </div>
-        <div class="theme-toggle">
-            <img id="theme-icon" src="../../../public/img/header/modoescuro.svg" alt="Toggle Theme">
-        </div>
     </div>
     <script>
         const header = document.getElementById('header');
@@ -110,34 +104,6 @@ $usuarioLogado = isset($_SESSION['admin_id']);
                 toggleSidebar();
             }
         });
-
-        function toggleDarkMode() {
-            var element = document.body;
-            var icon = document.getElementById('theme-icon');
-            element.classList.toggle("dark-mode");
-
-            if (element.classList.contains("dark-mode")) {
-                localStorage.setItem("theme", "dark");
-                icon.src = '../../../public/img/header/modoclaro.svg';
-            } else {
-                localStorage.setItem("theme", "light");
-                icon.src = '../../../public/img/header/modoescuro.svg';
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            var theme = localStorage.getItem("theme");
-            var icon = document.getElementById('theme-icon');
-            if (theme === "dark") {
-                document.body.classList.add("dark-mode");
-                icon.src = '../../../public/img/header/modoclaro.svg';
-            } else {
-                icon.src = '../../../public/img/header/modoescuro.svg';
-            }
-        });
-
-        document.getElementById('theme-icon').addEventListener('click', toggleDarkMode);
     </script>
 </body>
-
-
+</html>

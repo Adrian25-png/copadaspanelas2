@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../public/css/HomePage2.css">
-    <link rel="stylesheet" href="../../public/css/cssheader.css">
+    <link rel="stylesheet" href="../../public/css/header_geral.css">
     <link rel="stylesheet" href="../../public/css/cssfooter.css">
     <link rel="stylesheet" href="../../public/css/slidesHome.css">
     <!-- LINK da imagem de LOGIN e icones do YOUTUBE e INSTAGRAM do FOOTER-->
@@ -15,18 +15,18 @@
 </head>
 <body>
     <!-- Navegação -->
-    <?php include 'header.php';
+    <?php include 'header_geral.php';
         include '../config/conexao.php';
         $noticias = $conn->query("SELECT * FROM noticias ORDER BY data_adicao DESC LIMIT 4");
         $endDate = new DateTime();
         $endDate->modify('+6 days');
         $endTimestamp = $endDate->getTimestamp();
     ?>
-    <div class="menu-container">
+    <!-- <div class="menu-container">
         <button class="menu-toggle" id="menu-toggle">
             <i class="fas fa-bars"></i>
         </button>
-    </div>
+    </div> -->
 
     <nav id="nav-menu">
         <ul>

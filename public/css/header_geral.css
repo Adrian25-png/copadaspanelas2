@@ -1,0 +1,153 @@
+/* HEADER PRINCIPAL */
+header {
+    width: 100%;
+    height: 80px;
+    background: linear-gradient(90deg, rgb(92, 0, 197), rgb(0, 0, 0));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Ícone da Copa Centralizado */
+#Icon {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#Icon img {
+    height: 100px;
+    width: auto;
+}
+
+/* Botão de Login à Direita */
+.cadastro {
+    position: absolute;
+    right: 2em;
+}
+
+.cadastro a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1em;
+    padding: 10px 15px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: background 0.3s;
+}
+
+.cadastro a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* NAV MENU abaixo do header */
+#nav-menu {
+    background: linear-gradient(90deg, rgb(92, 0, 197), rgb(0, 0, 0));
+    height: 60px;
+    width: 100%;
+    margin-top: 80px; /* espaço para não cobrir o header fixo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 999;
+}
+
+#nav-menu ul {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+    list-style: none;
+}
+
+#nav-menu a {
+    color: var(--cor-branca, white);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.1em;
+    padding: 10px;
+    display: block;
+    transition: 0.3s;
+}
+
+#nav-menu a:hover {
+    color: rgb(189, 189, 255);
+}
+
+#nav-menu li {
+    position: relative;
+}
+
+#nav-menu .dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: rgb(30, 0, 80);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 10;
+    flex-direction: column;
+    min-width: 200px;
+}
+
+#nav-menu li:hover .dropdown {
+    display: flex;
+}
+
+#nav-menu .dropdown a {
+    color: white;
+    padding: 10px;
+}
+
+#nav-menu .dropdown a:hover {
+    background-color: rgb(189, 189, 255);
+    color: black;
+}
+
+/* Responsividade */
+@media screen and (max-width: 768px) {
+    header {
+        justify-content: space-between;
+        padding: 0 1em;
+    }
+
+    #Icon {
+        position: static;
+        transform: none;
+    }
+
+    .cadastro {
+        position: static;
+    }
+
+    #nav-menu {
+        flex-direction: column;
+        align-items: flex-start;
+        height: 100vh;
+        width: 70vw;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        padding: 1em;
+    }
+
+    #nav-menu.active {
+        transform: translateX(0);
+    }
+
+    #nav-menu ul {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    #nav-menu .dropdown {
+        position: static;
+    }
+}

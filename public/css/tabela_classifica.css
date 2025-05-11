@@ -1,31 +1,50 @@
-
+/* Reset básico */
 * {
     padding: 0;
+    margin: 0;
     box-sizing: border-box;
+    font-family: 'Space Grotesk', sans-serif;
+    text-decoration: none;
 }
+
+/* Corpo da página */
+body {
+    background: radial-gradient(#281c3e, #0f051d);
+    color: #E0E0E0;
+    line-height: 1.6;
+    padding-top: 5rem;
+}
+
+/* Título */
+h1 {
+    margin-top: 80px;
+    color: white;
+    font-size: 40px;
+}
+
+/* Área principal */
 .main {
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
     flex-direction: column;
-
 }
 
 #tabela-wrapper {
-    /* background-color: rgba(255, 255, 255, 0); */
-    background-color: white;
+    background-color: #1E1E1E;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(106, 0, 255);
-    width: auto;
+    box-shadow: 0 0 10px rgba(123, 31, 162, 0.6);
     margin-top: 1%;
     margin-bottom: 10%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 }
 
+/* Grupos */
 .grupo-container {
     width: 100%;
     margin-bottom: 20px;
@@ -36,8 +55,10 @@
     margin-bottom: 10px;
     margin-left: 30px;
     text-align: left;
+    color: #E1BEE7;
 }
 
+/* Tabela */
 .tabela-flex {
     display: flex;
     flex-direction: column;
@@ -47,15 +68,15 @@
 .tabela-flex-header, .tabela-flex-row {
     display: flex;
     width: 100%;
-    border-bottom: 1px solid #dddddd59;
+    border-bottom: 1px solid #444;
 }
 
 .tabela-flex-row:hover {
-    background-color: #dddddd54;
+    background-color: #2c2c2c;
 }
 
 .tabela-flex-header {
-    background-color: #f2f2f283;
+    background-color: #252525;
 }
 
 .tabela-flex-header > div, .tabela-flex-row > div {
@@ -68,6 +89,16 @@
     border-right: none;
 }
 
+/* Colunas */
+.small-col, .larger-col {
+    min-width: 70px;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+/* Logo */
 .logo-time {
     max-width: 50px;
     max-height: 50px;
@@ -77,137 +108,12 @@
     margin-left: 10px;
 }
 
-/* Estilo das colunas pequenas e grandes */
-.small-col {
-    min-width: 70px;
-    text-align: center;
-    align-items: center;
-    display: flex;
-    justify-content: center;
-}
-
-.larger-col {
-    min-width: 70px;
-    text-align: center;
-    align-items: center;
-    display: flex;
-    justify-content: center;
-}
-
-/* Estilo dos resultados */
-.resultado-vitoria {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background-color: green;
-    border-radius: 50%;
-    margin-right: 2px;
-}
-
-.resultado-derrota {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background-color: rgb(15, 3, 3);
-    border-radius: 50%;
-    margin-right: 2px;
-}
-
-.resultado-empate {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background-color: gray;
-    border-radius: 50%;
-    margin-right: 2px;
-}
-
-.resultado-indefinido {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background-color: lightgray;
-    border-radius: 50%;
-    margin-right: 2px;
-}
-
-/* Estilo da legenda de símbolos */
-#legenda-simbolos {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    width: 100%;
-    max-width: 300px;
-    text-align: left;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
-
-.simbolo {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin: 0 5px;
-}
-
-.descricao {
-    display: inline-block;
-    margin-left: 5px;
-}
-
-/* Estilos do modo escuro */
-body.dark-mode {
-    background-color: #121212;
-    color: #e0e0e0;
-}
-
-body.dark-mode #tabela-wrapper {
-    background-color: #1e1e1e;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode .tabela-flex-header {
-    background-color: #333333;
-}
-
-body.dark-mode .tabela-flex-row {
-    background-color: #333333;
-    color: #e0e0e0;
-}
-
-body.dark-mode #legenda-simbolos {
-    background-color: #2c2c2c;
-    border: 1px solid #444;
-}
-
-/* Estilo do botão de modo escuro */
-.dark-mode-button {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background-color: #007bff;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.dark-mode-button:hover {
-    background-color: #0056b3;
-}
-
-/* Estilo das informações do time */
+/* Time */
 .time-info {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    min-width: 270px; /* Largura mínima */
+    min-width: 270px;
     min-height: 80px;
     max-width: 270px;
     max-height: 80px;
@@ -224,82 +130,92 @@ body.dark-mode #legenda-simbolos {
 .posicao_num {
     margin-right: 10px;
     font-size: 1.2em;
+    color: #E0E0E0;
 }
 
 .time-name {
     display: flex;
     align-items: center;
-    flex: 1; 
-    overflow: hidden; 
-    text-overflow: ellipsis; /* Adiciona '...' ao final do texto que excede o limite */
-    white-space: nowrap; /* Evita que o texto quebre em várias linhas */
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.inf {
-    display: inline-block; 
-    width: 10px; 
-    height: 10px; 
-    background-color: green; 
-    border-radius: 50%; 
+/* Bolinhas dos últimos jogos */
+.resultado-vitoria {
+    background-color: green;
+}
+.resultado-derrota {
+    background-color: rgb(148, 0, 0);
+}
+.resultado-empate {
+    background-color: gray;
+}
+.resultado-indefinido {
+    background-color: lightgray;
+}
+
+.resultado-vitoria,
+.resultado-derrota,
+.resultado-empate,
+.resultado-indefinido,
+.inf, .inf2, .inf3, .inf4 {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
     margin-right: 2px;
 }
 
-/* 2 = red , 3 = gray, 4 = lightgray */
-.inf2 {
-    display: inline-block; 
-    width: 10px; 
-    height: 10px; 
-    background-color: rgb(14, 0, 41); 
-    border-radius: 50%; 
-    margin-right: 2px;
+/* Legenda */
+#legenda-simbolos {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+    text-align: left;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
 }
 
-.inf3 {
-    display: inline-block; 
-    width: 10px; 
-    height: 10px; 
-    background-color: gray; 
-    border-radius: 50%; 
-    margin-right: 2px;
+.simbolo {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 5px;
 }
 
-.inf4 {
-    display: inline-block; 
-    width: 10px; 
-    height: 10px; 
-    background-color: lightgray; 
-    border-radius: 50%; 
-    margin-right: 2px;
+.descricao {
+    display: inline-block;
+    margin-left: 5px;
 }
 
+/* Efeitos visuais */
 .fade-in {
     opacity: 0;
     transition: opacity 1s ease-in-out;
 }
-
 .fade-in.visible {
     opacity: 1;
 }
 
-#carregamento {
-    display: block;
-    text-align: center;
-    padding: 20px;
-}
-h1{
-    margin-top: 80px;
-}
-
+/* Responsivo */
 @media (min-width: 350px) and (max-width: 1000px) {
-    h1{
+    h1 {
         font-size: 16px;
-        margin: none;
     }
+
     .larger-col {
         min-width: 50px;
         max-width: 50px;
         font-size: 8px;
     }
+
     .inf, .inf2, .inf3, .inf4 {
         width: 5px;
         height: 5px;
@@ -311,27 +227,22 @@ h1{
 
     #tabela-wrapper {
         width: 100%;
-        background-color: none;
-        border: none;
+        background-color: transparent;
         box-shadow: none;
-        padding: none;
     }
 
     #legenda-simbolos {
         width: 70%;
-        max-height: 30%;
         background-color: rgba(245, 222, 179, 0.116);
     }
 
     .descricao {
         font-size: 9px;
-        margin: none;
     }
 
     .simbolo {
         width: 9px;
         height: 9px;
-        margin: none;
     }
 
     .tabela-flex-header > div, .tabela-flex-row > div {
@@ -341,14 +252,9 @@ h1{
     }
 
     .time-info {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        min-width: 80px; /* Largura mínima */
-        min-height: 8px;
+        min-width: 80px;
         max-width: 200px;
         max-height: 20px;
-        overflow: hidden;
     }
 
     .tabela-flex-header {
@@ -361,38 +267,30 @@ h1{
         min-width: 20px;
         max-width: 20px;
         max-height: 20px;
-        min-height: 20px;
     }
 
     .posicao_num {
         font-size: 10px;
         margin-left: 4px;
-        margin-right: 0px;
     }
 
     .time-name {
         font-size: 7px;
         min-width: 100px;
-        height: 70px;
         max-width: 100px;
     }
 
     h4 {
         font-size: 7px;
     }
-}
 
-/* teste */
-@media (min-width: 350px) and (max-width: 1000px){
     .small-col {
         min-width: 0%;
         max-width: 100px;
-        text-align: center;
         font-size: 8px;
     }
-    .clube {
-        min-width: 80px; 
-        max-width: auto;
-    }
 
+    .clube {
+        min-width: 80px;
+    }
 }

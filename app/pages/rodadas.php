@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="../../public/css/cssfooter.css">
 </head>
 <body>
-<?php include 'header_class.php'; ?>
+<?php include 'header_adm.php'; ?>
 
 
 <h1 id="dynamic-text">FASES DE GRUPO</h1>

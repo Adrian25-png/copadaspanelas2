@@ -9,14 +9,14 @@ $noticias = $conn->query("SELECT * FROM noticias ORDER BY data_adicao DESC");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../public/css/publi.css">
-    <link rel="stylesheet" href="../../public/css/cssheader.css">
+    <link rel="stylesheet" href="../../public/css/header_geral.css">
     <link rel="stylesheet" href="../../public/css/cssfooter.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="shortcut icon" href="../../public/imgs/ESCUDO COPA DAS PANELAS.png" type="image/x-icon">    
     <title>Todas as Notícias</title>
 </head>
 <body>
-    <?php include '../pages/header.php'?>
+    <?php include '../pages/header_geral.php'?>
     <h1>Todas as Notícias</h1>
     <div class="news-container">
         <?php while($row = $noticias->fetch_assoc()): ?>
