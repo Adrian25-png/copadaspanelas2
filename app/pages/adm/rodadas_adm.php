@@ -1,6 +1,6 @@
 <?php
 // Verificar se o usuário está autenticado
-SESSION_START();
+session_start();
 
 // Verifica se o usuário está autenticado e se é um administrador
 if (!isset($_SESSION['admin_id'])) {
@@ -12,19 +12,31 @@ if (!isset($_SESSION['admin_id'])) {
 
 include("../../actions/cadastro_adm/session_check.php");
 
+
+include_once '../../config/conexao.php';
+
+$pdo = conectar(); // <- armazena o retorno da função em $pdo (escopo global)
+
 $isAdmin = isset($_SESSION['user_logged_in']) && $_SESSION['user_logged_in'] && isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 ?>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Rodadas das Fases de Grupo</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="../../../public/css/adm/rodadas_adm.css">
-    <link rel="stylesheet" href="../../../public/css/cssfooter.css">
-</head>
 
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rodadas</title>
+
+    <link rel="stylesheet" href="../../public/css/adm/rodadas_adm.css">
+    <link rel="stylesheet" href="../../public/css/cssfooter.css">
+    <link rel="stylesheet" href="/public/css/header_adm.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
 <body>
-<?php require_once 'header_adm.php' ?>
+
+<?php include 'header_adm.php'; ?>
 
 <h1 id="dynamic-text">FASES DE GRUPO</h1>
 <script>
@@ -85,50 +97,60 @@ $isAdmin = isset($_SESSION['user_logged_in']) && $_SESSION['user_logged_in'] && 
 </div>
 <?php
 function exibirRodadas() {
-    include '../../config/conexao.php';
+    global $pdo; // para usar a conexão já criada
 
+    if (!isset($pdo) || !$pdo) {
+        echo '<p class="error">Erro de conexão com o banco de dados.</p>';
+        return;
+    }
+    // Busca todas as rodadas distintas
     $sqlRodadas = "SELECT DISTINCT rodada FROM jogos_fase_grupos ORDER BY rodada";
-    $resultRodadas = $conn->query($sqlRodadas);
+    $stmtRodadas = $pdo->prepare($sqlRodadas);
+    $stmtRodadas->execute();
+    $rodadas = $stmtRodadas->fetchAll(PDO::FETCH_COLUMN);
 
-    $rodadas = [];
-    if ($resultRodadas->num_rows > 0) {
-        while ($rowRodada = $resultRodadas->fetch_assoc()) {
-            $rodada = $rowRodada['rodada'];
-            $rodadas[] = $rodada;
-        }
+    // Corrigido: verificação correta se existem rodadas
+    if (!$rodadas) {
+        echo '<p>Nenhuma rodada encontrada.</p>';
+        return;
     }
 
     foreach ($rodadas as $rodada) {
         echo '<div class="rodada-container">';
         echo '<div class="rodada-header">';
-        echo '<h2 class="rodada-header_h1">' . $rodada . 'ª RODADA</h2>';
+        echo '<h2 class="rodada-header_h1">' . htmlspecialchars($rodada) . 'ª RODADA</h2>';
         echo '</div>';
         echo '<table>';
 
+        // Buscar todos os grupos
         $sqlGrupos = "SELECT DISTINCT grupo_id, nome AS grupo_nome FROM jogos_fase_grupos 
                       JOIN grupos ON jogos_fase_grupos.grupo_id = grupos.id ORDER BY grupo_id";
-        $resultGrupos = $conn->query($sqlGrupos);
+        $stmtGrupos = $pdo->prepare($sqlGrupos);
+        $stmtGrupos->execute();
+        $grupos = $stmtGrupos->fetchAll(PDO::FETCH_ASSOC);
 
-        while ($rowGrupo = $resultGrupos->fetch_assoc()) {
+        foreach ($grupos as $rowGrupo) {
             $grupoId = $rowGrupo['grupo_id'];
             $grupoNome = substr($rowGrupo['grupo_nome'], -1);
 
+            // Buscar confrontos para o grupo e rodada atual
             $sqlConfrontos = "SELECT jfg.id, tA.nome AS nome_timeA, tB.nome AS nome_timeB, 
                                      tA.logo AS logo_timeA, tB.logo AS logo_timeB, 
                                      jfg.gols_marcados_timeA, jfg.gols_marcados_timeB
                               FROM jogos_fase_grupos jfg
                               JOIN times tA ON jfg.timeA_id = tA.id
                               JOIN times tB ON jfg.timeB_id = tB.id
-                              WHERE jfg.grupo_id = $grupoId AND jfg.rodada = $rodada";
+                              WHERE jfg.grupo_id = :grupoId AND jfg.rodada = :rodada";
+            $stmtConfrontos = $pdo->prepare($sqlConfrontos);
+            $stmtConfrontos->execute(['grupoId' => $grupoId, 'rodada' => $rodada]);
+            $confrontos = $stmtConfrontos->fetchAll(PDO::FETCH_ASSOC);
 
-            $resultConfrontos = $conn->query($sqlConfrontos);
-
-            if ($resultConfrontos->num_rows > 0) {
+            if ($confrontos) {
                 echo '<form method="POST" action="../../actions/funcoes/atualizar_gols.php" class="admin-only">';
-                while ($rowConfronto = $resultConfrontos->fetch_assoc()) {
+                foreach ($confrontos as $rowConfronto) {
                     $jogoId = $rowConfronto['id'];
-                    $timeA_nome = $rowConfronto['nome_timeA'];
-                    $timeB_nome = $rowConfronto['nome_timeB'];
+                    $timeA_nome = htmlspecialchars($rowConfronto['nome_timeA']);
+                    $timeB_nome = htmlspecialchars($rowConfronto['nome_timeB']);
                     $logoA = !empty($rowConfronto['logo_timeA']) ? 'data:image/jpeg;base64,' . base64_encode($rowConfronto['logo_timeA']) : '';
                     $logoB = !empty($rowConfronto['logo_timeB']) ? 'data:image/jpeg;base64,' . base64_encode($rowConfronto['logo_timeB']) : '';
                     $golsA = $rowConfronto['gols_marcados_timeA'];
@@ -145,16 +167,15 @@ function exibirRodadas() {
                         $resultadoB = 'E';
                     }
                     echo '<tr class="time_teste">';
-
                     echo '<td class="time-row">';
                     if ($logoA) {
                         echo '<img src="' . $logoA . '" class="logo-time">';
                     }
                     echo '<span class="time-name">' . $timeA_nome . '</span>';
                     echo '</td>';
-                    echo '<td> <input type="number" id="input" min="0" step="1" name="golsA_' . $jogoId . '" value="' . $golsA . '"> </td>';
+                    echo '<td> <input type="number" id="input" min="0" step="1" name="golsA_' . $jogoId . '" value="' . intval($golsA) . '"> </td>';
                     echo '<td> X </td>';
-                    echo '<td> <input type="number" id="input" min="0" step="1" name="golsB_' . $jogoId . '" value="' . $golsB . '"> </td>';
+                    echo '<td> <input type="number" id="input" min="0" step="1" name="golsB_' . $jogoId . '" value="' . intval($golsB) . '"> </td>';
                     echo '<td class="time-row">';
                     echo '<span class="time-name_b">' . $timeB_nome . '</span>';
                     if ($logoB) {
@@ -170,7 +191,7 @@ function exibirRodadas() {
                 echo '</form>';
             } else {
                 echo '<tr>';
-                echo '<td colspan="7">Nenhum confronto encontrado para o grupo ' . $grupoNome . ' na ' . $rodada . 'ª rodada.</td>';
+                echo '<td colspan="7">Nenhum confronto encontrado para o grupo ' . htmlspecialchars($grupoNome) . ' na ' . htmlspecialchars($rodada) . 'ª rodada.</td>';
                 echo '</tr>';
             }
         }
@@ -179,7 +200,7 @@ function exibirRodadas() {
         echo '</div>';
     }
 
-    $conn->close();
+    // Removido: $pdo = null;
 }
 ?>
 <!-- Modal de Confirmação -->
@@ -191,68 +212,8 @@ function exibirRodadas() {
         <button id="cancel-btn">Não</button>
     </div>
 </div>
-<script>
-    // Controle das Rodadas
-    var currentRodadaIndex = 0;
-    var rodadaContainers = document.getElementsByClassName('rodada-container');
-
-    function showRodada(index) {
-        for (var i = 0; i < rodadaContainers.length; i++) {
-            rodadaContainers[i].style.display = i === index ? 'block' : 'none';
-        }
-    }
-
-    function previousRodada() {
-        if (currentRodadaIndex > 0) {
-            currentRodadaIndex--;
-            showRodada(currentRodadaIndex);
-        }
-    }
-
-    function nextRodada() {
-        if (currentRodadaIndex < rodadaContainers.length - 1) {
-            currentRodadaIndex++;
-            showRodada(currentRodadaIndex);
-        }
-    }
-
-    showRodada(currentRodadaIndex);
-
-    // Modal functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        var modal = document.getElementById('confirm-modal');
-        var confirmLink = document.getElementById('confirm-link');
-        var closeBtn = document.getElementById('close-btn');
-        var confirmBtn = document.getElementById('confirm-btn');
-        var cancelBtn = document.getElementById('cancel-btn');
-
-        // Mostrar o modal quando o link for clicado
-        confirmLink.addEventListener('click', function(event) {
-            event.preventDefault(); // Previne o comportamento padrão do link
-            modal.style.display = 'block';
-        });
-
-        // Fechar o modal
-        closeBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
-        });
-
-        cancelBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
-        });
-
-        confirmBtn.addEventListener('click', function() {
-            window.location.href = confirmLink.href; // Redirecionar para o URL do link
-        });
-
-        // Fechar o modal se o usuário clicar fora dele
-        window.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-    });
 </script>
+
 <?php include '../footer.php' ?>
 </body>
 </html>

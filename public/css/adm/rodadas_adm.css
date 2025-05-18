@@ -15,351 +15,326 @@ body {
     padding-top: 5rem;
 }
 
-/* Área principal */
-.main {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    flex-direction: column;
-}
-
-h1 {
-    font-size: 30px;
-    margin-top: 5%;
-    margin-bottom: 10px;
+/* Título */
+h1#dynamic-text {
+    margin-top: 80px;
+    color: white;
+    font-size: 40px;
     text-align: center;
 }
 
-@keyframes blink-caret {
-    from, to { border-color: transparent; }
-    50% { border-color: orange; }
-}
-
-.rodada_container1{
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-self: center;
-    flex-direction: column;
-}
-.hidden {
-    opacity: 0;
-    transition: opacity 0.05s ease-out; 
-}
-
-.reveal {
-    opacity: 1;
-}
-
+/* Container principal das rodadas */
 #rodadas-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 1%;
-    margin-bottom: 10%;
     background-color: #1E1E1E;
     padding: 20px;
     border-radius: 10px;
-    border: 1px solid #7b1fa299;
-    box-shadow: 0 4px 8px #7b1fa299;
-    min-width: 50%;
-    max-width: 90%;
-    transition: background-color 0.3s, box-shadow 0.3s;
-    position: relative;
-}
-
-tr {
-    display: flex;
-    align-items: center;
-    text-align: center;
-}
-
-.time_teste {
-    display: flex;
-    justify-content: space-between;
-    border: 1px solid black;
-    margin-top: 5px;
-    border-radius: 5px;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    /* scale: 0.1; */
-    margin-bottom: 4%;
-}
-.time_teste img {
-    width: 70px;
-    height: 70px;
-}
-.tr_teste {
+    box-shadow: 0 0 10px rgba(123, 31, 162, 0.6);
+    margin-top: 1%;
+    margin-bottom: 10%;
     display: flex;
     justify-content: center;
-}
-.table-container {
-    display: flex;
-    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    max-width: 90%;
     overflow-x: auto;
-    min-width: 100%;
 }
+
+/* Container individual da rodada */
 .rodada-container {
     width: 100%;
     margin-bottom: 20px;
-    margin-top: 2%;
     margin-left: 10px;
     margin-right: 10px;
-    transition: 0.5s ease;
 }
+
+/* Header da rodada */
+.rodada-header {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    color: #E1BEE7;
+    text-align: center;
+}
+
+/* Tabela de confrontos */
 table {
     width: 100%;
     border-collapse: collapse;
 }
-th, td {
-    padding: 8px;
-    text-align: center;
-    transition: background-color 0.3s, color 0.3s;
-}
-th {
-    background-color: #f2f2f2;
-}
-.rodada-header {
+
+/* Linha da tabela - flex para responsividade */
+tr {
     display: flex;
-    font-size: 1.2em;
-    margin-bottom: 10px;
-    text-align: center;
-    margin: none;
-    padding: none;
-    justify-content: center;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #444;
+    padding: 10px 0;
 }
-.rodada-header_h1{
-    border: #007bff 1px solid;
-    width: 200px;
-    padding: none;
-    margin: none;
+
+/* Linha dos jogos */
+.time_teste {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #000;
+    margin-top: 5px;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 4%;
+    background-color: #252525;
 }
+
+/* Logo do time */
 .logo-time {
-    width: 20px;
-    height: 20px;
-    vertical-align: middle;
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
 }
+
+/* Coluna do time com nome e logo */
 .time-row {
     display: flex;
     align-items: center;
 }
+
+/* Nome do time lado esquerdo */
 .time-name {
     font-size: 20px;
-    display: flex;
-    text-align: left; 
-    margin-left: 8px;
-    min-width: 200px;
-    max-width: 200px;
-}
-.time-name_b {
-    font-size: 20px;
-    display: flex;
-    direction: rtl; 
-    text-align: right; 
-    margin-right: 8px;
-    min-width: 200px;
-    max-width: 200px;
+    margin-left: 10px;
+    min-width: 180px;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-#input {
-    width: 20px;
-    background-color: #BABBBF;
+/* Nome do time lado direito */
+.time-name_b {
+    font-size: 20px;
+    margin-right: 10px;
+    min-width: 180px;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+    direction: rtl;
 }
+
+/* Inputs de gols */
 input[type=number] {
+    width: 40px;
+    background-color: #BABBBF;
+    border: none;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
     -webkit-appearance: none;
     -moz-appearance: textfield !important;
     appearance: none;
 }
-/* Remove as setas em navegadores baseados em WebKit (Chrome, Safari) */
+
+/* Remove as setas do input number (Chrome, Safari) */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
+
+/* Botão salvar */
 .btn-save {
-    padding: 5px 10px;
+    padding: 8px 16px;
     background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-size: 16px;
+    width: 100%;
 }
+
 .btn-save:hover {
     background-color: #45a049;
 }
-.no-break {
-    display: flex;
-    white-space: nowrap;
-    font-size: 20px;
-    justify-content: center;
-    align-items: center;
-}
+
+/* Botão link de redirecionamento */
 .btn-redirect {
     text-decoration: none;
     color: white;
     background-color: #b82020;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: 5px;
-    margin-bottom: 5%;
+    margin-top: 20px;
+    display: inline-block;
+    font-weight: 600;
 }
 
-/* Estilo do modal */
+/* Modal de confirmação */
 .modal {
-    display: none; 
-    position: fixed; 
-    z-index: 1; 
+    display: none;
+    position: fixed;
+    z-index: 10;
     left: 0;
     top: 0;
-    width: 100%; 
-    height: 100%; 
-    overflow: auto; 
-    background-color: rgba(0, 0, 0, 0.4); 
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: 10% auto; 
+    margin: 10% auto;
     padding: 20px;
+    border-radius: 5px;
     border: 1px solid #888;
     width: 50%;
-    max-width: 600px; 
-    border-radius: 5px; 
+    max-width: 600px;
 }
 
-/* Estilo do botão de fechar */
+/* Botões do modal */
 .close-btn {
     color: #aaa;
     float: right;
     font-size: 28px;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .close-btn:hover,
 .close-btn:focus {
     color: black;
     text-decoration: none;
-    cursor: pointer;
 }
 
 button#confirm-btn {
     background-color: #28a745;
     color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
 }
 
 button#cancel-btn {
     background-color: #dc3545;
     color: white;
-}
-
-/* Efeitos visuais */
-.fade-in {
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-}
-.fade-in.visible {
-    opacity: 1;
-}
-
-@media (max-width: 770px) { 
-.time_teste{
-    width: auto;
-    padding: none;
-}
-
-.modal-content {
-width: 90%; 
-max-width: 400px; 
-}
-
-.btn-redirect {
-padding: 8px 16px;
-font-size: 0.9rem; 
-margin-bottom: 5%;
-}
-
-.rodada-container {
-width: 80%;
-/* margin: 1% auto; */
-padding: 10px;
-}
-}
-
-@media (max-width: 576px) { 
-body {
-font-size: 8px; 
-}
-.no-break{
-font-size: 12px;
-}
-.modal-content {
-width: 95%;
-margin-top: 100%;
-max-width: 200px; 
-}
-
-.time-name{
-font-size: 10px;
-}
-.time_teste{
-padding: 2px;
-margin: none;
-}
-td{
-padding: 4px;
-}
-.btn-redirect {
-padding: 6px 12px;
-font-size: 0.8rem; 
-margin-bottom: 5%;
-}
-#rodadas-wrapper{
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 61%;
+    padding: 10px 20px;
     border: none;
-    box-shadow: none;
-    padding: 0;
-}
-.rodada-container {
-width: auto;
-margin-left: 10px;
-padding: 8px;
-}
-h1{
-font-size: 12px;
-margin-top: 10%;
-margin-bottom:10%;
-}
-.time-name {
-    min-width: 50px;
-    font-size: 10px;
-    max-width: 100px;
-}
-.time-name_b {
-    font-size: 10px;
-    min-width: 50px;
-    max-width: 100px;
-}
-}
-.nav-arrow {
-    font-size: 45px;
+    border-radius: 5px;
     cursor: pointer;
-    padding: 7px;
-    user-select: none;
+}
+
+/* Efeitos para animação */
+.hidden {
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+
+.reveal {
+    opacity: 1;
+    transition: opacity 0.3s ease-in;
+}
+
+/* Navegação com setas */
+.nav-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 10; 
+    cursor: pointer;
+    z-index: 15;
+    padding: 8px;
 }
+
 .nav-arrow.left {
-    left: -5px; 
+    left: -10px;
 }
 
 .nav-arrow.right {
-    right: -5px; 
+    right: -10px;
 }
+
 .nav-arrow img {
     width: 30px;
+    height: 30px;
 }
+
+/* Responsividade */
+@media (max-width: 770px) {
+    h1#dynamic-text {
+        font-size: 30px;
+        margin-top: 50px;
+    }
+
+    #rodadas-wrapper {
+        flex-direction: column;
+        padding: 15px;
+        box-shadow: none;
+        margin-bottom: 20%;
+        max-width: 100%;
+    }
+
+    .rodada-container {
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .time_teste {
+        flex-direction: column;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+
+    .time-name, .time-name_b {
+        font-size: 16px;
+        min-width: auto;
+        max-width: 100%;
+        margin: 5px 0;
+    }
+
+    input[type=number] {
+        width: 50px;
+    }
+
+    .btn-redirect {
+        padding: 10px 20px;
+        font-size: 1rem;
+        margin-top: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    body {
+        font-size: 14px;
+    }
+
+    h1#dynamic-text {
+        font-size: 24px;
+        margin-top: 40px;
+    }
+
+    .time-name, .time-name_b {
+        font-size: 14px;
+    }
+
+    input[type=number] {
+        width: 40px;
+        font-size: 14px;
+    }
+
+    .btn-save {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    .modal-content {
+        width: 90%;
+        margin-top: 30%;
+    }
+}
+

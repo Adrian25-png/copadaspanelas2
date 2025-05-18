@@ -49,10 +49,19 @@
     margin-bottom: 10px;
   }
   
+  .news-card h2 a {
+    color: #E1BEE7;
+    text-decoration: none; /* opcional, remove o sublinhado */
+  }
+  
+  .news-card h2 a:hover {
+    text-decoration: underline; /* opcional, adiciona efeito ao passar o mouse */
+  }
+
+
   .news-card p {
     color: #BDBDBD;
   }
-  
 
   /* Rodapé */
   footer {

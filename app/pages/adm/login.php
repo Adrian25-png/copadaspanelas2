@@ -1,12 +1,13 @@
 <?php
 session_start();
-include("../../config/conexao.php");
+require_once("../../config/conexao.php"); // Usa require_once para garantir que carrega uma vez
 
 // Verificar se o usuário já está logado
 if (isset($_SESSION['admin_id'])) {
     header("Location: rodadas_adm.php");
     exit();
 }
+
 // Gerar um token CSRF
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -15,20 +16,20 @@ if (empty($_SESSION['csrf_token'])) {
 $mensagem_erro = '';
 
 // Função para processar o login
-function processarLogin($conn, $cod_adm, $senha) {
+function processarLogin($cod_adm, $senha) {
     global $mensagem_erro;
-    
-    $stmt = $conn->prepare("SELECT * FROM admin WHERE cod_adm = ?");
+
+    $pdo = conectar(); // Chama a função conectar()
+
+    $stmt = $pdo->prepare("SELECT * FROM admin WHERE cod_adm = ?");
     
     if ($stmt) {
-        $stmt->bind_param("s", $cod_adm);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $stmt->execute([$cod_adm]);
+        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($result->num_rows == 1) {
-            $admin = $result->fetch_assoc();
-
+        if ($admin) {
             if (password_verify($senha, $admin['senha'])) {
+                // Autenticado com sucesso
                 $_SESSION['admin_id'] = $admin['cod_adm'];
                 $_SESSION['admin_nome'] = $admin['nome'];
 
@@ -43,10 +44,8 @@ function processarLogin($conn, $cod_adm, $senha) {
         } else {
             $mensagem_erro = "Administrador não encontrado.";
         }
-
-        $stmt->close();
     } else {
-        $mensagem_erro = "Erro na preparação da declaração: " . $conn->error;
+        $mensagem_erro = "Erro na preparação da declaração.";
     }
 }
 
@@ -55,14 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die('<p style="color: red;">Token CSRF inválido.</p>');
     }
-    
+
     $cod_adm = $_POST['cod_adm'];
     $senha = $_POST['senha'];
 
-    processarLogin($conn, $cod_adm, $senha);
+    processarLogin($cod_adm, $senha);
 }
-
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -72,9 +69,6 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="../../../public/css/cadastro_adm/login.css?v=1.0.1">
-    
-
-    
 </head>
 <body>
     <div class="form-container">

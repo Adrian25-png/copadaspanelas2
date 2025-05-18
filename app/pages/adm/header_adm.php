@@ -1,5 +1,5 @@
 <?php
-#session_start(); // Inicie a sessão para verificar a autenticação
+// Verifica se o usuário está logado
 $usuarioLogado = isset($_SESSION['admin_id']);
 ?>
 
@@ -11,7 +11,7 @@ $usuarioLogado = isset($_SESSION['admin_id']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu Responsivo | GN</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="../../../public/css/header_princ.css">
+    <link rel="stylesheet" href="../../../public/css/header_adm.css">
 </head>
 <body>
     <div class="overlay" id="overlay"></div>
@@ -22,7 +22,7 @@ $usuarioLogado = isset($_SESSION['admin_id']);
             </svg>
         </button>
         <div class="logo_header">
-            <a href="../HomePage.php">            
+            <a href="../HomePage2.php">            
                 <img src="../../../public/img/ESCUDO COPA DAS PANELAS.png" alt="Escudo da CP" class="img_logo_header">
             </a>
         </div>
@@ -32,62 +32,59 @@ $usuarioLogado = isset($_SESSION['admin_id']);
                     <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
                 </svg>
             </button>
+
             <div id="ativo" class="has-submenu">
-                <a href="../HomePage.php" id="ativo">Home</a>
+                <a href="../HomePage2.php" id="ativo">Home</a>
             </div>
+
             <div class="has-submenu">
-                <div id="ativo" >
-                    <a href="../rodadas.php">Rodadas</a>
-                </div>
+                <div id="ativo"><a href="../rodadas.php">Rodadas</a></div>
                 <?php if ($usuarioLogado): ?>
                 <div class="submenu">
                     <a href="rodadas_adm.php">Administrar Rodadas</a>
                     <a href="adicionar_grupo.php">Criar novo campeonato</a>
-                    <!-- <a href="salvar_historico.php">Salvar historico</a> -->
                     <a href="adicionar_times.php">Adicionar times</a>
                     <a href="editar_time.php">Editar times</a>
                     <a href="adicionar_times_de_forma_aleatoria.php">Adicionar times forma aleatória</a>
                 </div>
                 <?php endif; ?>
             </div>
+
             <div class="has-submenu">
-                <div id="ativo" >
-                    <a href="../tabela_de_classificacao.php">Classificação</a>
-                </div>
+                <div id="ativo"><a href="../tabela_de_classificacao.php">Classificação</a></div>
                 <?php if ($usuarioLogado): ?>
                 <div class="submenu">
                     <a href="../classificar.php">Classificados</a>
                 </div>
                 <?php endif; ?>
             </div>
+
             <div class="has-submenu">
-                <div id="ativo" >
-                    <a href="../exibir_finais.php">Finais</a>
-                </div>
+                <div id="ativo"><a href="../exibir_finais.php">Finais</a></div>
                 <?php if ($usuarioLogado): ?>
                 <div class="submenu">
-                    <a href="../adm/adicionar_dados_finais.php">Administrar finais</a>
+                    <a href="adicionar_dados_finais.php">Administrar finais</a>
                 </div>
                 <?php endif; ?>
             </div>
+
             <div class="has-submenu">
-                <div id="ativo" >
-                     <a href="../estatistica.php">Estatísticas</a>
-                </div>
+                <div id="ativo"><a href="../estatistica.php">Estatísticas</a></div>
                 <?php if ($usuarioLogado): ?>
                 <div class="submenu">
-                    <a href="../adm/crud_jogador.php">Administrar jogadores</a>
+                    <a href="crud_jogador.php">Administrar jogadores</a>
                 </div>
                 <?php endif; ?>
             </div>
         </div>
 
         <?php if ($usuarioLogado): ?>
-            <div class="has-submenu" id="deslogar">
-                <a href="../adm/logout.php">Deslogar</a>
-            </div>
+        <div class="has-submenu" id="deslogar">
+            <a href="logout.php">Deslogar</a>
+        </div>
         <?php endif; ?>
     </div>
+
     <script>
         const header = document.getElementById('header');
         const navegacaoHeader = document.getElementById('navegacao_header');
@@ -113,34 +110,6 @@ $usuarioLogado = isset($_SESSION['admin_id']);
                 toggleSidebar();
             }
         });
-
-        function toggleDarkMode() {
-            var element = document.body;
-            var icon = document.getElementById('theme-icon');
-            element.classList.toggle("dark-mode");
-
-            if (element.classList.contains("dark-mode")) {
-                localStorage.setItem("theme", "dark");
-                icon.src = '../../../public/img/header/modoclaro.svg';
-            } else {
-                localStorage.setItem("theme", "light");
-                icon.src = '../../../public/img/header/modoescuro.svg';
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            var theme = localStorage.getItem("theme");
-            var icon = document.getElementById('theme-icon');
-            if (theme === "dark") {
-                document.body.classList.add("dark-mode");
-                icon.src = '../../../public/img/header/modoclaro.svg';
-            } else {
-                icon.src = '../../../public/img/header/modoescuro.svg';
-            }
-        });
-
-        document.getElementById('theme-icon').addEventListener('click', toggleDarkMode);
     </script>
 </body>
-
-
+</html>

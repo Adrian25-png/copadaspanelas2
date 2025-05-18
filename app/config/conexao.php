@@ -1,25 +1,21 @@
 <?php
+// conexao.php – conexão segura usando PDO
 
-$servername = "localhost";  // Endereço do servidor MySQL (geralmente 'localhost')
-$username = "root";  // Nome de usuário do MySQL
-$password = "";    
-$database = "copa"; 
+function conectar() {
+    $host = 'localhost';       // Servidor do banco
+    $dbname = 'copa';          // Nome do banco
+    $username = 'root';        // Usuário
+    $password = '';            // Senha
 
-$conn = new mysqli($servername, $username, $password, $database);
-
-if ($conn->connect_error) {
-    die("Erro na conexão com o banco de dados: " . $conn->connect_error);
-}else{
-    // echo"conexao";
+    try {
+        // Criar conexão PDO
+        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
+        // Habilitar erros como exceções
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $pdo; // Retornar conexão
+    } catch (PDOException $e) {
+        // Exibir erro e encerrar
+        die("Erro ao conectar ao banco de dados: " . $e->getMessage());
+    }
 }
-// // Configuração segura do cookie de sessão
-// session_set_cookie_params([
-//     'lifetime' => 0, // Sessão padrão
-//     'path' => '/',
-//     'domain' => '', // Coloque o domínio se necessário
-//     'secure' => true, // Só transmita cookies via HTTPS
-//     'httponly' => true, // Não acessível via JavaScript
-//     'samesite' => 'Strict' // Protege contra CSRF
-// ]);
-// session_start();
 ?>
