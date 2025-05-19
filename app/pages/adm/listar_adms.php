@@ -42,7 +42,7 @@ $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
 
-<?php require_once 'header_adm.php'; ?>
+<!-- <?php require_once 'header_adm.php'; ?> -->
 
 <div class="form-container">
     <h2>Administradores Cadastrados</h2>

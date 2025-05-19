@@ -66,7 +66,7 @@ $codigo_adm = gerarCodigoAdm($pdo);
 <body>
 
 <!-- Cabeçalho padrão do admin -->
-<?php require_once 'header_adm.php'; ?>
+<!-- <?php require_once 'header_adm.php'; ?> -->
 
 <div class="form-container">
     <form action="../../actions/cadastro_adm/processar_registro_adm.php" method="post">
