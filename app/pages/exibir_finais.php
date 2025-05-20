@@ -5,7 +5,7 @@
     <title>Estatísticas dos Jogadores</title>
     <link rel="stylesheet" href="../../public/css/cssfooter.css">
     <link rel="stylesheet" href="../../public/css/exibir_finais.css">
-    <link rel="stylesheet" href="../../public/css/header_adm.css">
+    <link rel="stylesheet" href="../../public/css/header_geral.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="shortcut icon" href="../../public/imgs/ESCUDO COPA DAS PANELAS.png" type="image/x-icon">    
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -13,7 +13,21 @@
 </head>
 
 <body>
-    <?php require_once '../pages/header_adm.php'; ?>
+    <!-- Navegação -->
+    <?php
+        include 'header_geral.php';
+        include '../config/conexao.php'; // inclui o arquivo com a função conectar()
+
+        $pdo = conectar(); // cria a conexão PDO
+
+        // Agora use $pdo para a query
+        $noticias = $pdo->query("SELECT * FROM noticias ORDER BY data_adicao DESC LIMIT 4");
+
+        $endDate = new DateTime();
+        $endDate->modify('+6 days');
+        $endTimestamp = $endDate->getTimestamp();
+    ?>
+
     <div class="main">
         <h1 id="titulo_eli" class="fade-in">ELIMINATORIA</h1>
         <div class="container fade-in">

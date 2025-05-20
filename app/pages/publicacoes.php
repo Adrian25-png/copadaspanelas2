@@ -1,6 +1,11 @@
 <?php
-include '../config/conexao.php';
-$noticias = $conn->query("SELECT * FROM noticias ORDER BY data_adicao DESC");
+    // Inclui o arquivo de conexão e cria a conexão chamando a função conectar()
+    include '../config/conexao.php';
+    $pdo = conectar(); // Agora $pdo está definido corretamente
+
+    // Executa a consulta para buscar as notícias
+    $stmt = $pdo->query("SELECT * FROM noticias ORDER BY data_adicao DESC");
+    $noticias = $stmt->fetchAll(PDO::FETCH_ASSOC); // Retorna todas as notícias como array associativo
 ?>
 
 <!DOCTYPE html>
@@ -19,10 +24,10 @@ $noticias = $conn->query("SELECT * FROM noticias ORDER BY data_adicao DESC");
 </head>
 <body>
     <?php include 'header_geral.php'?>
-    
-    <h1>Todas as Notícias</h1>
-    <div class="news-container">
-        <?php while($row = $noticias->fetch_assoc()): ?>
+
+    <h1 class="fade-in">Todas as Notícias</h1>
+    <div class="news-container fade-in">
+        <?php foreach($noticias as $row): ?>
             <div class="news-block">
                 <a href="<?php echo $row['link']; ?>" target="_blank">
                     <div class="img-container">
@@ -34,8 +39,15 @@ $noticias = $conn->query("SELECT * FROM noticias ORDER BY data_adicao DESC");
                     </div>
                 </a>
             </div>
-        <?php endwhile; ?>
+        <?php endforeach; ?>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.fade-in').forEach(function(el, i) {
+                setTimeout(() => el.classList.add('visible'), i * 20);
+            });
+        });
+    </script>
     <?php include 'footer.php'?>
 </body>
 </html>

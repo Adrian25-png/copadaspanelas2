@@ -1,115 +1,79 @@
 <?php
-// Verifica se o usuário está logado
-$usuarioLogado = isset($_SESSION['admin_id']);
+// Garante que a sessão foi iniciada
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Verifica se o usuário está logado como administrador
+$usuarioLogado = isset($_SESSION['admin_id']) && !empty($_SESSION['admin_id']);
 ?>
 
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu Responsivo | GN</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="../../../public/css/header_adm.css">
-</head>
-<body>
-    <div class="overlay" id="overlay"></div>
-    <div class="header" id="header">
-        <button onclick="toggleSidebar()" class="btn_icon_header" id="btn_open">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
-            </svg>
-        </button>
-        <div class="logo_header">
-            <a href="../HomePage2.php">            
-                <img src="../../../public/img/ESCUDO COPA DAS PANELAS.png" alt="Escudo da CP" class="img_logo_header">
-            </a>
-        </div>
-        <div class="navegacao_header" id="navegacao_header">
-            <button onclick="toggleSidebar()" class="btn_icon_header" id="btn_close">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                </svg>
-            </button>
+<header>
+    <!-- Ícone da Copa Centralizado -->
+    <div id="Icon">
+        <a href="../HomePage2.php">
+            <img src="/copadaspanelas2/public/img/ESCUDO COPA DAS PANELAS.png" alt="Logo">
+        </a>
+    </div>
 
-            <div id="ativo" class="has-submenu">
-                <a href="../HomePage2.php" id="ativo">Home</a>
-            </div>
-
-            <div class="has-submenu">
-                <div id="ativo"><a href="../rodadas.php">Rodadas</a></div>
-                <?php if ($usuarioLogado): ?>
-                <div class="submenu">
-                    <a href="rodadas_adm.php">Administrar Rodadas</a>
-                    <a href="adicionar_grupo.php">Criar novo campeonato</a>
-                    <a href="adicionar_times.php">Adicionar times</a>
-                    <a href="editar_time.php">Editar times</a>
-                    <a href="adicionar_times_de_forma_aleatoria.php">Adicionar times forma aleatória</a>
-                </div>
-                <?php endif; ?>
-            </div>
-
-            <div class="has-submenu">
-                <div id="ativo"><a href="../tabela_de_classificacao.php">Classificação</a></div>
-                <?php if ($usuarioLogado): ?>
-                <div class="submenu">
-                    <a href="../classificar.php">Classificados</a>
-                </div>
-                <?php endif; ?>
-            </div>
-
-            <div class="has-submenu">
-                <div id="ativo"><a href="../exibir_finais.php">Finais</a></div>
-                <?php if ($usuarioLogado): ?>
-                <div class="submenu">
-                    <a href="adicionar_dados_finais.php">Administrar finais</a>
-                </div>
-                <?php endif; ?>
-            </div>
-
-            <div class="has-submenu">
-                <div id="ativo"><a href="../estatistica.php">Estatísticas</a></div>
-                <?php if ($usuarioLogado): ?>
-                <div class="submenu">
-                    <a href="crud_jogador.php">Administrar jogadores</a>
-                </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
+    <!-- Botão Login/Deslogar -->
+    <div class="deslogar">
         <?php if ($usuarioLogado): ?>
-        <div class="has-submenu" id="deslogar">
-            <a href="logout.php">Deslogar</a>
-        </div>
+            <a href="../adm/logout.php">Deslogar</a>
+        <?php else: ?>
+            <a href="../adm/login.php">Login</a>
+            
         <?php endif; ?>
     </div>
 
-    <script>
-        const header = document.getElementById('header');
-        const navegacaoHeader = document.getElementById('navegacao_header');
-        const overlay = document.getElementById('overlay');
-        let mostrarSidebar = false;
+    <!-- Menu de navegação -->
+    <nav id="nav-menu">
+        <ul>
+            <li><a href="../HomePage2.php">Home</a></li>
 
-        function toggleSidebar() {
-            mostrarSidebar = !mostrarSidebar;
-            navegacaoHeader.style.transform = mostrarSidebar ? 'translateX(0)' : 'translateX(-100%)';
-            overlay.classList.toggle('active', mostrarSidebar);
-        }
+            <li>
+                <a href="#">Rodadas ▾</a>
+                <ul class="dropdown">
+                    <li><a href="../rodadas.php">Rodadas</a></li>
+                    <?php if ($usuarioLogado): ?>
+                        <li><a href="../adm/rodadas_adm.php">Administrar Rodadas</a></li>
+                        <li><a href="../adm/adicionar_grupo.php">Criar novo campeonato</a></li>
+                        <li><a href="../adm/adicionar_times.php">Adicionar times</a></li>
+                        <li><a href="../adm/editar_time.php">Editar times</a></li>
+                        <li><a href="../adm/adicionar_times_de_forma_aleatoria.php">Adicionar times aleatoriamente</a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
 
-        function closeSidebar(event) {
-            if (mostrarSidebar && !navegacaoHeader.contains(event.target) && !header.contains(event.target) && !overlay.contains(event.target)) {
-                toggleSidebar();
-            }
-        }
+            <li>
+                <a href="#">Classificação ▾</a>
+                <ul class="dropdown">
+                    <li><a href="../tabela_de_classificacao.php">Grupos</a></li>
+                    <?php if ($usuarioLogado): ?>
+                        <li><a href="../classificar.php">Classificados</a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
 
-        document.addEventListener('click', closeSidebar);
+            <li>
+                <a href="#">Finais ▾</a>
+                <ul class="dropdown">
+                    <li><a href="../exibir_finais.php">Finais</a></li>
+                    <?php if ($usuarioLogado): ?>
+                        <li><a href="../adm/adicionar_dados_finais.php">Administrar finais</a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
 
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768 && mostrarSidebar) {
-                toggleSidebar();
-            }
-        });
-    </script>
-</body>
-</html>
+            <li>
+                <a href="#">Estatísticas ▾</a>
+                <ul class="dropdown">
+                    <li><a href="../estatistica.php">Ver estatísticas</a></li>
+                    <?php if ($usuarioLogado): ?>
+                        <li><a href="../adm/crud_jogador.php">Administrar jogadores</a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+</header>

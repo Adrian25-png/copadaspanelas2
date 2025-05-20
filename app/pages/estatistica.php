@@ -1,5 +1,6 @@
 <?php
-include "../config/conexao.php";
+require_once "../config/conexao.php";
+$pdo = conectar();
 
 // Função para converter dados binários da imagem em base64
 function exibirImagem($imagem) {
@@ -15,54 +16,32 @@ $sql_gols = "SELECT j.nome, j.gols, j.assistencias, j.cartoes_amarelos, j.cartoe
              FROM jogadores j
              JOIN times t ON j.time_id = t.id
              ORDER BY j.gols DESC";
-$result_gols = $conn->query($sql_gols);
-$jogadores_gols = [];
-if ($result_gols->num_rows > 0) {
-    while ($row = $result_gols->fetch_assoc()) {
-        $jogadores_gols[] = $row;
-    }
-}
+$stmt = $pdo->query($sql_gols);
+$jogadores_gols = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Buscar dados dos jogadores ordenados por assistências
 $sql_assistencias = "SELECT j.nome, j.gols, j.assistencias, j.cartoes_amarelos, j.cartoes_vermelhos, j.imagem, t.nome AS nome_time
                      FROM jogadores j
                      JOIN times t ON j.time_id = t.id
                      ORDER BY j.assistencias DESC";
-$result_assistencias = $conn->query($sql_assistencias);
-$jogadores_assistencias = [];
-if ($result_assistencias->num_rows > 0) {
-    while ($row = $result_assistencias->fetch_assoc()) {
-        $jogadores_assistencias[] = $row;
-    }
-}
+$stmt = $pdo->query($sql_assistencias);
+$jogadores_assistencias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Buscar dados dos jogadores ordenados por cartões amarelos
 $sql_cartoes_amarelos = "SELECT j.nome, j.gols, j.assistencias, j.cartoes_amarelos, j.cartoes_vermelhos, j.imagem, t.nome AS nome_time
                          FROM jogadores j
                          JOIN times t ON j.time_id = t.id
                          ORDER BY j.cartoes_amarelos DESC";
-$result_cartoes_amarelos = $conn->query($sql_cartoes_amarelos);
-$jogadores_cartoes_amarelos = [];
-if ($result_cartoes_amarelos->num_rows > 0) {
-    while ($row = $result_cartoes_amarelos->fetch_assoc()) {
-        $jogadores_cartoes_amarelos[] = $row;
-    }
-}
+$stmt = $pdo->query($sql_cartoes_amarelos);
+$jogadores_cartoes_amarelos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Buscar dados dos jogadores ordenados por cartões vermelhos
 $sql_cartoes_vermelhos = "SELECT j.nome, j.gols, j.assistencias, j.cartoes_amarelos, j.cartoes_vermelhos, j.imagem, t.nome AS nome_time
                           FROM jogadores j
                           JOIN times t ON j.time_id = t.id
                           ORDER BY j.cartoes_vermelhos DESC";
-$result_cartoes_vermelhos = $conn->query($sql_cartoes_vermelhos);
-$jogadores_cartoes_vermelhos = [];
-if ($result_cartoes_vermelhos->num_rows > 0) {
-    while ($row = $result_cartoes_vermelhos->fetch_assoc()) {
-        $jogadores_cartoes_vermelhos[] = $row;
-    }
-}
-
-$conn->close();
+$stmt = $pdo->query($sql_cartoes_vermelhos);
+$jogadores_cartoes_vermelhos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -72,14 +51,18 @@ $conn->close();
     <title>Estatísticas dos Jogadores</title>
     <link rel="stylesheet" href="../../public/css/cssfooter.css">
     <link rel="stylesheet" href="../../public/css/estatistica.css">
-    <link rel="stylesheet" href="../../public/css/header_adm.css">
+    <link rel="stylesheet" href="../../public/css/header_geral.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="shortcut icon" href="../../public/imgs/ESCUDO COPA DAS PANELAS.png" type="image/x-icon">    
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
 </head>
 <body>
-    <?php include '../pages/header_adm.php'; ?>
+    <!-- Navegação -->
+    <?php
+        include 'header_geral.php';
+    ?>
+
     <div class="main">
     <h1 id="tituloh1" class="fade-in">Estatísticas dos Jogadores</h1>
     <div class="container fade-in">
@@ -175,7 +158,7 @@ $conn->close();
     </div>
 </div>
 
-<script>
+    <script>
         document.addEventListener("DOMContentLoaded", function() {
             document.querySelectorAll('.fade-in').forEach(function(el, i) {
                 setTimeout(() => el.classList.add('visible'), i * 20);

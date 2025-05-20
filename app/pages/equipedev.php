@@ -18,7 +18,7 @@
 <body>
     <?php include 'header_geral.php' ?>
 
-	<div class="team-wrapper"> <!-- Adicionando um wrapper para controlar melhor o espaçamento -->
+	<div class="team-wrapper fade-in"> <!-- Adicionando um wrapper para controlar melhor o espaçamento -->
         <section class="team">
             <div class="center">
                 <h1>Nosso Time</h1>
@@ -94,6 +94,14 @@
 		</section>
 	</div> <!-- Fim do wrapper -->
 
+	<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.fade-in').forEach(function(el, i) {
+                setTimeout(() => el.classList.add('visible'), i * 20);
+            });
+        });
+    </script>
+	
     <?php include 'footer.php' ?>
 </body>
 

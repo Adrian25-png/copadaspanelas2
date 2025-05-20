@@ -5,13 +5,13 @@
     <!--Icone da copa-->
     <div id="Icon">
         <a href="HomePage2.php">
-            <img src="../../public/img/ESCUDO COPA DAS PANELAS.png" alt="Logo">
+            <img src="/copadaspanelas2/public/img/ESCUDO COPA DAS PANELAS.png" alt="Logo">
         </a>
     </div>
     <!--Cadastro-->
     <div class="cadastro">
         <?php if (isset($_SESSION['admin_id'])): ?>
-            <a href="../adm/rodadas_adm.php">Entrar</a>
+            <a href="../adm/logout.php">Deslogar</a>
         <?php else: ?>
             <a href="../pages/adm/login.php">Login</a>
         <?php endif; ?>
@@ -32,11 +32,11 @@
                 <a href="">Dados da Copa ▾</a>
                 <ul class="dropdown">
                     <li><a href="../pages/publicacoes.php">Publicações</a></li>
-                    <li><a href="../pages/sobreNosTeam.php">História</a></li>
+                    <li><a href="../pages/sobreNosHistory.php">História</a></li>
                     <li><a href="../pages/estatistica.php">Estatísticas</a></li> <!--Criar um dropdown para os outros arquivos de estatistica de jogador-->
                 </ul>
             </li>
-            <li><a href="Jogos Proximos.php">Transmissão</a></li>
+            <li><a href="JogosProximos.php">Transmissão</a></li>
             <li><a href="../pages/sobreNosTeam.php">Sobre nós</a></li>
         </ul>
     </nav>

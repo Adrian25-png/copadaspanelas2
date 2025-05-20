@@ -2,7 +2,6 @@
 session_start();
 ?>
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -23,48 +22,36 @@ session_start();
 
 <body>
 
-    <?php include 'header_geral.php' ?>
-
+    <!-- Navegação -->
     <?php
-    function exibirProximosJogosFaseGrupos($numeroDeJogos = 3)
-    {
-        include '../config/conexao.php';
-
-        // Consulta SQL para obter os próximos jogos da fase de grupos
-        $sqlJogos = "
-            SELECT j.nome_timeA AS timeA, j.nome_timeB AS timeB, t1.logo AS logoA, t2.logo AS logoB, j.data_jogo
-            FROM jogos_fase_grupos AS j
-            JOIN times AS t1 ON j.timeA_id = t1.id
-            JOIN times AS t2 ON j.timeB_id = t2.id
-            ORDER BY j.data_jogo ASC
-            LIMIT ?
-        ";
-
-        $stmt = $conn->prepare($sqlJogos);
-        // if ($stmt == false) {
-        //     die('Prepare failed: ' .htmlspecialchars($conn->error));
-        // }
-
-        $stmt->bind_param("i", $numeroDeJogos);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        $jogos = [];
-        while ($row = $result->fetch_assoc()) {
-            $jogos[] = $row;
-        }
-
-        $stmt->close();
-        $conn->close();
-
-        return $jogos;
-    }
-
-    $proximosJogos = exibirProximosJogosFaseGrupos();
-
+        include 'header_geral.php';
     ?>
 
+<?php
+function exibirProximosJogosFaseGrupos($numeroDeJogos = 3)
+{
+    require_once '../config/conexao.php';
+    $pdo = conectar(); // Corrige o erro: agora você tem uma conexão ativa
 
+    // Consulta com placeholders para limitar os jogos
+    $sqlJogos = "
+        SELECT tA.nome AS timeA, tB.nome AS timeB, tA.logo AS logoA, tB.logo AS logoB, jfg.data_jogo
+        FROM jogos_fase_grupos AS jfg
+        JOIN times AS tA ON jfg.timeA_id = tA.id
+        JOIN times AS tB ON jfg.timeB_id = tB.id
+        ORDER BY jfg.data_jogo ASC
+        LIMIT :limite
+    ";
+
+    $stmt = $pdo->prepare($sqlJogos);
+    $stmt->bindValue(':limite', (int)$numeroDeJogos, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $jogos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    return $jogos;
+}
+?>
     <main>
 
         <section class="transmit">

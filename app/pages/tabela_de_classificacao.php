@@ -5,13 +5,26 @@
     <title>Tabela de Classificação</title>
     <link rel="stylesheet" href="../../public/css/tabela_classifica.css">
     <link rel="stylesheet" href="../../public/css/cssfooter.css">
-    <link rel="stylesheet" href="../../public/css/header_adm.css">
+    <link rel="stylesheet" href="../../public/css/header_geral.css">
     <!-- LINK da imagem de LOGIN e icones do YOUTUBE e INSTAGRAM do FOOTER-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<?php include 'header_adm.php'; ?>
+<!-- Navegação -->
+<?php
+    include 'header_geral.php';
+    include '../config/conexao.php'; // inclui o arquivo com a função conectar()
+
+    $pdo = conectar(); // cria a conexão PDO
+
+    // Agora use $pdo para a query
+    $noticias = $pdo->query("SELECT * FROM noticias ORDER BY data_adicao DESC LIMIT 4");
+
+    $endDate = new DateTime();
+    $endDate->modify('+6 days');
+    $endTimestamp = $endDate->getTimestamp();
+    ?>
 
 <div class="main">
     <div class="wrapper-container">
