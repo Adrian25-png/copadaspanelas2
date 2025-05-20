@@ -21,7 +21,7 @@ $usuarioLogado = isset($_SESSION['admin_id']) && !empty($_SESSION['admin_id']);
         <?php if ($usuarioLogado): ?>
             <a href="../adm/logout.php">Deslogar</a>
         <?php else: ?>
-            <a href="../adm/login.php">Login</a>
+            <a href="../adm/login.php">Entrar</a>
             
         <?php endif; ?>
     </div>
