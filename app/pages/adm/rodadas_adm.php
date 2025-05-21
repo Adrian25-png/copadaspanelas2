@@ -20,9 +20,9 @@ $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 
 <?php include 'header_adm.php'; ?>
 
-<h1 class="titulo-central">FASES DE GRUPO</h1>
+<h1 class="titulo-central fade-in">FASES DE GRUPO</h1>
 
-<div class="rodada_container1">
+<div class="rodada_container1 fade-in">
     <div id="rodadas-wrapper">
         <div class="nav-arrow left" onclick="previousRodada()"><img src="../../../public/img/esquerda.svg" alt=""></div>
         <div class="table-container">
@@ -37,7 +37,7 @@ $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 </div>
 
 <!-- Modal de Confirmação -->
-<div id="confirm-modal" class="modal">
+<div id="confirm-modal" class="modal fade-in">
     <div class="modal-content">
         <span class="close-btn" id="close-btn">&times;</span>
         <p>Tem certeza que deseja classificar os confrontos das rodadas?</p>
@@ -47,6 +47,13 @@ $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 </div>
 
 <?php include '../footer.php'; ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.fade-in').forEach(function(el, i) {
+            setTimeout(() => el.classList.add('visible'), i * 20);
+        });
+    });
+</script>
 <script src="/public/js/rodadas_modal.js"></script>
 </body>
 </html>

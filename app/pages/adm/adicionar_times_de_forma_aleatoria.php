@@ -76,21 +76,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <link rel="stylesheet" href="../../../public/css/cssfooter.css">
-    <link rel="stylesheet" href="../../../public/css/adm/cadastros_times_jogadores_adm/adicionar_times.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adicionar Time</title>
+    <link rel="stylesheet" href="../../../public/css/cssfooter.css">
+    <link rel="stylesheet" href="../../../public/css/adm/cadastros_times_jogadores_adm/adicionar_times.css">
+    <link rel="stylesheet" href="../../../public/css/adm/header_adm.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     
 </head>
 <body>
 <?php require_once 'header_adm.php' ?>
 
-<div class="main">
-    <div class="titulo-barra">
-        <h1>Adicionar times
-        </h1>
-    </div>
+<div class="main fade-in">
+    <h1>Adicionar times</h1>
     <div class="formulario">
         <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
             <label for="nome_time">Nome do Time:</label>
@@ -99,10 +100,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="logo_time">Logo do Time:</label>
             <input type="file" id="logo_time" name="logo_time" accept="image/*" required>
 
-            <input type="submit" value="Adicionar Time">
+            <input type="submit" value="Adicionar Time" class="submit">
         </form>
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.fade-in').forEach(function(el, i) {
+            setTimeout(() => el.classList.add('visible'), i * 20);
+        });
+    });
+</script>
 <?php 
 require_once '../footer.php'
 ?>

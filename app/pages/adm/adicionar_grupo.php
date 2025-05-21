@@ -18,13 +18,17 @@ include '../../config/conexao.php';
 <html>
 <head>
     <title>Adicionar Grupo</title>
+    <link rel="stylesheet" href="../../../public/css/adm/header_adm.css">
     <link rel="stylesheet" href="../../../public/css/adm/adicionar_grupo.css">
     <link rel="stylesheet" href="../../../public/css/cssfooter.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
 <?php require_once 'header_adm.php' ?>
 <div class="main">
-    <div class="form-container">
+    <div class="form-container fade-in">
         <h1>Adicionar Grupo</h1>
         <form id="formConfiguracao" method="post" action="">
             <fieldset>
@@ -177,5 +181,12 @@ include '../../config/conexao.php';
     </div>
 </div>
 <?php require_once '../footer.php' ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.fade-in').forEach(function(el, i) {
+            setTimeout(() => el.classList.add('visible'), i * 20);
+        });
+    });
+</script>
 </body>
 </html>

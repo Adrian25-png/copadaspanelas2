@@ -1,7 +1,26 @@
+/* Reset básico */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Space Grotesk', sans-serif;
+    text-decoration: none;
+}
 
-h1 {
-    font-size: 2.5em;
-    margin-top: 5%;
+/* Corpo da página */
+body {
+    background: radial-gradient(#281c3e, #0f051d);
+    color: #E0E0E0;
+    line-height: 1.6;
+    padding-top: 5rem;
+}
+
+/* Título */
+h1#dynamic-text {
+    margin-top: 80px;
+    color: white;
+    font-size: 40px;
+    text-align: center;
 }
 
 h3 {
@@ -15,14 +34,14 @@ h3 {
 }
 
 .form-container {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 900px;
+    background-color: #1E1E1E;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(123, 31, 162, 0.6);
     margin: 20px;
     transition: background-color 0.3s, color 0.3s;
+    width: 90%;        /* largura menor que 100% para centralizar com margem automática */
+    max-width: 900px;  /* ou 90% também, mas geralmente max-width em px limita */
 }
 
 input[type="number"] {

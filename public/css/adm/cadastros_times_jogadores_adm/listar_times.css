@@ -1,3 +1,28 @@
+/* Reset básico */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Space Grotesk', sans-serif;
+    text-decoration: none;
+}
+
+/* Corpo da página */
+body {
+    background: radial-gradient(#281c3e, #0f051d);
+    color: #E0E0E0;
+    line-height: 1.6;
+    padding-top: 9rem;
+}
+
+/* Título */
+h3#dynamic-text {
+    margin-left: 10px;
+    color: white;
+    font-size: 40px;
+    text-align: center;
+}
+
 .container {
     margin-top: 3%;
     padding: 1.25rem;
@@ -5,17 +30,13 @@
 .text-center{
     margin-top: 3%;
 }
-h3{
-    margin-left: 10px;
-}
+
 .row{
     align-items: center;
     justify-content: center;
 
 }
-.dark-mode .time-card{
-    background-color: #837575;
-}
+
 .time-card {
     background-color: #f8f9fa;
     padding: 1.25rem;

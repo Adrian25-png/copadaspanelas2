@@ -1,5 +1,6 @@
 <?php
 include '../../config/conexao.php';
+$pdo = conectar();
 session_start();
 
 // Função para gerar token
@@ -17,12 +18,10 @@ if (isset($_POST['delete_token'])) {
     $conn->query("SET FOREIGN_KEY_CHECKS=0");
 
     $sql = "SELECT id FROM times WHERE token = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $token);
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$token]);
     $stmt->execute();
-    $stmt->bind_result($id);
     $stmt->fetch();
-    $stmt->close();
 
     if ($id) {
         $deleteSql = "DELETE FROM times WHERE id = ?";
@@ -40,18 +39,19 @@ if (isset($_POST['delete_token'])) {
         die("Token inválido");
     }
 
-    $conn->query("SET FOREIGN_KEY_CHECKS=1");
+    $pdo->exec("SET FOREIGN_KEY_CHECKS=0");
 }
 
-$sql = "SELECT t.id, t.nome, t.logo, t.token, g.nome AS grupo_nome FROM times t JOIN grupos g ON t.grupo_id = g.id ORDER BY g.nome, t.nome";
-$result = $conn->query($sql);
+$sql = "SELECT t.id, t.nome, t.logo, t.token, g.nome AS grupo_nome 
+        FROM times t 
+        JOIN grupos g ON t.grupo_id = g.id 
+        ORDER BY g.nome, t.nome";
+$stmt = $pdo->query($sql);
 
 $times = [];
-while ($row = $result->fetch_assoc()) {
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $times[$row['grupo_nome']][] = $row;
 }
-
-$conn->close();
 
 $csrf_token = gerarToken();
 $_SESSION['csrf_token'] = $csrf_token;
@@ -65,13 +65,17 @@ $_SESSION['csrf_token'] = $csrf_token;
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../../public/css/adm/cadastros_times_jogadores_adm/listar_times.css">
     <link rel="stylesheet" href="../../../public/css/cssfooter.css">
+    <link rel="stylesheet" href="../../../public/css/adm/header_adm.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
 <?php require_once 'header_adm.php' ?>
 
-    <h1 class="text-center">LISTAR DE TIMES</h1>
+    <h1 class="text-center fade-in">LISTA DE TIMES</h1>
 
-    <div class="container">
+    <div class="container fade-in">
         <?php if (isset($_GET['status'])): ?>
             <?php if ($_GET['status'] === 'success'): ?>
                 <div class="alert alert-success text-center">Time excluído com sucesso!</div>
@@ -142,7 +146,13 @@ $_SESSION['csrf_token'] = $csrf_token;
         modal.find('#delete_token').val(token);
     });
     </script>
-
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.fade-in').forEach(function(el, i) {
+                setTimeout(() => el.classList.add('visible'), i * 20);
+            });
+        });
+    </script>
     <?php include '../footer.php'; ?>
 </body>
 </html>
