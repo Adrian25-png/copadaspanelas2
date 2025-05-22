@@ -90,9 +90,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <?php require_once 'header_adm.php' ?>
 
-<div class="main fade-in">
+<div class="main">
     <h1>Adicionar times</h1>
-    <div class="formulario">
+    <div class="formulario fade-in">
         <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
             <label for="nome_time">Nome do Time:</label>
             <input type="text" id="nome_time" name="nome_time" required>

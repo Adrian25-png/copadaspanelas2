@@ -1,0 +1,153 @@
+/* Reset básico */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Space Grotesk', sans-serif;
+    text-decoration: none;
+}
+
+/* Corpo da página */
+body {
+    background: radial-gradient(#281c3e, #0f051d);
+    color: #E0E0E0;
+    line-height: 1.6;
+    padding-top: 9rem;
+}
+
+.main {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#tabela-wrapper {
+    background-color: #1E1E1E;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(123, 31, 162, 0.6);
+    margin: 1% auto 10% auto; /* margem vertical e auto centralização horizontal */
+    margin-top: 1%;
+    margin-bottom: 10%;
+    width: 80%;        /* largura menor que 100% para centralizar com margem automática */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Título */
+h1#dynamic-text {
+    margin-top: 80px;
+    margin-bottom: 10px;
+    color: white;
+    font-size: 40px;
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 10px;
+    font-size: 1.5em;
+}
+
+.grupo-container {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.grupo-header {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.grupo-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    background-color: #fff;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.grupo-item:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.grupo-item .position {
+    font-weight: bold;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.grupo-item img {
+    max-width: 50px;
+    max-height: 50px;
+    border-radius: 10%;
+    margin-right: 10px;
+}
+
+.grupo-item .time-info {
+    flex: 1;
+}
+
+.grupo-item .time-info .time-name {
+    font-size: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.grupo-item .time-info .grupo-name {
+    font-size: 16px;
+    color: #666;
+}
+.dark-mode .grupo-item, .position :hover{
+    color: #ffffff;
+}
+
+/* Media Queries para Ajustar o Layout em Telas Menores */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.2em;
+    }
+
+    .grupo-item .time-info .time-name {
+        font-size: 14px;
+    }
+
+    .grupo-item img {
+        max-width: 30px;
+        max-height: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.2em;
+    }
+
+    h2 {
+        font-size: 1em;
+    }
+
+    .grupo-item .time-info .time-name {
+        font-size: 12px;
+    }
+
+    .grupo-item img {
+        max-width: 25px;
+        max-height: 25px;
+    }
+
+    #tabela-wrapper {
+        padding: 10px;
+        width: 95%; /* Ajusta a largura para dispositivos ainda menores */
+    }
+}
