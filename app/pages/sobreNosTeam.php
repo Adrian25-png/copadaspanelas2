@@ -18,76 +18,76 @@
 
     <?php  require_once 'header_geral.php'?>
 
-<main>
+<main class="fade-in">
 
-<h1 class="titulohome fade-in">Equipe Copa das Panelas</h1>
+<h1 class="titulohome">Equipe Copa das Panelas</h1>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/akila.jpg" alt="Ákila Fernandes" class="foto-criadores">
     <span>Ákila Fernandes</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/marceloatt.jpg" alt="Marcelo Leite" class="foto-criadores">
     <span>Marcelo Leite</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/samir.jpg" alt="Samir Ferraz" class="foto-criadores">
     <span>Samir Ferraz</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/luiscarlos.jpg" alt="Luis Carlos" class="foto-criadores">
     <span>Luis Carlos</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/analiceatt.jpg" alt="Analice Vianna" class="foto-criadores">
     <span>Analice Vianna</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/cesar.jpg" alt="Cesar Augusto" class="foto-criadores">
     <span>Cesar Augusto</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/danilo.jpg" alt="Danilo Teixeira" class="foto-criadores">
     <span>Danilo Teixeira</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/eduardo.jpg" alt="Eduardo Moreira" class="foto-criadores">
     <span>Eduardo Moreira</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/luis.jpg" alt="Luís Henrique" class="foto-criadores">
     <span>Luís Henrique</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/pedroatt.jpg" alt="Pedro Oliveira" class="foto-criadores">
     <span>Pedro Oliveira</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/ronaldyatt.jpg" alt="Ronaldy Oliveira" class="foto-criadores">
     <span>Ronaldy Oliveira</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/vitoratt.jpg" alt="Vitor Manoel" class="foto-criadores">
     <span>Vitor Manoel</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/adrianatt.jpg" alt="Deivid Adrian" class="foto-criadores">
     <span>Deivid Adrian</span>
   </div>
 
-  <div class="news-card fade-in">
+  <div class="news-card">
     <img src="../../public/img/imgSobreNos/denilsonatt.jpg" alt="Denilson Ferreira" class="foto-criadores">
     <span>Denilson Ferreira</span>
   </div>

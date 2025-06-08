@@ -29,23 +29,26 @@ $stmt = $pdo->query("SELECT cod_adm, nome, email FROM admin ORDER BY cod_adm ASC
 $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Administradores</title>
-    <link rel="stylesheet" href="../../../public/css/cadastro_adm/cadastro_adm.css" />
-    <link rel="stylesheet" href="../../../public/css/cssfooter.css" />
-    <link rel="stylesheet" href="../../../public/css/listar_adms.css" />
-    
+    <link rel="stylesheet" href="/copadaspanelas2/public/css/adm/listar_adms.css">
+    <link rel="stylesheet" href="/copadaspanelas2/public/css/cssfooter.css">
+    <link rel="stylesheet" href="/copadaspanelas2/public/css/adm/header_adm.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
 
-<!-- <?php require_once 'header_adm.php'; ?> -->
+<?php include 'header_adm.php'; ?>
 
 <div class="form-container">
-    <h2>Administradores Cadastrados</h2>
+    <h2>ADMINISTRADORES CADASTRADOS</h2>
 
     <?php if ($msg): ?>
         <div class="msg <?= strpos($msg, 'sucesso') !== false ? 'success' : 'error' ?>">
