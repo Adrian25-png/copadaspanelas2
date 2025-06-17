@@ -1,0 +1,91 @@
+/* Reset básico */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Space Grotesk', sans-serif;
+    text-decoration: none;
+}
+
+/* Corpo da página */
+body {
+    background: radial-gradient(#281c3e, #0f051d);
+    color: #E0E0E0; /* Texto claro */
+    line-height: 1.6;
+}
+
+/* Títulos principais */
+h1.titulo-central {
+    margin-top: 40px;
+    color: white;
+    font-size: 50px;
+    text-align: center;
+    padding: 0px 0px;
+}
+
+h2.titulo-central {
+    color: white;
+    font-size: 24px;
+    text-align: center;
+    padding: 10px 0 20px 0;
+}
+
+/* Painel de cartões */
+.admin-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    width: 90%;
+    max-width: 1200px;
+    margin: 30px auto 90px auto;
+}
+
+/* Cartão individual */
+.admin-card {
+    background-color: #1E1E1E;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(123, 31, 162, 0.5);
+    padding: 20px;
+    text-align: center;
+    color: #E0E0E0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Efeito hover */
+.admin-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 0 20px rgba(179, 136, 255, 0.8);
+}
+
+/* Área para imagem */
+.card-image {
+    width: 100%;
+    height: 120px;
+    background-color: #3a0d6e; /* Roxo escuro temporário */
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* cobre todo o espaço sem distorcer */
+    border-radius: 8px;
+  }
+
+/* Título do cartão */
+.admin-card h3 {
+    margin: 10px 0 5px;
+    font-size: 1.4em;
+    color: #E1BEE7;
+}
+
+/* Descrição do cartão */
+.admin-card p {
+    font-size: 0.95em;
+    color: #ccc;
+}
