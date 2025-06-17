@@ -4,7 +4,7 @@ require_once("../../config/conexao.php"); // Usa require_once para garantir que 
 
 // Verificar se o usuário já está logado
 if (isset($_SESSION['admin_id'])) {
-    header("Location: rodadas_adm.php");
+    header("Location: welcome_adm.php");
     exit();
 }
 
@@ -34,7 +34,7 @@ function processarLogin($cod_adm, $senha) {
                 $_SESSION['admin_nome'] = $admin['nome'];
 
                 // Redirecionar para a URL de referência ou para uma página padrão
-                $redirect_url = isset($_SESSION['redirect_url']) ? $_SESSION['redirect_url'] : 'rodadas_adm.php';
+                $redirect_url = isset($_SESSION['redirect_url']) ? $_SESSION['redirect_url'] : 'welcome_adm.php';
                 unset($_SESSION['redirect_url']); // Limpar a URL de redirecionamento após login
                 header("Location: $redirect_url");
                 exit();
