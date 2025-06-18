@@ -26,49 +26,65 @@ $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 <div class="admin-panel">
 
     <a href="../adm/rodadas_adm.php" class="admin-card">
-        <div class="card-image"></div>
+        <div class="card-image">
+            <img src="/copadaspanelas2/public/img/adm_icons/rodadas.png" alt="RODADAS">
+        </div>
         <h3>Administrar Rodadas</h3>
         <p>Visualize e edite as rodadas do campeonato.</p>
     </a>
 
     <a href="../adm/adicionar_grupo.php" class="admin-card">
-        <div class="card-image"></div>
+        <div class="card-image">
+            <img src="/copadaspanelas2/public/img/adm_icons/campeonato.png" alt="CAMPEONATO">
+        </div>
         <h3>Criar Novo Campeonato</h3>
         <p>Inicie um novo torneio e configure seus grupos.</p>
     </a>
 
     <a href="../adm/adicionar_times.php" class="admin-card">
-        <div class="card-image"></div>
+        <div class="card-image">
+            <img src="" alt="TIMES">
+        </div>
         <h3>Adicionar Times</h3>
         <p>Inclua novos times manualmente no campeonato.</p>
     </a>
 
     <a href="../adm/editar_time.php" class="admin-card">
-        <div class="card-image"></div>
+        <div class="card-image">
+            <img src="" alt="EDITAR TIMES">
+        </div>
         <h3>Editar Times</h3>
         <p>Modifique informações dos times cadastrados.</p>
     </a>
 
     <a href="../adm/adicionar_times_de_forma_aleatoria.php" class="admin-card">
-        <div class="card-image"></div>
+        <div class="card-image">
+            <img src="" alt="TIMES ALEATÓRIOS">
+        </div>
         <h3>Adicionar Times Aleatoriamente</h3>
         <p>Preencha os grupos automaticamente com times.</p>
     </a>
 
     <a href="../classificar.php" class="admin-card">
-        <div class="card-image"></div>
+        <div class="card-image">
+            <img src="" alt="CLASSIFICAR TIMES">
+        </div>
         <h3>Classificar Times</h3>
         <p>Defina quais times avançam para a próxima fase.</p>
     </a>
 
     <a href="../adm/adicionar_dados_finais.php" class="admin-card">
-        <div class="card-image"></div>
+        <div class="card-image">
+            <img src="" alt="ADMINISTRAR FINAIS">
+        </div>
         <h3>Administrar Finais</h3>
         <p>Gerencie os dados das partidas finais.</p>
     </a>
 
     <a href="../adm/crud_jogador.php" class="admin-card">
-        <div class="card-image"></div>
+        <div class="card-image">
+            <img src="" alt="ADMINISTRAR JOGADORES">
+        </div>
         <h3>Administrar Jogadores</h3>
         <p>Adicione, edite ou remova jogadores e suas estatísticas.</p>
     </a>
