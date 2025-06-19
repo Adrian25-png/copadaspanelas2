@@ -1,20 +1,18 @@
 <?php
-// conexao.php – conexão segura usando PDO
-
 function conectar() {
-    $host = 'localhost';       // Servidor do banco
-    $dbname = 'copa';          // Nome do banco
-    $username = 'root';        // Usuário
-    $password = '';            // Senha
+    $host = getenv('DB_HOST') ?: 'localhost';
+    $port = getenv('DB_PORT') ?: '3306';
+    $dbname = getenv('DB_NAME') ?: 'copa';
+    $username = getenv('DB_USER') ?: 'root';
+    $password = getenv('DB_PASS') ?: '';
+
+    $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
 
     try {
-        // Criar conexão PDO
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
-        // Habilitar erros como exceções
+        $pdo = new PDO($dsn, $username, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        return $pdo; // Retornar conexão
+        return $pdo;
     } catch (PDOException $e) {
-        // Exibir erro e encerrar
         die("Erro ao conectar ao banco de dados: " . $e->getMessage());
     }
 }
