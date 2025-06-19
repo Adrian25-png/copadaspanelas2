@@ -1,6 +1,9 @@
 # Use a imagem oficial do PHP com servidor embutido e extensões básicas
 FROM php:8.2-cli
 
+# Instala extensões necessárias, incluindo pdo_mysql
+RUN docker-php-ext-install pdo pdo_mysql
+
 # Defina o diretório de trabalho dentro do container
 WORKDIR /app
 
