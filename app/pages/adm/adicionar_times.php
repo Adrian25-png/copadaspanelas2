@@ -150,7 +150,7 @@ $numTimesToAdd = isset($_POST['num_times']) ? (int)$_POST['num_times'] : 1;
         if (isset($_SESSION['message'])) {
             $type = $_SESSION['message_type'];
             $class = $type == 'success' ? 'success' : ($type == 'warning' ? 'warning' : 'error');
-            echo "<div class='message $class'>{$_SESSION['message']}</div>";
+            echo "<div class='mensagem $class'>{$_SESSION['message']}</div>";
             unset($_SESSION['message'], $_SESSION['message_type']);
         }
         ?>

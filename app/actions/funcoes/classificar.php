@@ -1,10 +1,6 @@
 <?php
 include_once '../../config/conexao.php';
-$pdo = conectar(); // Conexão com PDO inicializada
-
-function sanitize_input($data) {
-    return htmlspecialchars(trim($data));
-}
+$pdo = conectar();
 
 function atualizarFaseExecutada($pdo, $fase) {
     $stmt = $pdo->prepare("UPDATE fase_execucao SET executado = TRUE WHERE fase = ?");
@@ -43,18 +39,16 @@ function classificarOitavasDeFinal($pdo) {
     $config = $pdo->query("SELECT fase_final, numero_grupos FROM configuracoes WHERE id = 1")->fetch(PDO::FETCH_ASSOC);
     $numeroGrupos = (int) $config['numero_grupos'];
     $num_oitavas = 16;
-
     $times_por_grupo = intdiv($num_oitavas, $numeroGrupos);
+
     $pdo->exec("TRUNCATE TABLE oitavas_de_final");
     $pdo->exec("TRUNCATE TABLE oitavas_de_final_confrontos");
 
     $times_classificados = [];
     for ($i = 1; $i <= $numeroGrupos; $i++) {
-        $limit = (int)$times_por_grupo;
-        $stmt = $pdo->prepare("SELECT * FROM times WHERE grupo_id = ? ORDER BY pts DESC, sg DESC, gm DESC, id ASC LIMIT $limit");
-        $stmt->execute([$i]);
+        $stmt = $pdo->prepare("SELECT * FROM times WHERE grupo_id = ? ORDER BY pts DESC, sg DESC, gm DESC, id ASC LIMIT ?");
+        $stmt->execute([$i, $times_por_grupo]);
         $times_classificados[$i] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         validarClassificados($times_classificados[$i], $times_por_grupo, $i);
     }
 
@@ -77,6 +71,7 @@ function classificarOitavasDeFinal($pdo) {
         $stmt = $pdo->prepare("INSERT INTO oitavas_de_final_confrontos (timeA_id, timeB_id, fase) VALUES (?, ?, 'oitavas')");
         $stmt->execute([$confronto['timeA']['id'], $confronto['timeB']['id']]);
     }
+
     atualizarFaseExecutada($pdo, 'oitavas');
 }
 
@@ -91,7 +86,12 @@ function classificarProximaFase($pdo, $fase_atual, $fase_nova, $tabela_atual, $t
     $classificados = [];
 
     foreach ($resultados as $row) {
-        $classificados[] = ($row['gols_marcados_timeA'] > $row['gols_marcados_timeB']) ? $row['timeA_id'] : $row['timeB_id'];
+        // Garante que empate não passe times (só maior pontuação)
+        if ($row['gols_marcados_timeA'] > $row['gols_marcados_timeB']) {
+            $classificados[] = $row['timeA_id'];
+        } elseif ($row['gols_marcados_timeB'] > $row['gols_marcados_timeA']) {
+            $classificados[] = $row['timeB_id'];
+        }
     }
 
     foreach ($classificados as $id) {
@@ -100,31 +100,27 @@ function classificarProximaFase($pdo, $fase_atual, $fase_nova, $tabela_atual, $t
         $time = $stmt->fetch(PDO::FETCH_ASSOC);
         $stmt = $pdo->prepare("INSERT INTO $tabela_nova (time_id, grupo_nome, time_nome) VALUES (?, ?, ?)");
         $stmt->execute([$time['time_id'], $time['grupo_nome'], $time['time_nome']]);
-    }
+        }
+        for ($i = 0; $i < count($classificados) / 2; $i++) {
+            $stmt = $pdo->prepare("INSERT INTO $tabela_confrontos_nova (timeA_id, timeB_id, fase) VALUES (?, ?, ?)");
+            $stmt->execute([$classificados[$i], $classificados[count($classificados) - 1 - $i], $fase_nova]);
+        }
+        
+        atualizarFaseExecutada($pdo, $fase_nova);
 
-    for ($i = 0; $i < count($classificados) / 2; $i++) {
-        $stmt = $pdo->prepare("INSERT INTO $tabela_confrontos_nova (timeA_id, timeB_id, fase) VALUES (?, ?, ?)");
-        $stmt->execute([$classificados[$i], $classificados[count($classificados) - 1 - $i], $fase_nova]);
-    }
-
-    atualizarFaseExecutada($pdo, $fase_nova);
 }
 
 function classificarQuartasDeFinal($pdo) {
-    classificarProximaFase($pdo, 'oitavas', 'quartas', 'oitavas_de_final', 'oitavas_de_final_confrontos', 'quartas_de_final', 'quartas_de_final_confrontos');
+classificarProximaFase($pdo, 'oitavas', 'quartas', 'oitavas_de_final', 'oitavas_de_final_confrontos', 'quartas_de_final', 'quartas_de_final_confrontos');
 }
 
 function classificarSemifinais($pdo) {
-    classificarProximaFase($pdo, 'quartas', 'semifinais', 'quartas_de_final', 'quartas_de_final_confrontos', 'semifinais', 'semifinais_confrontos');
+classificarProximaFase($pdo, 'quartas', 'semifinais', 'quartas_de_final', 'quartas_de_final_confrontos', 'semifinais', 'semifinais_confrontos');
 }
 
 function classificarFinal($pdo) {
-    classificarProximaFase($pdo, 'semifinais', 'final', 'semifinais', 'semifinais_confrontos', 'final', 'final_confrontos');
+classificarProximaFase($pdo, 'semifinais', 'final', 'semifinais', 'semifinais_confrontos', 'final', 'final_confrontos');
 }
 
 inicializarFaseExecucao($pdo);
-classificarOitavasDeFinal($pdo);
-classificarQuartasDeFinal($pdo);
-classificarSemifinais($pdo);
-classificarFinal($pdo);
 ?>

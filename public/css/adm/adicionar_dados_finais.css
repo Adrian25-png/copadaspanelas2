@@ -136,19 +136,20 @@ td input[type="number"] {
     padding: 10px 20px;
     font-weight: 600;
     text-align: center;
-    border: 1px solid #2ecc71;
 }
 
 /* Estilo da mensagem de erro */
 .error-message {
     color: #e74c3c;
     background-color: #1e1e1e;
+    border: 1px solid #e74c3c;
 }
 
 /* Estilo da mensagem de sucesso */
 .success-message {
     background-color: #1e1e1e;
     color: #2ecc71;
+    border: 1px solid #2ecc71;
 
 }
 

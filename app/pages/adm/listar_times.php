@@ -29,14 +29,23 @@ if (isset($_POST['delete_token'])) {
 
     if ($result && isset($result['id'])) {
         $id = $result['id'];
-
-        $deleteSql = "DELETE FROM times WHERE id = ?";
-        $stmtDelete = $pdo->prepare($deleteSql);
-        if ($stmtDelete->execute([$id])) {
-            $_SESSION['mensagem'] = "Time excluído com sucesso!";
+    
+        try {
+            // Excluir os jogos onde este time participou
+            $deleteJogosSql = "DELETE FROM jogos_fase_grupos WHERE timeA_id = ? OR timeB_id = ?";
+            $stmtDeleteJogos = $pdo->prepare($deleteJogosSql);
+            $stmtDeleteJogos->execute([$id, $id]);
+    
+            // Excluir o time da tabela times
+            $deleteSql = "DELETE FROM times WHERE id = ?";
+            $stmtDelete = $pdo->prepare($deleteSql);
+            $stmtDelete->execute([$id]);
+    
+            $_SESSION['mensagem'] = "Time e seus jogos relacionados foram excluídos com sucesso!";
             $_SESSION['mensagem_tipo'] = "sucesso";
-        } else {
-            $_SESSION['mensagem'] = "Erro ao excluir time.";
+    
+        } catch (PDOException $e) {
+            $_SESSION['mensagem'] = "Erro ao excluir time e/ou jogos: " . $e->getMessage();
             $_SESSION['mensagem_tipo'] = "erro";
         }
     } else {
