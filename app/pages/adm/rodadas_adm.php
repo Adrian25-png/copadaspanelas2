@@ -3,7 +3,7 @@ session_start();
 include("../../actions/cadastro_adm/session_check.php");
 include_once '../../config/conexao.php';
 $pdo = conectar();
-$isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
+$isAdmin = isset($_SESSION['admin_id']);
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -21,6 +21,12 @@ $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 <?php include 'header_adm.php'; ?>
 
 <h1 class="titulo-central fade-in">FASES DE GRUPO</h1>
+
+<?php
+    if (isset($_GET['update']) && $_GET['update'] === 'success') {
+        echo '<div id="alert-success" class="alert-success fade-in">Rodadas classificadas com sucesso!</div>';
+    }
+?>
 
 <div class="rodada_container1 fade-in">
     <div id="rodadas-wrapper">

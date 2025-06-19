@@ -104,6 +104,7 @@ input[type="file"]::file-selector-button:hover {
 
 .formulario {
     display: flex;
+    flex-direction: column;  /* força os filhos a ficarem em coluna */
     min-width: 60%;
     margin-bottom: 5%;
     height: auto;
@@ -111,6 +112,7 @@ input[type="file"]::file-selector-button:hover {
     align-items: center;
     font-family: Arial, sans-serif;
 }
+
 
 form {
     max-width: 700px;
@@ -147,6 +149,7 @@ form {
     text-align: center;
     margin-top: 5px;
 }
+
 .message.success {
     background-color: #d4edda;
     color: #155724;
@@ -154,6 +157,21 @@ form {
 .message.error {
     background-color: #f8d7da;
     color: red;
+}
+
+.mensagem {
+    margin-top: 15px;        /* espaço em cima para separar do formulário */
+    padding: 12px 15px;
+    background-color: #1e1e1e;
+    color: #2ecc71;
+    border: 1px solid #2ecc71;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: 600;
+    max-width: 700px;        /* mesmo tamanho máximo do form */
+    width: 100%;             /* para responsividade */
+    box-sizing: border-box;
+    align-self: center;      /* para o container flex alinhar centralizado */
 }
 
 @media (max-width: 768px) {

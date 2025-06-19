@@ -15,39 +15,46 @@ body {
     padding-top: 5rem;
 }
 
-/* Título */
+/* Título principal */
 h1#dynamic-text {
     margin-top: 80px;
     color: white;
     font-size: 40px;
     text-align: center;
+    line-height: 1.2;
+    margin-bottom: 1rem;
 }
 
+/* Subtítulos */
 h3 {
     font-size: 1.8em;
+    margin-bottom: 1rem;
 }
 
+/* Container principal */
 .main {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
+/* Contêiner dos formulários */
 .form-container {
     background-color: #1E1E1E;
-    padding: 20px;
+    padding: 20px 30px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(123, 31, 162, 0.6);
-    margin: 20px;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 900px;
     transition: background-color 0.3s, color 0.3s;
-    width: 90%;        /* largura menor que 100% para centralizar com margem automática */
-    max-width: 900px;  /* ou 90% também, mas geralmente max-width em px limita */
 }
 
+/* Inputs tipo número */
 input[type="number"] {
     width: 100%;
     max-width: 80px;
-    padding: 8px;
+    padding: 8px 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 1em;
@@ -55,73 +62,97 @@ input[type="number"] {
     -webkit-appearance: none;   
     appearance: none;           
 }
-/* Remove as setas para navegadores baseados em WebKit (Chrome, Safari) */
+
+/* Remove as setas para navegadores WebKit */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
+
+/* Remove setas em Firefox */
 input[type="number"] {
-        -moz-appearance: textfield;
+    -moz-appearance: textfield;
 }
+
+/* Tabela de confrontos */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
 
+/* Cabeçalho e células */
 th, td {
     padding: 12px 15px;
     text-align: center;
     border-bottom: 1px solid #ddd;
     background-color: #f9f9f9;
+    vertical-align: middle;
 }
 
+/* Efeito hover na linha da tabela */
 tr:hover {
     background-color: #f1f1f1;
 }
 
+/* Cabeçalho da tabela */
 th {
     background-color: #e0e0e0;
+    font-weight: 600;
 }
 
+/* Input dentro da célula */
 td input[type="number"] {
     width: 100%;
+    box-sizing: border-box;
 }
 
+/* Botão padrão */
 #butao {
     background-color: rgb(155, 9, 9);
     color: #fff;
     border: none;
     padding: 10px 20px;
     font-size: 16px;
-    margin: 4px 2px;
+    margin: 8px 2px;
     cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.3s ease;
+    display: inline-block;
 }
 
+/* Hover do botão */
 #butao:hover {
     background-color: rgba(255, 0, 0, 0.568);
 }
 
+/* Mensagens de erro e sucesso */
 .error-message, .success-message {
     font-size: 1.1em;
-    margin-bottom: 20px;
+    margin: 20px 0;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid #2ecc71;
 }
 
+/* Estilo da mensagem de erro */
 .error-message {
     color: #e74c3c;
-    background-color: #fdd;
+    background-color: #1e1e1e;
 }
 
+/* Estilo da mensagem de sucesso */
 .success-message {
+    background-color: #1e1e1e;
     color: #2ecc71;
-    background-color: #dff0d8;
+
 }
 
+/* Select padrão */
 select {
     padding: 10px;
     font-size: 1em;
@@ -130,24 +161,33 @@ select {
     background-color: #fff;
     width: 100%;
     max-width: 250px;
+    margin-bottom: 1rem;
 }
 
+/* Label dos formulários */
 label {
     display: block;
     margin-bottom: 10px;
+    font-weight: 500;
 }
 
+/* iframe escondido */
 iframe {
     display: none;
 }
 
+/* Media Queries */
+
+/* Tablets e dispositivos médios */
 @media (max-width: 768px) {
-    h1 {
-        font-size: 1.2em;
+    h1#dynamic-text {
+        font-size: 28px;
+        margin-top: 40px;
     }
 
     .form-container {
-        padding: 0;
+        padding: 15px 20px;
+        width: 95%;
     }
 
     table, th, td {
@@ -155,59 +195,60 @@ iframe {
     }
 
     th, td {
-        padding: 0.3em;
+        padding: 8px 10px;
     }
 
     #butao {
         width: 100%;
-        padding: 0.5em;
-    }
-    select{
-        padding: 2px;
-        font-size: 10px;
-        width: auto;
-    }
-    td input[type="number"] {
-        width: 20px;
-        font-size: 8px;
-        padding: 2;
+        padding: 12px 0;
+        font-size: 14px;
     }
 
-    
+    select {
+        padding: 6px;
+        font-size: 0.9em;
+        max-width: 100%;
+    }
+
+    td input[type="number"] {
+        max-width: 60px;
+        font-size: 0.9em;
+        padding: 6px;
+    }
 }
 
+/* Smartphones pequenos */
 @media (max-width: 480px) {
-    h1, h3,p {
-        font-size: 0.9em;
+    h1#dynamic-text, h3, p {
+        font-size: 1em;
     }
 
     .form-container {
-        padding: 0;
+        padding: 10px 15px;
         display: flex;
-        justify-content: center;
         flex-direction: column;
         align-items: center;
     }
-    .form-container label{
-        font-size: 10px;
+
+    label {
+        font-size: 0.85em;
+        margin-bottom: 6px;
     }
-    #isso{
-        font-size: 15px;
-    }
+
     table {
         font-size: 0.8em;
     }
 
     th, td {
-        padding: 0.2em;
+        padding: 5px 6px;
     }
 
     input[type="number"] {
-        font-size: 0.9em;
+        font-size: 0.85em;
     }
 
     #butao {
         font-size: 0.9em;
-        padding: 0.4em;
+        padding: 8px 10px;
     }
 }

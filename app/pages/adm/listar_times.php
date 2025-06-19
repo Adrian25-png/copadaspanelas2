@@ -3,45 +3,53 @@ include '../../config/conexao.php';
 $pdo = conectar();
 session_start();
 
-// Função para gerar token
+// Captura a mensagem da sessão (se houver)
+$mensagem = $_SESSION['mensagem'] ?? '';
+$mensagem_tipo = $_SESSION['mensagem_tipo'] ?? '';
+// Limpa as mensagens após capturar
+unset($_SESSION['mensagem'], $_SESSION['mensagem_tipo']);
+
+// Função para gerar token CSRF
 function gerarToken($length = 32) {
     return bin2hex(random_bytes($length));
 }
 
-// Função para lidar com a exclusão de um time
+// Tratamento de exclusão de time
 if (isset($_POST['delete_token'])) {
     if (!isset($_SESSION['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die("CSRF token inválido");
     }
 
     $token = $_POST['delete_token'];
-    $conn->query("SET FOREIGN_KEY_CHECKS=0");
 
     $sql = "SELECT id FROM times WHERE token = ?";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$token]);
-    $stmt->execute();
-    $stmt->fetch();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($id) {
+    if ($result && isset($result['id'])) {
+        $id = $result['id'];
+
         $deleteSql = "DELETE FROM times WHERE id = ?";
-        $stmt = $conn->prepare($deleteSql);
-        $stmt->bind_param("i", $id);
-        if ($stmt->execute() && $stmt->affected_rows > 0) {
-            header("Location: listar_times.php?status=success");
-            exit();
+        $stmtDelete = $pdo->prepare($deleteSql);
+        if ($stmtDelete->execute([$id])) {
+            $_SESSION['mensagem'] = "Time excluído com sucesso!";
+            $_SESSION['mensagem_tipo'] = "sucesso";
         } else {
-            header("Location: listar_times.php?status=error");
-            exit();
+            $_SESSION['mensagem'] = "Erro ao excluir time.";
+            $_SESSION['mensagem_tipo'] = "erro";
         }
-        $stmt->close();
     } else {
-        die("Token inválido");
+        $_SESSION['mensagem'] = "Token inválido ou time não encontrado.";
+        $_SESSION['mensagem_tipo'] = "erro";
     }
 
-    $pdo->exec("SET FOREIGN_KEY_CHECKS=0");
+    // Redireciona após exclusão
+    header("Location: listar_times.php");
+    exit;
 }
 
+// Carrega os times para exibir na tela
 $sql = "SELECT t.id, t.nome, t.logo, t.token, g.nome AS grupo_nome 
         FROM times t 
         JOIN grupos g ON t.grupo_id = g.id 
@@ -56,6 +64,8 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 $csrf_token = gerarToken();
 $_SESSION['csrf_token'] = $csrf_token;
 ?>
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -68,22 +78,20 @@ $_SESSION['csrf_token'] = $csrf_token;
     <link rel="stylesheet" href="../../../public/css/adm/header_adm.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 </head>
 <body>
 <?php require_once 'header_adm.php' ?>
 
     <h1 class="text-center fade-in">LISTA DE TIMES</h1>
 
-    <div class="container fade-in">
-        <?php if (isset($_GET['status'])): ?>
-            <?php if ($_GET['status'] === 'success'): ?>
-                <div class="alert alert-success text-center">Time excluído com sucesso!</div>
-            <?php elseif ($_GET['status'] === 'error'): ?>
-                <div class="alert alert-danger text-center">Erro ao excluir time.</div>
-            <?php endif; ?>
-        <?php endif; ?>
+    <!-- Mensagem de sucesso/erro (exibida no topo após exclusão) -->
+    <?php if (!empty($mensagem)) : ?>
+        <div class="mensagem <?php echo $mensagem_tipo === 'sucesso' ? 'mensagem-sucesso' : 'mensagem-erro'; ?>">
+            <?php echo htmlspecialchars($mensagem); ?>
+        </div>
+    <?php endif; ?>
 
+    <div class="container fade-in">
         <div class="row">
         <?php foreach ($times as $grupo_nome => $timesGrupo): ?>
             <div class="col-md-3">
@@ -91,7 +99,7 @@ $_SESSION['csrf_token'] = $csrf_token;
                 <?php foreach ($timesGrupo as $time): ?>
                     <div class="time-card">
                         <?php if ($time['logo']): ?>
-                            <img src="data:image/jpeg;base64,<?php echo base64_encode($time['logo']); ?>" class="time-image" alt="Logo do Time">
+                            <img src="data:image/png;base64,<?php echo base64_encode($time['logo']); ?>" class="time-image" alt="Logo do Time">
                         <?php else: ?>
                             <img src="../../../public/images/default-team.png" class="time-image" alt="Logo do Time">
                         <?php endif; ?>
@@ -110,13 +118,13 @@ $_SESSION['csrf_token'] = $csrf_token;
         </div>
     </div>
 
-    <!-- Modal de Confirmação -->
+    <!-- Modal de Confirmação de Exclusão -->
     <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Exclusão</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -135,16 +143,17 @@ $_SESSION['csrf_token'] = $csrf_token;
         </div>
     </div>
 
+    <!-- Scripts JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-    $('#confirmDeleteModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var token = button.data('token');
-        var modal = $(this);
-        modal.find('#delete_token').val(token);
-    });
+        $('#confirmDeleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var token = button.data('token');
+            var modal = $(this);
+            modal.find('#delete_token').val(token);
+        });
     </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {

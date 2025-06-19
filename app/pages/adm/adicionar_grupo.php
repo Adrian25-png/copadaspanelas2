@@ -1,7 +1,6 @@
 <?php
 session_start();
 if (!isset($_SESSION['admin_id'])) {
-    // Armazenar a URL de referência para redirecionar após o login
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
     header("Location: login.php");
     exit();
@@ -12,6 +11,7 @@ include("../../actions/cadastro_adm/session_check.php");
 $isAdmin = isset($_SESSION['user_logged_in']) && $_SESSION['user_logged_in'] && isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 
 include '../../config/conexao.php';
+$pdo = conectar(); // Conexão PDO
 ?>
 
 <!DOCTYPE html>
@@ -23,10 +23,9 @@ include '../../config/conexao.php';
     <link rel="stylesheet" href="../../../public/css/cssfooter.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 </head>
 <body>
-<?php require_once 'header_adm.php' ?>
+<?php require_once 'header_adm.php'; ?>
 <div class="main">
     <div class="form-container fade-in">
         <h1>Adicionar Grupo</h1>
@@ -47,7 +46,7 @@ include '../../config/conexao.php';
         </form>
         <div id="mensagem">
             <?php
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['equipesPorGrupo']) && isset($_POST['numeroGrupos']) && isset($_POST['faseFinal'])) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $equipesPorGrupo = intval($_POST['equipesPorGrupo']);
                 $numeroGrupos = intval($_POST['numeroGrupos']);
                 $faseFinal = $_POST['faseFinal'];
@@ -67,110 +66,53 @@ include '../../config/conexao.php';
                         $minimo = ($faseFinal === 'oitavas') ? $MIN_TIMES_OITAVAS : $MIN_TIMES_QUARTAS;
                         echo "<p class='error-message'>Não é possível criar grupos. O número total de equipes deve ser pelo menos $minimo para a fase final selecionada.</p>";
                     } else {
-                        // Condições para verificar se a divisão é exata para a fase final
-                        if ($faseFinal === 'oitavas') {
-                            if (($totalEquipes % 16) !== 0) {
-                                echo "<p class='error-message'>Para a fase de oitavas, o número total de equipes deve ser múltiplo de 16.</p>";
-                            } elseif (($numeroGrupos * $equipesPorGrupo) % 8 !== 0) {
-                                echo "<p class='error-message'>Número de grupos ou equipes por grupo não permite uma divisão exata para a fase de oitavas.</p>";
-                            } else {
-                                try {
-                                    // Desativar restrições de chave estrangeira (necessário para usar TRUNCATE em algumas configurações)
-                                    $conn->query("SET FOREIGN_KEY_CHECKS = 0");
-                                    // Limpar tabelas
-                                    $tables = [
-                                        'jogadores',
-                                        'times',
-                                        'final',
-                                        'quartas_de_final',
-                                        'oitavas_de_final',
-                                        'semifinais',
-                                        'jogos',
-                                        'jogos_fase_grupos',
-                                        'grupos'
-                                    ];
+                        // Condições da fase final
+                        $erroDivisao = false;
+                        if ($faseFinal === 'oitavas' && ($totalEquipes % 16 !== 0 || ($numeroGrupos * $equipesPorGrupo) % 8 !== 0)) {
+                            $erroDivisao = true;
+                            echo "<p class='error-message'>Para a fase de oitavas, o total de equipes deve ser múltiplo de 16 e divisão de grupos precisa ser exata.</p>";
+                        }
+                        if ($faseFinal === 'quartas' && ($totalEquipes % 8 !== 0 || ($numeroGrupos * $equipesPorGrupo) % 2 !== 0)) {
+                            $erroDivisao = true;
+                            echo "<p class='error-message'>Para a fase de quartas, o total de equipes deve ser múltiplo de 8 e divisão de grupos precisa ser exata.</p>";
+                        }
 
-                                    foreach ($tables as $table) {
-                                        $sql = "TRUNCATE TABLE $table";
-                                        $conn->query($sql);
-                                    }
+                        if (!$erroDivisao) {
+                            try {
+                                // Desativa restrições FK temporariamente
+                                $pdo->exec("SET FOREIGN_KEY_CHECKS = 0");
 
-                                    // Reativar restrições de chave estrangeira
-                                    $conn->query("SET FOREIGN_KEY_CHECKS = 1");
+                                // Limpar tabelas necessárias
+                                $tables = [
+                                    'jogadores', 'posicoes_jogadores', 'times', 'final', 'quartas_de_final',
+                                    'oitavas_de_final', 'semifinais', 'jogos_finais',
+                                    'jogos_fase_grupos', 'grupos', 'final_confrontos',
+                                    'oitavas_de_final_confrontos', 'quartas_de_final_confrontos', 'semifinais_confrontos'
+                                ];
 
-                                    // Criar grupos
-                                    $sql = "REPLACE INTO configuracoes (id, equipes_por_grupo, numero_grupos, fase_final) VALUES (1, ?, ?, ?)";
-                                    $stmt = $conn->prepare($sql);
-                                    $stmt->bind_param("iis", $equipesPorGrupo, $numeroGrupos, $faseFinal);
-                                    $stmt->execute();
-
-                                    $conn->query("DELETE FROM grupos");
-
-                                    for ($i = 1; $i <= $numeroGrupos; $i++) {
-                                        $nomeGrupo = "Grupo " . chr(64 + $i);
-                                        $sql = "INSERT INTO grupos (nome) VALUES ('$nomeGrupo')";
-                                        $conn->query($sql);
-                                    }
-                                    echo "<p class='success-message'>Grupos criados com sucesso!</p>";
-                                } catch (Exception $e) {
-                                    echo "<p class='error-message'>Erro ao deletar dados: " . $e->getMessage() . "</p>";
+                                foreach ($tables as $table) {
+                                    $pdo->exec("TRUNCATE TABLE $table");
                                 }
-                            }
-                        } elseif ($faseFinal === 'quartas') {
-                            if (($totalEquipes % 8) !== 0) {
-                                echo "<p class='error-message'>Para a fase de quartas, o número total de equipes deve ser múltiplo de 8.</p>";
-                            } elseif (($numeroGrupos * $equipesPorGrupo) % 2 !== 0) {
-                                echo "<p class='error-message'>Número de grupos ou equipes por grupo não permite uma divisão exata para a fase de quartas.</p>";
-                            } else {
-                                try {
-                                    // Desativar restrições de chave estrangeira (necessário para usar TRUNCATE em algumas configurações)
-                                    $conn->query("SET FOREIGN_KEY_CHECKS = 0");
 
-                                    // Limpar tabelas
-                                    $tables = [
-                                        'jogadores',
-                                        'posicoes_jogadores',
-                                        'times',
-                                        'final',
-                                        'quartas_de_final',
-                                        'oitavas_de_final',
-                                        'semifinais',
-                                        'jogos',
-                                        'jogos_finais',
-                                        'jogos_fase_grupos',
-                                        'grupos',
-                                        'final_confrontos',
-                                        'oitavas_de_final_confrontos',
-                                        'quartas_de_final_confrontos',
-                                        'semifinais_confrontos',
-                                        'final_confrontos'
-                                    ];
+                                $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
 
-                                    foreach ($tables as $table) {
-                                        $sql = "TRUNCATE TABLE $table";
-                                        $conn->query($sql);
-                                    }
+                                // Inserir configuração
+                                $stmt = $pdo->prepare("REPLACE INTO configuracoes (id, equipes_por_grupo, numero_grupos, fase_final) VALUES (1, ?, ?, ?)");
+                                $stmt->execute([$equipesPorGrupo, $numeroGrupos, $faseFinal]);
 
-                                    // Reativar restrições de chave estrangeira
-                                    $conn->query("SET FOREIGN_KEY_CHECKS = 1");
+                                // Limpar grupos
+                                $pdo->exec("DELETE FROM grupos");
 
-                                    // Criar grupos
-                                    $sql = "REPLACE INTO configuracoes (id, equipes_por_grupo, numero_grupos, fase_final) VALUES (1, ?, ?, ?)";
-                                    $stmt = $conn->prepare($sql);
-                                    $stmt->bind_param("iis", $equipesPorGrupo, $numeroGrupos, $faseFinal);
-                                    $stmt->execute();
-
-                                    $conn->query("DELETE FROM grupos");
-
-                                    for ($i = 1; $i <= $numeroGrupos; $i++) {
-                                        $nomeGrupo = "Grupo " . chr(64 + $i);
-                                        $sql = "INSERT INTO grupos (nome) VALUES ('$nomeGrupo')";
-                                        $conn->query($sql);
-                                    }
-                                    echo "<p class='success-message'>Grupos criados com sucesso!</p>";
-                                } catch (Exception $e) {
-                                    echo "<p class='error-message'>Erro ao deletar dados: " . $e->getMessage() . "</p>";
+                                // Inserir novos grupos
+                                for ($i = 1; $i <= $numeroGrupos; $i++) {
+                                    $nomeGrupo = "Grupo " . chr(64 + $i);
+                                    $stmt = $pdo->prepare("INSERT INTO grupos (nome) VALUES (?)");
+                                    $stmt->execute([$nomeGrupo]);
                                 }
+
+                                echo "<p class='success-message'>Grupos criados com sucesso!</p>";
+                            } catch (PDOException $e) {
+                                echo "<p class='error-message'>Erro ao criar grupos: " . $e->getMessage() . "</p>";
                             }
                         }
                     }
@@ -180,7 +122,7 @@ include '../../config/conexao.php';
         </div>
     </div>
 </div>
-<?php require_once '../footer.php' ?>
+<?php require_once '../footer.php'; ?>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         document.querySelectorAll('.fade-in').forEach(function(el, i) {

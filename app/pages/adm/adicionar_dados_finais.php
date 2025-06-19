@@ -1,5 +1,23 @@
 <?php
 session_start();
+// Verifique se o usuário é administrador aqui
+
+require_once '../../config/conexao.php';
+require_once '../../actions/funcoes/classificar.php';
+
+$pdo = conectar(); // inicializa a conexão PDO
+
+// Exemplo de execução da classificação (pode estar dentro do POST de um form)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['classificar'])) {
+    classificarOitavasDeFinal($pdo);
+    classificarQuartasDeFinal($pdo);
+    classificarSemifinais($pdo);
+    classificarFinal($pdo);
+
+    $_SESSION['success_message'] = "Classificação realizada com sucesso!";
+    header("Location: adicionar_dados_finais.php");
+    exit;
+}
 
 if (!isset($_SESSION['admin_id'])) {
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
@@ -14,19 +32,7 @@ $isAdmin = isset($_SESSION['user_logged_in']) && $_SESSION['user_logged_in'] && 
 require_once __DIR__ . '/../../config/conexao.php';
 $pdo = conectar(); // Agora $pdo contém o objeto PDO
 
-function limparFases($fase_atual) {
-    global $pdo;
-    $ordem_fases = ['oitavas', 'quartas', 'semifinais', 'final'];
-    $indice_atual = array_search($fase_atual, $ordem_fases);
-    if ($indice_atual !== false) {
-        foreach ($ordem_fases as $indice => $fase) {
-            if ($indice > $indice_atual) {
-                $stmt = $pdo->prepare("UPDATE fase_execucao SET executado = ? WHERE fase = ?");
-                $stmt->execute([false, $fase]);
-            }
-        }
-    }
-}
+
 
 function atualizarFases($fase_selecionada) {
     global $pdo;
@@ -41,29 +47,6 @@ function atualizarFases($fase_selecionada) {
     }
 }
 
-function faseJaExecutada($fase) {
-    global $pdo;
-    $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM fase_execucao WHERE fase = ? AND executado = 1");
-    $stmt->execute([$fase]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $row['count'] > 0;
-}
-
-function inicializarFaseExecucao() {
-    global $pdo;
-    $fases = ['oitavas', 'quartas', 'semifinais', 'final'];
-    foreach ($fases as $fase) {
-        $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM fase_execucao WHERE fase = ?");
-        $stmt->execute([$fase]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row['count'] == 0) {
-            $stmt = $pdo->prepare("INSERT INTO fase_execucao (fase) VALUES (?)");
-            $stmt->execute([$fase]);
-        }
-    }
-}
-
-inicializarFaseExecucao();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['fase_final'])) {
     $nova_fase_final = $_POST['fase_final'];
@@ -188,18 +171,20 @@ function obterNomeTime($id_time) {
 </script>
 
     <div class="form-container">
-        <!-- Exibe a mensagem de erro ou sucesso -->
-        <?php if (isset($_SESSION['error_message'])): ?>
-            <p class="error-message"><?php echo $_SESSION['error_message']; ?></p>
-            <?php unset($_SESSION['error_message']); ?>
-        <?php elseif (isset($_SESSION['success_message'])): ?>
-            <p class="success-message"><?php echo $_SESSION['success_message']; ?></p>
-            <?php unset($_SESSION['success_message']); ?>
-        <?php endif; ?>
+        <form method="post" action="">
+            
+            <button id="butao" type="submit" name="classificar">Classificar fases finais</button>
+            
+            <?php if (isset($_SESSION['success_message'])): ?>
+                <p class="success-message"><?php echo $_SESSION['success_message']; ?></p>
+                <?php unset($_SESSION['success_message']); ?>
+            <?php endif; ?>
+
+        </form>
 
         <!-- Formulário para selecionar a fase final -->
         <form method="post" action="">
-            <label id="isso" for="fase_final">Selecionar Fase Final:</label>
+            <label>Selecionar Fase final:</label>
             <select id="fase_final" name="fase_final" onchange="this.form.submit()">
                 <option value="oitavas" <?php if ($fase_final == 'oitavas') echo 'selected'; ?>>Oitavas de Final</option>
                 <option value="quartas" <?php if ($fase_final == 'quartas') echo 'selected'; ?>>Quartas de Final</option>
@@ -251,26 +236,27 @@ function obterNomeTime($id_time) {
             <p>Não existem times classificados para a fase.</p>
             <?php endif; ?>
         </form>
+
+    </div>
+    <div class="form-container">
+        <!-- Formulário para classificar os confrontos -->
+        <form id="classificacao-form" method="post" action="../../actions/funcoes/classificar.php" target="result_frame">
+            <h3>Deseja classificar os times para essa fase final?</h3>
+            <p>Selecione uma opção:</p>
+            <label>
+                <input type="radio" name="opcao" value="sim" required>
+                Sim, aperte o botão Classificar;
+            </label>
+            <label>
+                <input type="radio" name="opcao" value="nao" required>
+                Não, aperte o botão Classificar;
+            </label>
+            <button id="butao" type="submit" name="classificar">Classificar</button>
+        </form>
+        <!-- Frame para redirecionamento após classificação -->
+        <iframe name="result_frame" style="display:none;"></iframe>
     </div>
 
-<!-- Formulário para classificar os confrontos -->
-<div class="form-container">
-    <form id="classificacao-form" method="post" action="../../actions/funcoes/classificar.php" target="result_frame">
-        <h3>Deseja classificar os times para essa fase final?</h3>
-        <p>Selecione uma opção:</p>
-        <label>
-            <input type="radio" name="opcao" value="sim" required>
-            Sim, aperte o botão Classificar;
-        </label>
-        <label>
-            <input type="radio" name="opcao" value="nao" required>
-            Não, aperte o botão Classificar;
-        </label>
-        <button id="butao" type="submit" name="classificar">Classificar</button>
-    </form>
-    <!-- Frame para redirecionamento após classificação -->
-    <iframe name="result_frame" style="display:none;"></iframe>
-</div>
 </div>
 <script>
     document.getElementById('classificacao-form').addEventListener('submit', function(event) {

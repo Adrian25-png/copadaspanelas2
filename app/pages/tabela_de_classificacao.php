@@ -31,90 +31,95 @@
         <h1 class="fade-in">FASE DE GRUPOS</h1>  
         <div id="tabela-wrapper" class="fade-in">
             <h4 class="fade-in">Tabela de Classificação</h4>
-            <?php function mostrarGrupos() {
-                include '../config/conexao.php';
+            <?php mostrarGrupos(); ?>
+            <?php
+                function mostrarGrupos() {
+                    $pdo = conectar(); // Usando PDO corretamente
 
-                $sqlGrupos = "SELECT id, nome FROM grupos ORDER BY nome";
-                $resultGrupos = $conn->query($sqlGrupos);
+                    $sqlGrupos = "SELECT id, nome FROM grupos ORDER BY nome";
+                    $stmtGrupos = $pdo->query($sqlGrupos);
 
-                if ($resultGrupos->num_rows > 0) {
-                    while ($rowGrupos = $resultGrupos->fetch_assoc()) {
-                        $grupoId = $rowGrupos['id'];
-                        $grupoNome = $rowGrupos['nome'];
+                    $grupos = $stmtGrupos->fetchAll(PDO::FETCH_ASSOC);
 
-                        echo '<div class="grupo-container fade-in">';
-                        echo '<div class="grupo-header fade-in">' . $grupoNome . '</div>';
-                        echo '<div class="tabela-flex fade-in">';
-                        echo '<div class="tabela-flex-header fade-in">';
-                        echo '<div class="clube fade-in">Clube</div>'; // Coluna de Nome do Clube
-                        echo '<div class="small-col fade-in">P</div>'; // Coluna de Pontos
-                        echo '<div class="small-col fade-in">J</div>'; // Coluna de Partidas
-                        echo '<div class="small-col fade-in">V</div>'; // Coluna de Vitórias
-                        echo '<div class="small-col fade-in">E</div>'; // Coluna de Empates
-                        echo '<div class="small-col fade-in">D</div>'; // Coluna de Derrotas
-                        echo '<div class="small-col fade-in">GP</div>'; // Coluna de Gols Pró
-                        echo '<div class="small-col fade-in">GC</div>'; // Coluna de Gols Contra
-                        echo '<div class="small-col fade-in">SG</div>'; // Coluna de Saldo de Gols
-                        echo '<div class="small-col fade-in">%</div>'; // Coluna de Porcentagem de Aproveitamento
-                        echo '<div class="larger-col fade-in">ÚLT. JOGOS</div>'; // Coluna de Últimos Jogos
-                        echo '</div>';
+                    if ($grupos) {
+                        foreach ($grupos as $rowGrupos) {
+                            $grupoId = $rowGrupos['id'];
+                            $grupoNome = $rowGrupos['nome'];
 
-                        $sqlTimes = "SELECT t.id, t.nome, t.logo, 
-                                            COALESCE(SUM(j.gols_marcados_timeA), 0) + COALESCE(SUM(j.gols_marcados_timeB), 0) AS gm,
-                                            COALESCE(SUM(j.gols_marcados_timeB), 0) + COALESCE(SUM(j.gols_marcados_timeA), 0) AS gc,
-                                            COALESCE(SUM(j.gols_marcados_timeA > j.gols_marcados_timeB), 0) AS vitorias,
-                                            COALESCE(SUM(j.gols_marcados_timeA = j.gols_marcados_timeB), 0) AS empates,
-                                            COALESCE(SUM(j.gols_marcados_timeA < j.gols_marcados_timeB), 0) AS derrotas,
-                                            COALESCE(SUM(j.gols_marcados_timeA - j.gols_marcados_timeB), 0) AS sg,
-                                            COUNT(j.id) AS partidas,
-                                            COALESCE(SUM(j.gols_marcados_timeA > j.gols_marcados_timeB), 0) * 3 + COALESCE(SUM(j.gols_marcados_timeA = j.gols_marcados_timeB), 0) AS pts
-                                    FROM times t
-                                    LEFT JOIN jogos_fase_grupos j ON t.id = j.timeA_id OR t.id = j.timeB_id
-                                    WHERE t.grupo_id = $grupoId
-                                    GROUP BY t.id
-                                    ORDER BY pts DESC, gm DESC, gc ASC, sg DESC";
-                        $resultTimes = $conn->query($sqlTimes);
+                            echo '<div class="grupo-container fade-in">';
+                            echo '<div class="grupo-header fade-in">' . htmlspecialchars($grupoNome) . '</div>';
+                            echo '<div class="tabela-flex fade-in">';
+                            echo '<div class="tabela-flex-header fade-in">';
+                            echo '<div class="clube fade-in">Clube</div>';
+                            echo '<div class="small-col fade-in">P</div>';
+                            echo '<div class="small-col fade-in">J</div>';
+                            echo '<div class="small-col fade-in">V</div>';
+                            echo '<div class="small-col fade-in">E</div>';
+                            echo '<div class="small-col fade-in">D</div>';
+                            echo '<div class="small-col fade-in">GP</div>';
+                            echo '<div class="small-col fade-in">GC</div>';
+                            echo '<div class="small-col fade-in">SG</div>';
+                            echo '<div class="small-col fade-in">%</div>';
+                            echo '<div class="larger-col fade-in">ÚLT. JOGOS</div>';
+                            echo '</div>';
 
-                        if ($resultTimes->num_rows > 0) {
-                            $posicao = 1;
-                            while ($rowTimes = $resultTimes->fetch_assoc()) {
-                                echo '<div class="tabela-flex-row fade-in">';
-                                echo '<div class="time-info fade-in">';
-                                echo '<span class="posicao_num">' . $posicao . '</span>';
-                                if (!empty($rowTimes['logo'])) {
-                                    $imageData = base64_encode($rowTimes['logo']);
-                                    $imageSrc = 'data:image/jpeg;base64,'.$imageData;
-                                    echo '<img src="' . $imageSrc . '" class="logo-time fade-in">';
+                            $sqlTimes = "SELECT t.id, t.nome, t.logo,
+                                            COALESCE(SUM(CASE WHEN t.id = j.timeA_id THEN j.gols_marcados_timeA ELSE j.gols_marcados_timeB END),0) AS gm,
+                                            COALESCE(SUM(CASE WHEN t.id = j.timeA_id THEN j.gols_marcados_timeB ELSE j.gols_marcados_timeA END),0) AS gc,
+                                            COALESCE(SUM(CASE WHEN (t.id = j.timeA_id AND j.gols_marcados_timeA > j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB > j.gols_marcados_timeA) THEN 1 ELSE 0 END),0) AS vitorias,
+                                            COALESCE(SUM(CASE WHEN j.gols_marcados_timeA = j.gols_marcados_timeB THEN 1 ELSE 0 END),0) AS empates,
+                                            COALESCE(SUM(CASE WHEN (t.id = j.timeA_id AND j.gols_marcados_timeA < j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB < j.gols_marcados_timeA) THEN 1 ELSE 0 END),0) AS derrotas,
+                                            COUNT(j.id) AS partidas
+                                        FROM times t
+                                        LEFT JOIN jogos_fase_grupos j ON t.id = j.timeA_id OR t.id = j.timeB_id
+                                        WHERE t.grupo_id = :grupoId
+                                        GROUP BY t.id
+                                        ORDER BY (vitorias*3 + empates) DESC, gm DESC, gc ASC";
+
+                            $stmtTimes = $pdo->prepare($sqlTimes);
+                            $stmtTimes->execute(['grupoId' => $grupoId]);
+                            $times = $stmtTimes->fetchAll(PDO::FETCH_ASSOC);
+
+                            if ($times) {
+                                $posicao = 1;
+                                foreach ($times as $rowTimes) {
+                                    $pts = ($rowTimes['vitorias'] * 3) + $rowTimes['empates'];
+                                    $sg = $rowTimes['gm'] - $rowTimes['gc'];
+
+                                    echo '<div class="tabela-flex-row fade-in">';
+                                    echo '<div class="time-info fade-in">';
+                                    echo '<span class="posicao_num">' . $posicao . '</span>';
+                                    if (!empty($rowTimes['logo'])) {
+                                        $imageData = base64_encode($rowTimes['logo']);
+                                        $imageSrc = 'data:image/jpeg;base64,'.$imageData;
+                                        echo '<img src="' . $imageSrc . '" class="logo-time fade-in">';
+                                    }
+                                    echo '<span class="time-name">' . htmlspecialchars($rowTimes['nome']) . '</span>';
+                                    echo '</div>';
+                                    echo '<div class="small-col fade-in">' . $pts . '</div>';
+                                    echo '<div class="small-col fade-in">' . $rowTimes['partidas'] . '</div>';
+                                    echo '<div class="small-col fade-in">' . $rowTimes['vitorias'] . '</div>';
+                                    echo '<div class="small-col fade-in">' . $rowTimes['empates'] . '</div>';
+                                    echo '<div class="small-col fade-in">' . $rowTimes['derrotas'] . '</div>';
+                                    echo '<div class="small-col fade-in">' . $rowTimes['gm'] . '</div>';
+                                    echo '<div class="small-col fade-in">' . $rowTimes['gc'] . '</div>';
+                                    echo '<div class="small-col fade-in">' . $sg . '</div>';
+                                    echo '<div class="small-col fade-in">' . formatarPorcentagemAproveitamento($rowTimes['vitorias'], $rowTimes['partidas']) . '</div>';
+                                    echo '<div class="larger-col fade-in">';
+                                    echo gerarUltimosJogos($pdo, $rowTimes['id']);
+                                    echo '</div>';
+                                    echo '</div>';
+                                    $posicao++;
                                 }
-                                echo '<span class="time-name">' . $rowTimes['nome'] . '</span>';
-                                echo '</div>';
-                                echo '<div class="small-col fade-in">' . $rowTimes['pts'] . '</div>';
-                                echo '<div class="small-col fade-in">' . $rowTimes['partidas'] . '</div>';
-                                echo '<div class="small-col fade-in">' . $rowTimes['vitorias'] . '</div>';
-                                echo '<div class="small-col fade-in">' . $rowTimes['empates'] . '</div>';
-                                echo '<div class="small-col fade-in">' . $rowTimes['derrotas'] . '</div>';
-                                echo '<div class="small-col fade-in">' . $rowTimes['gm'] . '</div>';
-                                echo '<div class="small-col fade-in">' . $rowTimes['gc'] . '</div>';
-                                echo '<div class="small-col fade-in">' . $rowTimes['sg'] . '</div>';
-                                echo '<div class="small-col fade-in">' . formatarPorcentagemAproveitamento($rowTimes['vitorias'], $rowTimes['partidas']) . '</div>';
-                                echo '<div class="larger-col fade-in">';
-                                echo gerarUltimosJogos($rowTimes['id']);
-                                echo '</div>';
-                                echo '</div>';
-                                $posicao++;
+                            } else {
+                                echo '<div class="tabela-flex-row fade-in"><div colspan="11">Nenhum time encontrado para este grupo.</div></div>';
                             }
-                        } else {
-                            echo '<div class="tabela-flex-row fade-in"><div colspan="11">Nenhum time encontrado para este grupo.</div></div>';
+                            echo '</div>';
+                            echo '</div>';
                         }
-
-                        echo '</div>';
-                        echo '</div>';
+                    } else {
+                        echo "Nenhum grupo encontrado.";
                     }
-                }  else {
-                    echo "Nenhum grupo encontrado.";
-                }
-
-                $conn->close();
                 }
 
                 function formatarPorcentagemAproveitamento($vitorias, $partidas) {
@@ -130,30 +135,31 @@
                     }
                 }
 
-                function gerarUltimosJogos($timeId) {
-                    include '../config/conexao.php';
-
+                function gerarUltimosJogos($pdo, $timeId) {
                     $sqlJogos = "SELECT CASE 
-                                    WHEN timeA_id = $timeId THEN resultado_timeA
-                                    WHEN timeB_id = $timeId THEN resultado_timeB
-                                    ELSE 'G'
-                                END AS resultado
+                                        WHEN timeA_id = :timeId THEN resultado_timeA
+                                        WHEN timeB_id = :timeId THEN resultado_timeB
+                                        ELSE 'G'
+                                    END AS resultado
                                 FROM jogos_fase_grupos 
-                                WHERE timeA_id = $timeId OR timeB_id = $timeId 
+                                WHERE timeA_id = :timeId OR timeB_id = :timeId 
                                 ORDER BY data_jogo DESC 
                                 LIMIT 5";
-                    $resultJogos = $conn->query($sqlJogos);
+
+                    $stmtJogos = $pdo->prepare($sqlJogos);
+                    $stmtJogos->execute(['timeId' => $timeId]);
+                    $resultJogos = $stmtJogos->fetchAll(PDO::FETCH_ASSOC);
 
                     $ultimosJogos = [];
 
-                    if ($resultJogos->num_rows > 0) {
-                        while ($rowJogos = $resultJogos->fetch_assoc()) {
+                    if ($resultJogos) {
+                        foreach ($resultJogos as $rowJogos) {
                             $ultimosJogos[] = $rowJogos['resultado'];
                         }
                     }
 
                     while (count($ultimosJogos) < 5) {
-                        $ultimosJogos[] = 'G'; // Cinza para jogos não existentes
+                        $ultimosJogos[] = 'G';
                     }
 
                     $output = '';
@@ -166,7 +172,7 @@
                             $output .= '<div class="inf3 fade-in"></div>';
                         } else {
                             $output .= '<div class="inf4 fade-in"></div>';
-                        }   
+                        }
                     }
 
                     return $output;

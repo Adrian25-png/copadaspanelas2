@@ -23,7 +23,7 @@ $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 <h1 class="titulo-central fade-in">SEJA BEM VINDO ADMINISTRADOR(A)!</h1>
 <h2 class="titulo-central fade-in">ESCOLHA UMA DAS OPÇÕES ABAIXO PARA GERENCIAR:</h2>
 
-<div class="admin-panel">
+<div class="admin-panel fade-in">
 
     <a href="../adm/rodadas_adm.php" class="admin-card">
         <div class="card-image">

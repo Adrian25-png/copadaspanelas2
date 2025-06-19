@@ -37,10 +37,6 @@ $usuarioLogado = isset($_SESSION['admin_id']) && !empty($_SESSION['admin_id']);
                     <li><a href="../rodadas.php">Rodadas</a></li>
                     <?php if ($usuarioLogado): ?>
                         <li><a href="../adm/rodadas_adm.php">Administrar Rodadas</a></li>
-                        <li><a href="../adm/adicionar_grupo.php">Criar novo campeonato</a></li>
-                        <li><a href="../adm/adicionar_times.php">Adicionar times</a></li>
-                        <li><a href="../adm/editar_time.php">Editar times</a></li>
-                        <li><a href="../adm/adicionar_times_de_forma_aleatoria.php">Adicionar times aleatoriamente</a></li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -51,6 +47,18 @@ $usuarioLogado = isset($_SESSION['admin_id']) && !empty($_SESSION['admin_id']);
                     <li><a href="../tabela_de_classificacao.php">Grupos</a></li>
                     <?php if ($usuarioLogado): ?>
                         <li><a href="../classificar.php">Classificados</a></li>
+                        <li><a href="../adm/adicionar_grupo.php">Criar novo campeonato</a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+
+            <li>
+                <a href="#">Times ▾</a>
+                <ul class="dropdown">
+                    <?php if ($usuarioLogado): ?>
+                        <li><a href="../adm/adicionar_times.php">Adicionar times</a></li>
+                        <li><a href="../adm/editar_time.php">Editar times</a></li>
+                        <li><a href="../adm/adicionar_times_de_forma_aleatoria.php">Adicionar times aleatoriamente</a></li>
                     <?php endif; ?>
                 </ul>
             </li>

@@ -271,6 +271,23 @@ button#cancel-btn {
     height: 30px;
 }
 
+.alert-success {
+    background-color: #1e1e1e;
+    color: #2ecc71;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    max-width: 300px;
+    margin: 10px auto;
+    text-align: center;
+    border: 1px solid #2ecc71;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+.alert-success.visible {
+    opacity: 1;
+}
+
 /* Responsividade */
 @media (max-width: 770px) {
     h1#dynamic-text {
