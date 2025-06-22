@@ -1,10 +1,10 @@
 <?php
 function conectar() {
-    $host = getenv('DB_HOST') ?: 'localhost';
-    $port = getenv('DB_PORT') ?: '3306';
-    $dbname = getenv('DB_NAME') ?: 'copa';
-    $username = getenv('DB_USER') ?: 'root';
-    $password = getenv('DB_PASS') ?: '';
+    $host = 'localhost'; // ou '127.0.0.1'
+    $port = '3306';
+    $dbname = 'copa';
+    $username = 'root';
+    $password = ''; // sua senha local do MySQL, se tiver
 
     $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
 
