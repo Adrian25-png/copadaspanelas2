@@ -9,7 +9,7 @@ function conectar() {
         $password = ''; // senha local do XAMPP
     } else {
         // Ambiente Railway
-        $host = 'mysql.railway.internal';
+        $host = 'switchback.proxy.rlwy.net';
         $port = '3306';
         $dbname = 'railway'; // troque aqui pelo nome real do banco no Railway
         $username = 'root';
