@@ -1,12 +1,10 @@
 <?php
 function conectar() {
-    $url = parse_url(getenv("DATABASE_URL"));
-
-    $host = $url["host"];
-    $port = $url["port"];
-    $dbname = ltrim($url["path"], '/');
-    $username = $url["user"];
-    $password = $url["pass"];
+    $host = getenv('DB_HOST') ?: 'localhost';
+    $port = getenv('DB_PORT') ?: '3306';
+    $dbname = getenv('DB_NAME') ?: 'copa';
+    $username = getenv('DB_USER') ?: 'root';
+    $password = getenv('DB_PASS') ?: '';
 
     $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
 
