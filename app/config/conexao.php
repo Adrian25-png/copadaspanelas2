@@ -1,20 +1,10 @@
 <?php
 function conectar() {
-    if ($_SERVER['SERVER_NAME'] === 'localhost') {
-        // Ambiente local (XAMPP)
-        $host = '127.0.0.1';
-        $port = '3306';
-        $dbname = 'copa';
-        $username = 'root';
-        $password = ''; // senha local do XAMPP
-    } else {
-        // Ambiente Railway
-        $host = 'switchback.proxy.rlwy.net';
-        $port = '52934';
-        $dbname = 'railway'; // troque aqui pelo nome real do banco no Railway
-        $username = 'root';
-        $password = 'awesBgGcSgDAJOgEEMIEVBvjuAvaXRJW'; // senha real do Railway
-    }
+    $host = '127.0.0.1';
+    $port = '3306';
+    $dbname = 'copa';
+    $username = 'root';
+    $password = '';
 
     $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
 
