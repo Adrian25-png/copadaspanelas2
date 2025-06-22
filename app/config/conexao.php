@@ -10,7 +10,7 @@ function conectar() {
     } else {
         // Ambiente Railway
         $host = 'switchback.proxy.rlwy.net';
-        $port = '3306';
+        $port = '52934';
         $dbname = 'railway'; // troque aqui pelo nome real do banco no Railway
         $username = 'root';
         $password = 'awesBgGcSgDAJOgEEMIEVBvjuAvaXRJW'; // senha real do Railway
