@@ -43,7 +43,7 @@ $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 
     <a href="../adm/adicionar_times.php" class="admin-card">
         <div class="card-image">
-            <img src="" alt="TIMES">
+            <img src="/copadaspanelas2/public/img/adm_icons/times.png" alt="TIMES">
         </div>
         <h3>Adicionar Times</h3>
         <p>Inclua novos times manualmente no campeonato.</p>
@@ -51,7 +51,7 @@ $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 
     <a href="../adm/editar_time.php" class="admin-card">
         <div class="card-image">
-            <img src="" alt="EDITAR TIMES">
+            <img src="/copadaspanelas2/public/img/adm_icons/editar_times.png" alt="EDITAR TIMES">
         </div>
         <h3>Editar Times</h3>
         <p>Modifique informações dos times cadastrados.</p>
@@ -59,7 +59,7 @@ $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 
     <a href="../adm/adicionar_times_de_forma_aleatoria.php" class="admin-card">
         <div class="card-image">
-            <img src="" alt="TIMES ALEATÓRIOS">
+            <img src="/copadaspanelas2/public/img/adm_icons/aleatorio_times.png" alt="TIMES ALEATÓRIOS">
         </div>
         <h3>Adicionar Times Aleatoriamente</h3>
         <p>Preencha os grupos automaticamente com times.</p>
@@ -67,7 +67,7 @@ $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 
     <a href="../classificar.php" class="admin-card">
         <div class="card-image">
-            <img src="" alt="CLASSIFICAR TIMES">
+            <img src="/copadaspanelas2/public/img/adm_icons/classificar_times.png" alt="CLASSIFICAR TIMES">
         </div>
         <h3>Classificar Times</h3>
         <p>Defina quais times avançam para a próxima fase.</p>
@@ -75,7 +75,7 @@ $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 
     <a href="../adm/adicionar_dados_finais.php" class="admin-card">
         <div class="card-image">
-            <img src="" alt="ADMINISTRAR FINAIS">
+            <img src="/copadaspanelas2/public/img/adm_icons/admin_finais.png" alt="ADMINISTRAR FINAIS">
         </div>
         <h3>Administrar Finais</h3>
         <p>Gerencie os dados das partidas finais.</p>
@@ -83,7 +83,7 @@ $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 
     <a href="../adm/crud_jogador.php" class="admin-card">
         <div class="card-image">
-            <img src="" alt="ADMINISTRAR JOGADORES">
+            <img src="/copadaspanelas2/public/img/adm_icons/admin_jogadores.png" alt="ADMINISTRAR JOGADORES">
         </div>
         <h3>Administrar Jogadores</h3>
         <p>Adicione, edite ou remova jogadores e suas estatísticas.</p>

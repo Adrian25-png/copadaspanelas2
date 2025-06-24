@@ -76,23 +76,12 @@
     <?php include 'footer.php' ?>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const menuToggle = document.getElementById('menu-toggle');
-            const navMenu = document.getElementById('nav-menu');
-
-            menuToggle.addEventListener('click', function() {
-                navMenu.classList.toggle('active');
-            });
-        });
-    </script>
-    <script>
         document.addEventListener("DOMContentLoaded", function() {
             document.querySelectorAll('.fade-in').forEach(function(el, i) {
                 setTimeout(() => el.classList.add('visible'), i * 20);
             });
         });
     </script>
-    <script src="../../public/js/homepage.js"></script>
 </body>
 
 </html>
