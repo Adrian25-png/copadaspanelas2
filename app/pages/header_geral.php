@@ -10,10 +10,13 @@
     </div>
     <!--Cadastro-->
     <div class="cadastro">
-        <?php if (isset($_SESSION['admin_id'])): ?>
-            <a href="../adm/logout.php">Deslogar</a>
+        <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
+            <a href="adm/dashboard_simple.php" style="background: #27ae60; padding: 8px 12px; border-radius: 5px; margin-right: 10px; text-decoration: none; color: white;">
+                <i class="fas fa-cogs"></i> Admin
+            </a>
+            <a href="adm/login_simple.php?logout=1">Sair</a>
         <?php else: ?>
-            <a href="../pages/adm/login.php">Login</a>
+            <a href="adm/login_simple.php">Login Admin</a>
         <?php endif; ?>
     </div>
     <!-- Barra de navegação -->

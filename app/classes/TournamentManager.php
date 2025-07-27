@@ -322,5 +322,32 @@ class TournamentManager {
             error_log("Erro ao registrar atividade: " . $e->getMessage());
         }
     }
+
+
+
+    /**
+     * Update tournament status
+     */
+    public function updateTournamentStatus($tournament_id, $status) {
+        $stmt = $this->pdo->prepare("UPDATE tournaments SET status = ?, updated_at = NOW() WHERE id = ?");
+        return $stmt->execute([$status, $tournament_id]);
+    }
+
+    /**
+     * Get tournament statistics
+     */
+    public function getTournamentStatistics($tournament_id) {
+        $stmt = $this->pdo->prepare("
+            SELECT
+                (SELECT COUNT(*) FROM times WHERE tournament_id = ?) as total_teams,
+                (SELECT COUNT(*) FROM grupos WHERE tournament_id = ?) as total_groups,
+                (SELECT COUNT(*) FROM matches WHERE tournament_id = ?) as total_matches,
+                (SELECT COUNT(*) FROM matches WHERE tournament_id = ? AND status = 'finalizado') as finished_matches,
+                (SELECT COUNT(*) FROM matches WHERE tournament_id = ? AND status = 'agendado') as scheduled_matches,
+                (SELECT SUM(team1_goals + team2_goals) FROM matches WHERE tournament_id = ? AND status = 'finalizado') as total_goals
+        ");
+        $stmt->execute([$tournament_id, $tournament_id, $tournament_id, $tournament_id, $tournament_id, $tournament_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
 ?>
