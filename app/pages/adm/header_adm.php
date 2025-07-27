@@ -47,7 +47,7 @@ $usuarioLogado = isset($_SESSION['admin_id']) && !empty($_SESSION['admin_id']);
                     <li><a href="../tabela_de_classificacao.php">Grupos</a></li>
                     <?php if ($usuarioLogado): ?>
                         <li><a href="../classificar.php">Classificados</a></li>
-                        <li><a href="../adm/adicionar_grupo.php">Criar novo campeonato</a></li>
+                        <li><a href="../adm/tournament_list.php">Gerenciar Torneios</a></li>
                     <?php endif; ?>
                 </ul>
             </li>
@@ -82,6 +82,19 @@ $usuarioLogado = isset($_SESSION['admin_id']) && !empty($_SESSION['admin_id']);
                     <?php endif; ?>
                 </ul>
             </li>
+
+            <?php if ($usuarioLogado): ?>
+            <li>
+                <a href="#">Sistema ▾</a>
+                <ul class="dropdown">
+                    <li><a href="../adm/tournament_dashboard.php">Dashboard Principal</a></li>
+                    <li><a href="../adm/quick_results.php">Resultados Rápidos</a></li>
+                    <li><a href="../adm/bulk_team_manager.php">Gerenciar Times</a></li>
+                    <li><a href="../adm/cadastro_adm.php">Cadastrar Administrador</a></li>
+                    <li><a href="../adm/salvar_historico.php">Salvar Histórico</a></li>
+                </ul>
+            </li>
+            <?php endif; ?>
         </ul>
     </nav>
 </header>
