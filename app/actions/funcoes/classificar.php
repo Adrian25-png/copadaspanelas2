@@ -46,7 +46,32 @@ function classificarOitavasDeFinal($pdo) {
 
     $times_classificados = [];
     for ($i = 1; $i <= $numeroGrupos; $i++) {
-        $stmt = $pdo->prepare("SELECT * FROM times WHERE grupo_id = ? ORDER BY pts DESC, sg DESC, gm DESC, id ASC LIMIT ?");
+        // Usar cálculo dinâmico dos pontos baseado nos jogos realizados
+        $stmt = $pdo->prepare("
+            SELECT t.*,
+                   COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND t.id = j.timeA_id THEN j.gols_marcados_timeA
+                                    WHEN j.resultado_timeB IS NOT NULL AND t.id = j.timeB_id THEN j.gols_marcados_timeB
+                                    ELSE 0 END),0) AS gm_calc,
+                   COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND t.id = j.timeA_id THEN j.gols_marcados_timeB
+                                    WHEN j.resultado_timeB IS NOT NULL AND t.id = j.timeB_id THEN j.gols_marcados_timeA
+                                    ELSE 0 END),0) AS gc_calc,
+                   COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND ((t.id = j.timeA_id AND j.gols_marcados_timeA > j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB > j.gols_marcados_timeA)) THEN 1 ELSE 0 END),0) AS vitorias_calc,
+                   COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND j.gols_marcados_timeA = j.gols_marcados_timeB THEN 1 ELSE 0 END),0) AS empates_calc,
+                   (COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND ((t.id = j.timeA_id AND j.gols_marcados_timeA > j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB > j.gols_marcados_timeA)) THEN 1 ELSE 0 END),0) * 3 +
+                    COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND j.gols_marcados_timeA = j.gols_marcados_timeB THEN 1 ELSE 0 END),0)) AS pts_calc,
+                   (COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND t.id = j.timeA_id THEN j.gols_marcados_timeA
+                                    WHEN j.resultado_timeB IS NOT NULL AND t.id = j.timeB_id THEN j.gols_marcados_timeB
+                                    ELSE 0 END),0) -
+                    COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND t.id = j.timeA_id THEN j.gols_marcados_timeB
+                                    WHEN j.resultado_timeB IS NOT NULL AND t.id = j.timeB_id THEN j.gols_marcados_timeA
+                                    ELSE 0 END),0)) AS sg_calc
+            FROM times t
+            LEFT JOIN jogos_fase_grupos j ON (t.id = j.timeA_id OR t.id = j.timeB_id) AND t.grupo_id = j.grupo_id
+            WHERE t.grupo_id = ?
+            GROUP BY t.id
+            ORDER BY pts_calc DESC, sg_calc DESC, gm_calc DESC, t.id ASC
+            LIMIT ?
+        ");
         $stmt->execute([$i, $times_por_grupo]);
         $times_classificados[$i] = $stmt->fetchAll(PDO::FETCH_ASSOC);
         validarClassificados($times_classificados[$i], $times_por_grupo, $i);

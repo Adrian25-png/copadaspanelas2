@@ -64,17 +64,21 @@
                             echo '</div>';
 
                             $sqlTimes = "SELECT t.id, t.nome, t.logo,
-                                            COALESCE(SUM(CASE WHEN t.id = j.timeA_id THEN j.gols_marcados_timeA ELSE j.gols_marcados_timeB END),0) AS gm,
-                                            COALESCE(SUM(CASE WHEN t.id = j.timeA_id THEN j.gols_marcados_timeB ELSE j.gols_marcados_timeA END),0) AS gc,
-                                            COALESCE(SUM(CASE WHEN (t.id = j.timeA_id AND j.gols_marcados_timeA > j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB > j.gols_marcados_timeA) THEN 1 ELSE 0 END),0) AS vitorias,
-                                            COALESCE(SUM(CASE WHEN j.gols_marcados_timeA = j.gols_marcados_timeB THEN 1 ELSE 0 END),0) AS empates,
-                                            COALESCE(SUM(CASE WHEN (t.id = j.timeA_id AND j.gols_marcados_timeA < j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB < j.gols_marcados_timeA) THEN 1 ELSE 0 END),0) AS derrotas,
-                                            COUNT(j.id) AS partidas
+                                            COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND t.id = j.timeA_id THEN j.gols_marcados_timeA
+                                                             WHEN j.resultado_timeB IS NOT NULL AND t.id = j.timeB_id THEN j.gols_marcados_timeB
+                                                             ELSE 0 END),0) AS gm,
+                                            COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND t.id = j.timeA_id THEN j.gols_marcados_timeB
+                                                             WHEN j.resultado_timeB IS NOT NULL AND t.id = j.timeB_id THEN j.gols_marcados_timeA
+                                                             ELSE 0 END),0) AS gc,
+                                            COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND ((t.id = j.timeA_id AND j.gols_marcados_timeA > j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB > j.gols_marcados_timeA)) THEN 1 ELSE 0 END),0) AS vitorias,
+                                            COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND j.gols_marcados_timeA = j.gols_marcados_timeB THEN 1 ELSE 0 END),0) AS empates,
+                                            COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND ((t.id = j.timeA_id AND j.gols_marcados_timeA < j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB < j.gols_marcados_timeA)) THEN 1 ELSE 0 END),0) AS derrotas,
+                                            COUNT(CASE WHEN j.resultado_timeA IS NOT NULL THEN j.id END) AS partidas
                                         FROM times t
-                                        LEFT JOIN jogos_fase_grupos j ON t.id = j.timeA_id OR t.id = j.timeB_id
+                                        LEFT JOIN jogos_fase_grupos j ON (t.id = j.timeA_id OR t.id = j.timeB_id) AND t.grupo_id = j.grupo_id
                                         WHERE t.grupo_id = :grupoId
                                         GROUP BY t.id
-                                        ORDER BY (vitorias*3 + empates) DESC, gm DESC, gc ASC";
+                                        ORDER BY (vitorias*3 + empates) DESC, (gm - gc) DESC, gm DESC";
 
                             $stmtTimes = $pdo->prepare($sqlTimes);
                             $stmtTimes->execute(['grupoId' => $grupoId]);
@@ -136,14 +140,15 @@
                 }
 
                 function gerarUltimosJogos($pdo, $timeId) {
-                    $sqlJogos = "SELECT CASE 
+                    $sqlJogos = "SELECT CASE
                                         WHEN timeA_id = :timeId THEN resultado_timeA
                                         WHEN timeB_id = :timeId THEN resultado_timeB
                                         ELSE 'G'
                                     END AS resultado
-                                FROM jogos_fase_grupos 
-                                WHERE timeA_id = :timeId OR timeB_id = :timeId 
-                                ORDER BY data_jogo DESC 
+                                FROM jogos_fase_grupos
+                                WHERE (timeA_id = :timeId OR timeB_id = :timeId)
+                                AND resultado_timeA IS NOT NULL
+                                ORDER BY data_jogo DESC
                                 LIMIT 5";
 
                     $stmtJogos = $pdo->prepare($sqlJogos);
