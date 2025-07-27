@@ -57,72 +57,87 @@ $codigo_adm = gerarCodigoAdm($pdo);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Administrador</title>
+    <title>Cadastro de Administrador - Copa das Panelas</title>
+
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../../../public/img/ESCUDO COPA DAS PANELAS.png" type="image/x-icon">
 
     <!-- Estilos -->
+    <link rel="stylesheet" href="../../../public/css/adm/header_adm.css">
     <link rel="stylesheet" href="../../../public/css/cadastro_adm/cadastro_adm.css">
     <link rel="stylesheet" href="../../../public/css/cssfooter.css">
 </head>
 <body>
 
 <!-- Cabeçalho padrão do admin -->
-<!-- <?php require_once 'header_adm.php'; ?> -->
+<?php require_once 'header_adm.php'; ?>
 
-<div class="form-container">
-    <form action="../../actions/cadastro_adm/processar_registro_adm.php" method="post">
-        <!-- Campo oculto para token CSRF -->
-        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+<main>
+    <!-- Título da página -->
+    <h1>Cadastro de Administrador</h1>
 
-        <!-- Código do Administrador (gerado automaticamente) -->
-        <label for="cod_adm">Código do Administrador:</label>
-        <input type="text" id="cod_adm" name="cod_adm" value="<?php echo htmlspecialchars($codigo_adm); ?>" readonly>
+    <div class="form-container">
+        <form action="../../actions/cadastro_adm/processar_registro_adm.php" method="post">
+            <!-- Campo oculto para token CSRF -->
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
-        <!-- Nome do Administrador -->
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" maxlength="30" required>
+            <!-- Código do Administrador (gerado automaticamente) -->
+            <label for="cod_adm">Código do Administrador:</label>
+            <input type="text" id="cod_adm" name="cod_adm" value="<?php echo htmlspecialchars($codigo_adm); ?>" readonly>
 
-        <!-- Email do Administrador -->
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" maxlength="40" required>
+            <!-- Nome do Administrador -->
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" maxlength="30" required>
 
-        <!-- Senha do Administrador -->
-        <label for="senha">Senha:</label>
-        <input type="password" id="senha" name="senha" maxlength="20" required>
+            <!-- Email do Administrador -->
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" maxlength="40" required>
 
-        <!-- Botão de envio -->
-        <button type="submit">Cadastrar</button>
+            <!-- Senha do Administrador -->
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" name="senha" maxlength="20" required>
 
-        <!-- Exibição de mensagens de erro ou sucesso -->
-        <?php if (isset($_GET['error'])): ?>
-            <p class="message error">
-                <?php
-                switch ($_GET['error']) {
-                    case 'token':
-                        echo "Token CSRF inválido.";
-                        break;
-                    case 'email':
-                        echo "Email inválido. O email deve terminar com .com.";
-                        break;
-                    case 'dominio':
-                        echo "O email deve ser do Gmail ou Hotmail.";
-                        break;
-                    case 'email_existente':
-                        echo "Email já cadastrado. Por favor, use outro email.";
-                        break;
-                    case 'nome_existente':
-                        echo "Nome já cadastrado. Por favor, escolha outro nome.";
-                        break;
-                    case 'db':
-                        echo "Erro ao cadastrar o administrador. Tente novamente mais tarde.";
-                        break;
-                }
-                ?>
-            </p>
-        <?php elseif (isset($_GET['success'])): ?>
-            <p class="message success">Administrador cadastrado com sucesso!</p>
-        <?php endif; ?>
-    </form>
-</div>
+            <!-- Botão de envio -->
+            <button type="submit">Cadastrar</button>
+
+            <!-- Exibição de mensagens de erro ou sucesso -->
+            <?php if (isset($_GET['error'])): ?>
+                <p class="message error">
+                    <?php
+                    switch ($_GET['error']) {
+                        case 'token':
+                            echo "Token CSRF inválido.";
+                            break;
+                        case 'email':
+                            echo "Email inválido. O email deve terminar com .com.";
+                            break;
+                        case 'dominio':
+                            echo "O email deve ser do Gmail ou Hotmail.";
+                            break;
+                        case 'email_existente':
+                            echo "Email já cadastrado. Por favor, use outro email.";
+                            break;
+                        case 'nome_existente':
+                            echo "Nome já cadastrado. Por favor, escolha outro nome.";
+                            break;
+                        case 'db':
+                            echo "Erro ao cadastrar o administrador. Tente novamente mais tarde.";
+                            break;
+                    }
+                    ?>
+                </p>
+            <?php elseif (isset($_GET['success'])): ?>
+                <p class="message success">Administrador cadastrado com sucesso!</p>
+            <?php endif; ?>
+        </form>
+    </div>
+</main>
 
 <!-- Rodapé padrão -->
 <?php require_once '../footer.php'; ?>

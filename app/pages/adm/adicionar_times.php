@@ -9,8 +9,8 @@ function generateFormFields($numTimes) {
         <label for="nome_time_' . $i . '">Nome do Time ' . ($i + 1) . ':</label>
         <input type="text" id="nome_time_' . $i . '" name="nome_time[]" required>
         
-        <label for="logo_time_' . $i . '">Logo do Time ' . ($i + 1) . ':</label>
-        <input type="file" id="logo_time_' . $i . '" name="logo_time[]" accept="image/*" required>
+        <label for="logo_time_' . $i . '">Logo do Time ' . ($i + 1) . ' (máx. 5MB):</label>
+        <input type="file" id="logo_time_' . $i . '" name="logo_time[]" accept="image/jpeg,image/png,image/gif,image/webp" required>
         ';
     }
     return $fieldsHtml;
@@ -58,14 +58,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $duplicateNames[] = $nomeTime;
                 $success = false;
             } else {
+                // Validação do arquivo de imagem
+                if (!isset($_FILES['logo_time']['tmp_name'][$i]) || $_FILES['logo_time']['error'][$i] !== UPLOAD_ERR_OK) {
+                    $_SESSION['message'] = "Erro no upload da imagem do time: " . $nomeTime;
+                    $_SESSION['message_type'] = 'error';
+                    $success = false;
+                    break;
+                }
+
+                // Verifica o tamanho do arquivo (máximo 5MB)
+                $maxFileSize = 5 * 1024 * 1024; // 5MB em bytes
+                if ($_FILES['logo_time']['size'][$i] > $maxFileSize) {
+                    $_SESSION['message'] = "A imagem do time '$nomeTime' é muito grande. Tamanho máximo: 5MB.";
+                    $_SESSION['message_type'] = 'error';
+                    $success = false;
+                    break;
+                }
+
+                // Verifica se é uma imagem válida
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                $fileType = $_FILES['logo_time']['type'][$i];
+                if (!in_array($fileType, $allowedTypes)) {
+                    $_SESSION['message'] = "Tipo de arquivo inválido para o time '$nomeTime'. Use JPEG, PNG, GIF ou WebP.";
+                    $_SESSION['message_type'] = 'error';
+                    $success = false;
+                    break;
+                }
+
                 $logoTime = file_get_contents($_FILES['logo_time']['tmp_name'][$i]);
+                if ($logoTime === false) {
+                    $_SESSION['message'] = "Erro ao ler a imagem do time: " . $nomeTime;
+                    $_SESSION['message_type'] = 'error';
+                    $success = false;
+                    break;
+                }
+
                 $token = generateUniqueToken();
 
-                $insertSql = "INSERT INTO times (nome, logo, grupo_id, pts, vitorias, empates, derrotas, gm, gc, sg, token) 
+                $insertSql = "INSERT INTO times (nome, logo, grupo_id, pts, vitorias, empates, derrotas, gm, gc, sg, token)
                               VALUES (?, ?, ?, 0, 0, 0, 0, 0, 0, 0, ?)";
                 $stmt = $pdo->prepare($insertSql);
                 if (!$stmt->execute([$nomeTime, $logoTime, $grupoId, $token])) {
-                    $_SESSION['message'] = "Erro ao adicionar time.";
+                    $_SESSION['message'] = "Erro ao adicionar time: " . $nomeTime;
                     $_SESSION['message_type'] = 'error';
                     $success = false;
                     break;
@@ -166,8 +200,8 @@ function updateFormFields(num) {
         html += `
         <label for="nome_time_${i}">Nome do Time ${i + 1}:</label>
         <input type="text" id="nome_time_${i}" name="nome_time[]" required>
-        <label for="logo_time_${i}">Logo do Time ${i + 1}:</label>
-        <input type="file" id="logo_time_${i}" name="logo_time[]" accept="image/*" required>`;
+        <label for="logo_time_${i}">Logo do Time ${i + 1} (máx. 5MB):</label>
+        <input type="file" id="logo_time_${i}" name="logo_time[]" accept="image/jpeg,image/png,image/gif,image/webp" required>`;
     }
     container.innerHTML = html;
 }

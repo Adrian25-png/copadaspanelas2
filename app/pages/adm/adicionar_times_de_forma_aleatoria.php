@@ -18,13 +18,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Verifica se arquivo foi enviado e obtém conteúdo
     if (isset($_FILES['logo_time']) && is_uploaded_file($_FILES['logo_time']['tmp_name'])) {
-        $logoTime = file_get_contents($_FILES['logo_time']['tmp_name']);
+        // Validação do arquivo de imagem
+        if ($_FILES['logo_time']['error'] !== UPLOAD_ERR_OK) {
+            $mensagem = "Erro no upload da imagem.";
+        } else {
+            // Verifica o tamanho do arquivo (máximo 5MB)
+            $maxFileSize = 5 * 1024 * 1024; // 5MB em bytes
+            if ($_FILES['logo_time']['size'] > $maxFileSize) {
+                $mensagem = "A imagem é muito grande. Tamanho máximo: 5MB.";
+            } else {
+                // Verifica se é uma imagem válida
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                $fileType = $_FILES['logo_time']['type'];
+                if (!in_array($fileType, $allowedTypes)) {
+                    $mensagem = "Tipo de arquivo inválido. Use JPEG, PNG, GIF ou WebP.";
+                } else {
+                    $logoTime = file_get_contents($_FILES['logo_time']['tmp_name']);
+                    if ($logoTime === false) {
+                        $mensagem = "Erro ao ler a imagem.";
+                    }
+                }
+            }
+        }
     } else {
         $logoTime = null; // ou trate erro se quiser obrigar
+        $mensagem = "Nenhuma imagem foi enviada.";
     }
 
-    // Gera um token para o novo time
-    $token = gerarToken();
+    // Só continua se não houver erro de validação de imagem
+    if (empty($mensagem)) {
+        // Verifica se o nome do time já existe
+        $checkSql = "SELECT COUNT(*) as count FROM times WHERE nome = :nome";
+        $stmtCheck = $pdo->prepare($checkSql);
+        $stmtCheck->bindParam(':nome', $nomeTime);
+        $stmtCheck->execute();
+        $exists = $stmtCheck->fetch(PDO::FETCH_ASSOC)['count'];
+
+        if ($exists > 0) {
+            $mensagem = "Erro: O nome do time '$nomeTime' já existe. Escolha outro nome.";
+        } else {
+            // Gera um token para o novo time
+            $token = gerarToken();
 
     // Consulta para obter a quantidade de equipes por grupo
     $configSql = "SELECT equipes_por_grupo FROM configuracoes LIMIT 1";
@@ -73,9 +107,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             $mensagem = "Não há grupos disponíveis com capacidade para mais times.";
         }
-    } else {
-        $mensagem = "Erro ao obter a configuração de equipes por grupo.";
-    }
+        } else {
+            $mensagem = "Erro ao obter a configuração de equipes por grupo.";
+        }
+        } // Fecha a verificação de nome duplicado
+    } // Fecha a verificação de validação de imagem
 }
 ?>
 
@@ -102,8 +138,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <label for="nome_time">Nome do Time:</label>
             <input type="text" id="nome_time" name="nome_time" required />
 
-            <label for="logo_time">Logo do Time:</label>
-            <input type="file" id="logo_time" name="logo_time" accept="image/*" required />
+            <label for="logo_time">Logo do Time (máx. 5MB):</label>
+            <input type="file" id="logo_time" name="logo_time" accept="image/jpeg,image/png,image/gif,image/webp" required />
 
             <input type="submit" value="Adicionar Time" class="submit" />
         </form>

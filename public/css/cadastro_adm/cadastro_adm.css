@@ -1,62 +1,168 @@
 
-body {
-    height: 100%;
-    background-size: cover;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(0deg, rgba(16,0,36), rgba(50,9,121), rgba(115,0,255));
-    /* background: linear-gradient(90deg, rgb(92, 0, 197), rgb(0, 0, 0));
-    color: rgb(12, 0, 187); */
-    user-select: none;
+/* Reset básico específico para esta página */
+.form-container * {
+    box-sizing: border-box;
+    font-family: 'Space Grotesk', sans-serif;
 }
+
+/* Corpo da página */
+body {
+    background: radial-gradient(#281c3e, #0f051d);
+    color: #E0E0E0;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-top: 150px; /* Espaço para o header fixo */
+}
+
+/* Container principal para manter o footer no final */
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+/* Título da página */
+h1 {
+    color: white;
+    font-size: 2.5rem;
+    text-align: center;
+    margin: 40px 0;
+}
+
+/* Container do formulário */
 .form-container {
     display: flex;
-    height: 100%;
     justify-content: center;
-    align-items: center;
     padding: 20px;
+    margin: 0 auto 40px auto;
+    max-width: 1200px;
+    flex: 1;
+    align-items: flex-start;
 }
+
+/* Estilo do formulário */
 form {
-    max-width: 400px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
     padding: 40px;
-    border: 1px solid black;
-    border-radius: 10px;
-    box-shadow: 0 0 40px rgb(106, 0, 255);
-    margin-top: 5%;
+    max-width: 500px;
     width: 100%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
+/* Labels */
 label {
     display: block;
-    margin-bottom: 10px;
-    font-size: 18px;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #E0E0E0;
 }
+
+/* Campos de entrada */
 input[type="text"],
 input[type="email"],
 input[type="password"] {
     width: 100%;
-    padding: 10px;
+    padding: 12px 15px;
     margin-bottom: 20px;
-    border: 2px solid black;
-    border-radius: 5px;
-    font-size: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: border-color 0.3s ease;
 }
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: rgb(92, 0, 197);
+    box-shadow: 0 0 10px rgba(92, 0, 197, 0.3);
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Campo readonly */
+input[readonly] {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+    cursor: not-allowed;
+}
+
+/* Botão */
 button {
-    background-color: #142aee;
-    color: #fff;
+    width: 100%;
+    background: linear-gradient(90deg, rgb(92, 0, 197), rgb(0, 0, 0));
+    color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 15px 20px;
     cursor: pointer;
-    border-radius: 5px;
-    font-size: 16px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 10px;
 }
+
+button:hover {
+    background: linear-gradient(90deg, rgb(112, 20, 217), rgb(20, 20, 20));
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(92, 0, 197, 0.4);
+}
+/* Mensagens */
 .message {
-    margin-bottom: 20px;
-    font-size: 16px;
+    margin-top: 20px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
 }
+
 .message.error {
-    color: red;
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid rgba(244, 67, 54, 0.5);
+    color: #ffcdd2;
 }
+
 .message.success {
-    color: green;
+    background: rgba(76, 175, 80, 0.2);
+    border: 1px solid rgba(76, 175, 80, 0.5);
+    color: #c8e6c9;
+}
+
+/* Responsividade */
+@media screen and (max-width: 768px) {
+    body {
+        padding-top: 120px;
+    }
+
+    .form-container {
+        padding: 10px;
+        margin: 0 auto;
+        align-items: center;
+    }
+
+    form {
+        padding: 30px 20px;
+        margin: 0;
+        max-width: 100%;
+    }
+
+    h1 {
+        font-size: 2rem;
+        margin: 20px 0;
+        padding: 0 20px;
+    }
 }
