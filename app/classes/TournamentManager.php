@@ -71,11 +71,12 @@ class TournamentManager {
             }
             
             // 5. Criar configurações do torneio
+            $final_phase_value = is_array($final_phase) ? json_encode($final_phase) : $final_phase;
             $stmt = $this->pdo->prepare("
                 INSERT INTO tournament_settings (tournament_id, num_groups, teams_per_group, final_phase)
                 VALUES (?, ?, ?, ?)
             ");
-            $stmt->execute([$tournament_id, $num_groups, $teams_per_group, $final_phase]);
+            $stmt->execute([$tournament_id, $num_groups, $teams_per_group, $final_phase_value]);
             
             // 6. Criar grupos
             for ($i = 1; $i <= $num_groups; $i++) {
@@ -86,16 +87,22 @@ class TournamentManager {
                 $stmt->execute([$group_name, $tournament_id]);
             }
             
-            // 7. Log da atividade
+            // 7. Criar fases finais se necessário
+            if (is_array($final_phase) && ($final_phase['has_final'] || $final_phase['has_semifinal'] || $final_phase['has_quarterfinal'] || $final_phase['has_round_of_16'])) {
+                $this->createFinalPhases($tournament_id, $final_phase);
+            }
+
+            // 8. Log da atividade
             $stmt = $this->pdo->prepare("
                 INSERT INTO tournament_activity_log (tournament_id, action, description, created_at)
                 VALUES (?, 'CRIADO', ?, NOW())
             ");
-            $stmt->execute([$tournament_id, "Torneio criado: $name"]);
-            
-            // 8. Commit da transação
+            $final_description = is_array($final_phase) ? $final_phase['description'] : '';
+            $stmt->execute([$tournament_id, "Torneio criado: $name. Fases finais: $final_description"]);
+
+            // 9. Commit da transação
             $this->pdo->commit();
-            
+
             return $tournament_id;
             
         } catch (Exception $e) {
@@ -110,7 +117,57 @@ class TournamentManager {
             throw new Exception("Erro ao criar torneio: " . $e->getMessage());
         }
     }
-    
+
+    /**
+     * Criar fases finais baseado na configuração
+     */
+    private function createFinalPhases($tournament_id, $final_phase_config) {
+        try {
+            // Criar tabela de fases finais se não existir
+            $this->pdo->exec("
+                CREATE TABLE IF NOT EXISTS final_phases (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    tournament_id INT NOT NULL,
+                    phase_name VARCHAR(50) NOT NULL,
+                    phase_order INT NOT NULL,
+                    teams_required INT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
+                )
+            ");
+
+            $phases_to_create = [];
+            $order = 1;
+
+            if ($final_phase_config['has_round_of_16']) {
+                $phases_to_create[] = ['name' => 'Oitavas de Final', 'order' => $order++, 'teams' => 16];
+            }
+            if ($final_phase_config['has_quarterfinal']) {
+                $phases_to_create[] = ['name' => 'Quartas de Final', 'order' => $order++, 'teams' => 8];
+            }
+            if ($final_phase_config['has_semifinal']) {
+                $phases_to_create[] = ['name' => 'Semifinal', 'order' => $order++, 'teams' => 4];
+            }
+            if ($final_phase_config['has_final']) {
+                $phases_to_create[] = ['name' => 'Final', 'order' => $order++, 'teams' => 2];
+            }
+
+            // Inserir as fases
+            $stmt = $this->pdo->prepare("
+                INSERT INTO final_phases (tournament_id, phase_name, phase_order, teams_required)
+                VALUES (?, ?, ?, ?)
+            ");
+
+            foreach ($phases_to_create as $phase) {
+                $stmt->execute([$tournament_id, $phase['name'], $phase['order'], $phase['teams']]);
+            }
+
+        } catch (Exception $e) {
+            error_log("Erro ao criar fases finais: " . $e->getMessage());
+            // Não falhar a criação do torneio por causa das fases finais
+        }
+    }
+
     /**
      * Backup simples sem transação
      */

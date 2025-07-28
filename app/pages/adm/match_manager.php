@@ -604,7 +604,7 @@ $status_names = [
                 <i class="fas fa-trophy"></i> Ver Classificação
             </a>
             
-            <a href="quick_results.php?tournament_id=<?= $tournament_id ?>" class="btn btn-secondary">
+            <a href="bulk_results.php?tournament=<?= $tournament_id ?>" class="btn btn-secondary">
                 <i class="fas fa-edit"></i> Resultados Rápidos
             </a>
 

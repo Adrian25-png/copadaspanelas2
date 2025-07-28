@@ -6,6 +6,67 @@ require_once '../../classes/TournamentManager.php';
 $pdo = conectar();
 $tournamentManager = new TournamentManager($pdo);
 
+/**
+ * Determina automaticamente as fases finais baseado no número total de times
+ */
+function determineFinalPhases($total_teams) {
+    $phases = [
+        'has_final' => false,
+        'has_semifinal' => false,
+        'has_quarterfinal' => false,
+        'has_round_of_16' => false,
+        'qualified_per_group' => 1,
+        'description' => ''
+    ];
+
+    if ($total_teams >= 32) {
+        // 32+ times: Oitavas, Quartas, Semifinal, Final
+        $phases['has_final'] = true;
+        $phases['has_semifinal'] = true;
+        $phases['has_quarterfinal'] = true;
+        $phases['has_round_of_16'] = true;
+        $phases['qualified_per_group'] = 2; // 2 classificados por grupo
+        $phases['description'] = 'Oitavas de Final → Quartas → Semifinal → Final';
+    } elseif ($total_teams >= 16) {
+        // 16-31 times: Oitavas, Quartas, Semifinal, Final
+        $phases['has_final'] = true;
+        $phases['has_semifinal'] = true;
+        $phases['has_quarterfinal'] = true;
+        $phases['has_round_of_16'] = true;
+        $phases['qualified_per_group'] = 1; // 1 classificado por grupo (se 16 times) ou 2 (se mais)
+        if ($total_teams > 16) {
+            $phases['qualified_per_group'] = 2;
+        }
+        $phases['description'] = 'Oitavas de Final → Quartas → Semifinal → Final';
+    } elseif ($total_teams >= 8) {
+        // 8-15 times: Quartas, Semifinal, Final
+        $phases['has_final'] = true;
+        $phases['has_semifinal'] = true;
+        $phases['has_quarterfinal'] = true;
+        $phases['qualified_per_group'] = 1;
+        if ($total_teams > 8) {
+            $phases['qualified_per_group'] = 2;
+        }
+        $phases['description'] = 'Quartas de Final → Semifinal → Final';
+    } elseif ($total_teams >= 4) {
+        // 4-7 times: Semifinal, Final
+        $phases['has_final'] = true;
+        $phases['has_semifinal'] = true;
+        $phases['qualified_per_group'] = 1;
+        if ($total_teams > 4) {
+            $phases['qualified_per_group'] = 2;
+        }
+        $phases['description'] = 'Semifinal → Final';
+    } elseif ($total_teams >= 2) {
+        // 2-3 times: Apenas Final
+        $phases['has_final'] = true;
+        $phases['qualified_per_group'] = 1;
+        $phases['description'] = 'Final Direta';
+    }
+
+    return $phases;
+}
+
 // Processar criação do torneio
 if ($_POST && isset($_POST['action']) && $_POST['action'] === 'create_tournament') {
     try {
@@ -14,26 +75,30 @@ if ($_POST && isset($_POST['action']) && $_POST['action'] === 'create_tournament
         $description = trim($_POST['description']);
         $num_groups = (int)$_POST['num_groups'];
         $teams_per_group = (int)$_POST['teams_per_group'];
-        $final_phase = isset($_POST['final_phase']) ? 1 : 0;
-        
+        // Calcular total de times
+        $total_teams = $num_groups * $teams_per_group;
+
+        // Determinar automaticamente as fases finais baseado no número de times
+        $final_phase_config = determineFinalPhases($total_teams);
+
         if (empty($name)) {
             throw new Exception("Nome do torneio é obrigatório");
         }
-        
+
         if ($year < 2020 || $year > 2030) {
             throw new Exception("Ano deve estar entre 2020 e 2030");
         }
-        
+
         if ($num_groups < 1 || $num_groups > 20) {
             throw new Exception("Número de grupos deve estar entre 1 e 20");
         }
-        
+
         if ($teams_per_group < 2 || $teams_per_group > 10) {
             throw new Exception("Times por grupo deve estar entre 2 e 10");
         }
-        
+
         $tournament_id = $tournamentManager->createTournament(
-            $name, $year, $description, $num_groups, $teams_per_group, $final_phase
+            $name, $year, $description, $num_groups, $teams_per_group, $final_phase_config
         );
         
         $_SESSION['success'] = "Torneio '$name' criado com sucesso!";
@@ -335,12 +400,14 @@ if ($_POST && isset($_POST['action']) && $_POST['action'] === 'create_tournament
                     </div>
                 </div>
                 
-                <div class="checkbox-group">
-                    <input type="checkbox" name="final_phase" class="checkbox-input" 
-                           id="finalPhase" <?= isset($_POST['final_phase']) ? 'checked' : '' ?>>
-                    <label for="finalPhase" class="form-label">Incluir Fase Final (Playoffs)</label>
+                <div class="info-section" style="background: rgba(52, 152, 219, 0.1); border: 1px solid rgba(52, 152, 219, 0.3); border-radius: 10px; padding: 15px; margin-top: 15px;">
+                    <div style="font-weight: bold; color: #3498db; margin-bottom: 10px;">
+                        <i class="fas fa-trophy"></i> Fases Finais (Automático)
+                    </div>
+                    <div id="finalPhasesInfo" style="color: rgba(255, 255, 255, 0.9);">
+                        As fases finais serão determinadas automaticamente baseado no número total de times.
+                    </div>
                 </div>
-                <div class="help-text">Se marcado, haverá oitavas, quartas, semifinal e final</div>
                 
                 <!-- Preview -->
                 <div class="preview-section" id="tournamentPreview">
@@ -373,23 +440,43 @@ if ($_POST && isset($_POST['action']) && $_POST['action'] === 'create_tournament
     </div>
     
     <script>
+        function determineFinalPhasesJS(totalTeams) {
+            if (totalTeams >= 32) {
+                return 'Oitavas de Final → Quartas → Semifinal → Final (2 classificados por grupo)';
+            } else if (totalTeams >= 16) {
+                return 'Oitavas de Final → Quartas → Semifinal → Final (' + (totalTeams > 16 ? '2' : '1') + ' classificado(s) por grupo)';
+            } else if (totalTeams >= 8) {
+                return 'Quartas de Final → Semifinal → Final (' + (totalTeams > 8 ? '2' : '1') + ' classificado(s) por grupo)';
+            } else if (totalTeams >= 4) {
+                return 'Semifinal → Final (' + (totalTeams > 4 ? '2' : '1') + ' classificado(s) por grupo)';
+            } else if (totalTeams >= 2) {
+                return 'Final Direta (1 classificado por grupo)';
+            } else {
+                return 'Configuração insuficiente para fases finais';
+            }
+        }
+
         function updatePreview() {
             const name = document.querySelector('input[name="name"]').value || 'Nome do Torneio';
             const year = document.querySelector('input[name="year"]').value || new Date().getFullYear();
             const numGroups = parseInt(document.querySelector('input[name="num_groups"]').value) || 4;
             const teamsPerGroup = parseInt(document.querySelector('input[name="teams_per_group"]').value) || 4;
-            const finalPhase = document.querySelector('input[name="final_phase"]').checked;
-            
+
             const totalTeams = numGroups * teamsPerGroup;
             const groupMatches = numGroups * (teamsPerGroup * (teamsPerGroup - 1) / 2);
-            
+            const finalPhasesDescription = determineFinalPhasesJS(totalTeams);
+
             document.getElementById('previewName').textContent = name;
             document.getElementById('previewYear').textContent = year;
             document.getElementById('previewTotalTeams').textContent = totalTeams;
             document.getElementById('previewGroups').textContent = numGroups;
             document.getElementById('previewTeamsGroup').textContent = teamsPerGroup;
             document.getElementById('previewMatches').textContent = groupMatches;
-            document.getElementById('previewFinalPhase').style.display = finalPhase ? 'block' : 'none';
+            document.getElementById('previewFinalPhase').style.display = 'block';
+            document.getElementById('previewFinalPhase').innerHTML = '🏆 ' + finalPhasesDescription;
+
+            // Atualizar info das fases finais
+            document.getElementById('finalPhasesInfo').innerHTML = finalPhasesDescription;
         }
         
         function previewTournament() {

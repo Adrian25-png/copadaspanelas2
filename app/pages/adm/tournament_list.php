@@ -386,7 +386,7 @@ try {
                                 <i class="fas fa-edit"></i> Editar
                             </a>
                             
-                            <a href="quick_results.php?tournament_id=<?= $tournament['id'] ?>" class="btn btn-success btn-sm">
+                            <a href="bulk_results.php?tournament=<?= $tournament['id'] ?>" class="btn btn-success btn-sm">
                                 <i class="fas fa-tachometer-alt"></i> Resultados
                             </a>
                             
