@@ -43,27 +43,46 @@ class TournamentManager {
      */
     public function createTournament($name, $year, $description, $num_groups, $teams_per_group, $final_phase) {
         try {
-            // 1. Primeiro, fazer backup simples se houver torneio ativo
+            // 1. Verificar torneio ativo atual
             $current = $this->getCurrentTournament();
-            if ($current) {
-                $this->createSimpleBackup($current['id'], 'Antes de criar novo torneio');
-            }
-            
-            // 2. Iniciar transação única para todas as operações
+
+            // 2. Criar tabela de fases finais se não existir (ANTES da transação para evitar commit implícito)
+            $this->ensureFinalPhasesTableExists();
+
+            // 3. Iniciar transação única para todas as operações
             $this->pdo->beginTransaction();
-            
-            // 3. Arquivar torneio ativo atual
+
+            // 3. Fazer backup e arquivar torneio ativo atual
             if ($current) {
+                // Backup simples dentro da transação
+                try {
+                    $backup_data = json_encode([
+                        'tournament_id' => $current['id'],
+                        'backup_date' => date('Y-m-d H:i:s'),
+                        'reason' => 'Antes de criar novo torneio'
+                    ]);
+
+                    $stmt = $this->pdo->prepare("
+                        INSERT INTO tournaments_backup (original_tournament_id, tournament_data, backup_reason, backup_date)
+                        VALUES (?, ?, ?, NOW())
+                    ");
+                    $stmt->execute([$current['id'], $backup_data, 'Antes de criar novo torneio']);
+                } catch (Exception $backup_error) {
+                    // Log do erro mas não interrompe o processo
+                    error_log("Erro no backup: " . $backup_error->getMessage());
+                }
+
+                // Arquivar torneio atual
                 $stmt = $this->pdo->prepare("UPDATE tournaments SET status = 'archived' WHERE status = 'active'");
                 $stmt->execute();
             }
             
             // 4. Criar novo torneio
             $stmt = $this->pdo->prepare("
-                INSERT INTO tournaments (name, year, description, status, created_at)
-                VALUES (?, ?, ?, 'setup', NOW())
+                INSERT INTO tournaments (nome, name, year, description, descricao, status, created_at, data_inicio, data_fim)
+                VALUES (?, ?, ?, ?, ?, 'setup', NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY))
             ");
-            $stmt->execute([$name, $year, $description]);
+            $stmt->execute([$name, $name, $year, $description, $description]);
             $tournament_id = $this->pdo->lastInsertId();
             
             if (!$tournament_id) {
@@ -71,12 +90,25 @@ class TournamentManager {
             }
             
             // 5. Criar configurações do torneio
-            $final_phase_value = is_array($final_phase) ? json_encode($final_phase) : $final_phase;
+            // Converter configuração de fases para ENUM
+            $final_phase_enum = 'final'; // padrão
+            if (is_array($final_phase)) {
+                if ($final_phase['has_round_of_16']) {
+                    $final_phase_enum = 'oitavas';
+                } elseif ($final_phase['has_quarterfinal']) {
+                    $final_phase_enum = 'quartas';
+                } elseif ($final_phase['has_semifinal']) {
+                    $final_phase_enum = 'semifinais';
+                } elseif ($final_phase['has_final']) {
+                    $final_phase_enum = 'final';
+                }
+            }
+
             $stmt = $this->pdo->prepare("
                 INSERT INTO tournament_settings (tournament_id, num_groups, teams_per_group, final_phase)
                 VALUES (?, ?, ?, ?)
             ");
-            $stmt->execute([$tournament_id, $num_groups, $teams_per_group, $final_phase_value]);
+            $stmt->execute([$tournament_id, $num_groups, $teams_per_group, $final_phase_enum]);
             
             // 6. Criar grupos
             for ($i = 1; $i <= $num_groups; $i++) {
@@ -110,20 +142,19 @@ class TournamentManager {
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
-            
+
             // Log do erro
             error_log("Erro ao criar torneio: " . $e->getMessage());
-            
+
             throw new Exception("Erro ao criar torneio: " . $e->getMessage());
         }
     }
 
     /**
-     * Criar fases finais baseado na configuração
+     * Garantir que a tabela final_phases existe (fora de transação)
      */
-    private function createFinalPhases($tournament_id, $final_phase_config) {
+    private function ensureFinalPhasesTableExists() {
         try {
-            // Criar tabela de fases finais se não existir
             $this->pdo->exec("
                 CREATE TABLE IF NOT EXISTS final_phases (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -135,7 +166,16 @@ class TournamentManager {
                     FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
                 )
             ");
+        } catch (Exception $e) {
+            error_log("Erro ao criar tabela final_phases: " . $e->getMessage());
+        }
+    }
 
+    /**
+     * Criar fases finais baseado na configuração
+     */
+    private function createFinalPhases($tournament_id, $final_phase_config) {
+        try {
             $phases_to_create = [];
             $order = 1;
 
@@ -168,36 +208,7 @@ class TournamentManager {
         }
     }
 
-    /**
-     * Backup simples sem transação
-     */
-    private function createSimpleBackup($tournament_id, $reason) {
-        try {
-            // Usar conexão separada para evitar conflitos de transação
-            $backup_pdo = new PDO(
-                "mysql:host=localhost;dbname=copa;charset=utf8",
-                "root",
-                "",
-                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-            );
-            
-            $backup_data = json_encode([
-                'tournament_id' => $tournament_id,
-                'backup_date' => date('Y-m-d H:i:s'),
-                'reason' => $reason
-            ]);
-            
-            $stmt = $backup_pdo->prepare("
-                INSERT INTO tournaments_backup (original_tournament_id, tournament_data, backup_reason, backup_date)
-                VALUES (?, ?, ?, NOW())
-            ");
-            $stmt->execute([$tournament_id, $backup_data, $reason]);
-            
-        } catch (Exception $e) {
-            // Log do erro mas não interrompe o processo principal
-            error_log("Erro no backup: " . $e->getMessage());
-        }
-    }
+
     
     /**
      * Activate tournament (ensures only one active tournament)
