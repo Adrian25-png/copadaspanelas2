@@ -1,0 +1,510 @@
+-- Complete MySQL database creation script for 'copa'
+-- Generated from all table dumps
+
+SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT;
+SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS;
+SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION;
+SET NAMES utf8mb4;
+SET @OLD_TIME_ZONE=@@TIME_ZONE;
+SET TIME_ZONE='+00:00';
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO';
+SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0;
+
+-- Create database
+DROP DATABASE IF EXISTS `copa`;
+CREATE DATABASE `copa` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `copa`;
+
+-- Table: backups
+DROP TABLE IF EXISTS `backups`;
+CREATE TABLE `backups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `filename` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `file_size` bigint(20) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: admin
+DROP TABLE IF EXISTS `admin`;
+CREATE TABLE `admin` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: admins
+DROP TABLE IF EXISTS `admins`;
+CREATE TABLE `admins` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` varchar(50) DEFAULT 'admin',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: administradores
+DROP TABLE IF EXISTS `administradores`;
+CREATE TABLE `administradores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `senha` varchar(255) NOT NULL,
+  `nivel` varchar(20) DEFAULT 'admin',
+  `ativo` tinyint(1) DEFAULT 1,
+  `criado_em` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: admin_permissions
+DROP TABLE IF EXISTS `admin_permissions`;
+CREATE TABLE `admin_permissions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `admin_id` int(11) NOT NULL,
+  `permission` varchar(100) NOT NULL,
+  `granted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `admin_id` (`admin_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: active_media
+DROP TABLE IF EXISTS `active_media`;
+CREATE TABLE `active_media` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `media_type` varchar(50) NOT NULL,
+  `media_url` text NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: audio_sync_control
+DROP TABLE IF EXISTS `audio_sync_control`;
+CREATE TABLE `audio_sync_control` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `match_id` int(11) NOT NULL,
+  `audio_delay` int(11) DEFAULT 0,
+  `sync_status` varchar(20) DEFAULT 'synced',
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `match_id` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: configuracoes
+DROP TABLE IF EXISTS `configuracoes`;
+CREATE TABLE `configuracoes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `chave` varchar(100) NOT NULL,
+  `valor` text DEFAULT NULL,
+  `descricao` text DEFAULT NULL,
+  `atualizado_em` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `chave` (`chave`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: fase_execucao
+DROP TABLE IF EXISTS `fase_execucao`;
+CREATE TABLE `fase_execucao` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `fase_atual` varchar(50) NOT NULL,
+  `status` varchar(20) DEFAULT 'ativo',
+  `iniciado_em` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: final
+DROP TABLE IF EXISTS `final`;
+CREATE TABLE `final` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_score` int(11) DEFAULT 0,
+  `team2_score` int(11) DEFAULT 0,
+  `match_date` datetime DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'agendado',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: final_confrontos
+DROP TABLE IF EXISTS `final_confrontos`;
+CREATE TABLE `final_confrontos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `resultado` varchar(10) DEFAULT NULL,
+  `data_jogo` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: final_phases
+DROP TABLE IF EXISTS `final_phases`;
+CREATE TABLE `final_phases` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `phase_name` varchar(50) NOT NULL,
+  `teams_count` int(11) NOT NULL,
+  `status` varchar(20) DEFAULT 'pendente',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: grupos
+DROP TABLE IF EXISTS `grupos`;
+CREATE TABLE `grupos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `nome_grupo` varchar(10) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: grupos_historico
+DROP TABLE IF EXISTS `grupos_historico`;
+CREATE TABLE `grupos_historico` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `grupo_id` int(11) NOT NULL,
+  `team_id` int(11) NOT NULL,
+  `pontos` int(11) DEFAULT 0,
+  `jogos` int(11) DEFAULT 0,
+  `vitorias` int(11) DEFAULT 0,
+  `empates` int(11) DEFAULT 0,
+  `derrotas` int(11) DEFAULT 0,
+  `gols_pro` int(11) DEFAULT 0,
+  `gols_contra` int(11) DEFAULT 0,
+  `saldo_gols` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `grupo_id` (`grupo_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: head_to_head
+DROP TABLE IF EXISTS `head_to_head`;
+CREATE TABLE `head_to_head` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_wins` int(11) DEFAULT 0,
+  `team2_wins` int(11) DEFAULT 0,
+  `draws` int(11) DEFAULT 0,
+  `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `teams_unique` (`team1_id`,`team2_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: jogos
+DROP TABLE IF EXISTS `jogos`;
+CREATE TABLE `jogos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_score` int(11) DEFAULT NULL,
+  `team2_score` int(11) DEFAULT NULL,
+  `match_date` datetime DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'agendado',
+  `fase` varchar(50) DEFAULT 'grupos',
+  `grupo_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`),
+  KEY `grupo_id` (`grupo_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: jogos_fase_grupos
+DROP TABLE IF EXISTS `jogos_fase_grupos`;
+CREATE TABLE `jogos_fase_grupos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `grupo_id` int(11) NOT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_score` int(11) DEFAULT NULL,
+  `team2_score` int(11) DEFAULT NULL,
+  `data_jogo` datetime DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'agendado',
+  PRIMARY KEY (`id`),
+  KEY `grupo_id` (`grupo_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: jogos_finais
+DROP TABLE IF EXISTS `jogos_finais`;
+CREATE TABLE `jogos_finais` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `fase` varchar(50) NOT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_score` int(11) DEFAULT NULL,
+  `team2_score` int(11) DEFAULT NULL,
+  `data_jogo` datetime DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'agendado',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: linkinstagram
+DROP TABLE IF EXISTS `linkinstagram`;
+CREATE TABLE `linkinstagram` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `link_url` text NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: linklive
+DROP TABLE IF EXISTS `linklive`;
+CREATE TABLE `linklive` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `match_id` int(11) DEFAULT NULL,
+  `live_url` text NOT NULL,
+  `platform` varchar(50) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `match_id` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: live_streams
+DROP TABLE IF EXISTS `live_streams`;
+CREATE TABLE `live_streams` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `match_id` int(11) NOT NULL,
+  `stream_url` text NOT NULL,
+  `stream_key` varchar(255) DEFAULT NULL,
+  `platform` varchar(50) DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'offline',
+  `viewers_count` int(11) DEFAULT 0,
+  `started_at` timestamp NULL DEFAULT NULL,
+  `ended_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `match_id` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: matches
+DROP TABLE IF EXISTS `matches`;
+CREATE TABLE `matches` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_score` int(11) DEFAULT NULL,
+  `team2_score` int(11) DEFAULT NULL,
+  `match_date` datetime DEFAULT NULL,
+  `venue` varchar(255) DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'scheduled',
+  `phase` varchar(50) DEFAULT 'group',
+  `group_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`),
+  KEY `group_id` (`group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: matches_new
+DROP TABLE IF EXISTS `matches_new`;
+CREATE TABLE `matches_new` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_score` int(11) DEFAULT NULL,
+  `team2_score` int(11) DEFAULT NULL,
+  `match_date` datetime DEFAULT NULL,
+  `venue` varchar(255) DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'scheduled',
+  `phase` varchar(50) DEFAULT 'group',
+  `round` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: media_library
+DROP TABLE IF EXISTS `media_library`;
+CREATE TABLE `media_library` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `filename` varchar(255) NOT NULL,
+  `original_name` varchar(255) NOT NULL,
+  `file_type` varchar(50) NOT NULL,
+  `file_size` bigint(20) DEFAULT NULL,
+  `file_path` text NOT NULL,
+  `description` text DEFAULT NULL,
+  `uploaded_by` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `uploaded_by` (`uploaded_by`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: noticias
+DROP TABLE IF EXISTS `noticias`;
+CREATE TABLE `noticias` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(255) NOT NULL,
+  `conteudo` text NOT NULL,
+  `autor` varchar(100) DEFAULT NULL,
+  `imagem` varchar(255) DEFAULT NULL,
+  `publicado` tinyint(1) DEFAULT 0,
+  `data_publicacao` datetime DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: quartas_de_final
+DROP TABLE IF EXISTS `quartas_de_final`;
+CREATE TABLE `quartas_de_final` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_score` int(11) DEFAULT NULL,
+  `team2_score` int(11) DEFAULT NULL,
+  `data_jogo` datetime DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'agendado',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: quartas_de_final_confrontos
+DROP TABLE IF EXISTS `quartas_de_final_confrontos`;
+CREATE TABLE `quartas_de_final_confrontos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `resultado` varchar(10) DEFAULT NULL,
+  `data_jogo` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: semifinais
+DROP TABLE IF EXISTS `semifinais`;
+CREATE TABLE `semifinais` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_score` int(11) DEFAULT NULL,
+  `team2_score` int(11) DEFAULT NULL,
+  `data_jogo` datetime DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'agendado',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: standings
+DROP TABLE IF EXISTS `standings`;
+CREATE TABLE `standings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team_id` int(11) NOT NULL,
+  `group_id` int(11) DEFAULT NULL,
+  `points` int(11) DEFAULT 0,
+  `matches_played` int(11) DEFAULT 0,
+  `wins` int(11) DEFAULT 0,
+  `draws` int(11) DEFAULT 0,
+  `losses` int(11) DEFAULT 0,
+  `goals_for` int(11) DEFAULT 0,
+  `goals_against` int(11) DEFAULT 0,
+  `goal_difference` int(11) DEFAULT 0,
+  `position` int(11) DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `tournament_team_group` (`tournament_id`,`team_id`,`group_id`),
+  KEY `team_id` (`team_id`),
+  KEY `group_id` (`group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: times_historico
+DROP TABLE IF EXISTS `times_historico`;
+CREATE TABLE `times_historico` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `team_id` int(11) NOT NULL,
+  `tournament_id` int(11) NOT NULL,
+  `posicao_final` int(11) DEFAULT NULL,
+  `pontos_totais` int(11) DEFAULT 0,
+  `jogos_totais` int(11) DEFAULT 0,
+  `vitorias` int(11) DEFAULT 0,
+  `empates` int(11) DEFAULT 0,
+  `derrotas` int(11) DEFAULT 0,
+  `gols_marcados` int(11) DEFAULT 0,
+  `gols_sofridos` int(11) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `team_id` (`team_id`),
+  KEY `tournament_id` (`tournament_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: tournaments
+DROP TABLE IF EXISTS `tournaments`;
+CREATE TABLE `tournaments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'planning',
+  `max_teams` int(11) DEFAULT 32,
+  `current_phase` varchar(50) DEFAULT 'registration',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: tournaments_backup
+DROP TABLE IF EXISTS `tournaments_backup`;
+CREATE TABLE `tournaments_backup` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `original_tournament_id` int(11) NOT NULL,
+  `backup_data` longtext NOT NULL,
+  `backup_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `backup_type` varchar(50) DEFAULT 'full',
+  `description` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `original_tournament_id` (`original_tournament_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: tournament_settings
+DROP TABLE IF EXISTS `tournament_settings`;
+CREATE TABLE `tournament_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `setting_key` varchar(100) NOT NULL,
+  `setting_value` text DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `tournament_setting` (`tournament_id`,`setting_key`),
+  KEY `tournament_id` (`tournament_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Restore settings
+SET TIME_ZONE=@OLD_TIME_ZONE;
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT;
+SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS;
+SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION;
+SET SQL_NOTES=@OLD_SQL_NOTES;
+
+-- Database creation completed
