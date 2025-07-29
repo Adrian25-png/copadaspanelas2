@@ -1,3 +1,4 @@
+# Arquivos específicos do projeto
 public/img/Dev_s/riqqueleat.png
 public/img/ESCUDO COPA DAS PANELAS.png
 public/img/header/campo.png
@@ -8,3 +9,39 @@ public/img/header/oitavas.png
 public/img/header/rodadas.png
 public/img/Juventus_FC_2017_logo.png
 public/img/perfil_padrao_jogador.png
+
+# Arquivos temporários e de sistema
+*.tmp
+*.temp
+*.log
+*.bak
+*~
+*.swp
+.DS_Store
+Thumbs.db
+
+# Arquivos de teste
+*test*
+test_*
+*_test.*
+
+# Arquivos de backup e versões antigas
+*.orig
+*.rej
+*.old
+*.backup
+*.copy
+
+# Configurações do IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Arquivos de configuração local
+config.local.php
+.env.local
+
+# Cache e arquivos gerados
+cache/
+tmp/
+temp/
