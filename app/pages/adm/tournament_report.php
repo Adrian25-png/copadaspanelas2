@@ -4,7 +4,7 @@ require_once '../../config/conexao.php';
 
 $pdo = conectar();
 
-$tournament_id = $_GET['id'] ?? null;
+$tournament_id = $_GET['tournament_id'] ?? $_GET['id'] ?? null;
 
 if (!$tournament_id) {
     $_SESSION['error'] = "ID do torneio não especificado";
@@ -151,194 +151,320 @@ foreach ($matches as $match) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório - <?= htmlspecialchars($tournament['name']) ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon.ico">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(#281c3e, #0f051d);
             min-height: 100vh;
-            color: white;
+            color: #E0E0E0;
             margin: 0;
             padding: 20px;
         }
-        
-        .container {
+
+        .main-container {
             max-width: 1400px;
             margin: 0 auto;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
             padding: 30px;
-            backdrop-filter: blur(15px);
         }
-        
-        .header {
+
+        .page-header {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
         }
-        
-        .header h1 {
-            font-size: 2rem;
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #E1BEE7;
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        
-        .btn {
+
+        .page-header h1 i {
+            color: #7B1FA2;
+        }
+
+        .page-header p {
+            margin: 8px 0 0 0;
+            color: #9E9E9E;
+            font-size: 1.1rem;
+        }
+
+        .btn-standard {
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            color: #E1BEE7;
             padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
             text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
+            gap: 10px;
             margin: 5px;
+            font-family: 'Space Grotesk', sans-serif;
         }
-        
-        .btn-primary { background: #3498db; color: white; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-secondary { background: #95a5a6; color: white; }
-        
-        .btn:hover {
+
+        .btn-standard:hover {
+            background: #7B1FA2;
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
+        }
+
+        .btn-success {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .btn-success:hover {
+            background: #4CAF50;
+            color: white;
         }
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
         }
-        
+
         .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #3498db;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        .section {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+            background: #2A2A2A;
+            border-radius: 8px;
             padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            border: 2px solid #7B1FA2;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
-        
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(123, 31, 162, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #E1BEE7;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #9E9E9E;
+            font-weight: 500;
+        }
+
+        .section {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .section-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #E1BEE7;
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: #f39c12;
+            gap: 12px;
         }
-        
+
+        .section-title i {
+            color: #7B1FA2;
+        }
+
         .table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            background: #2A2A2A;
+            border-radius: 8px;
+            overflow: hidden;
         }
-        
+
         .table th,
         .table td {
-            padding: 12px;
+            padding: 15px;
             text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(123, 31, 162, 0.2);
         }
-        
+
         .table th {
-            background: rgba(0, 0, 0, 0.3);
-            font-weight: bold;
-            color: #f39c12;
+            background: #7B1FA2;
+            font-weight: 600;
+            color: white;
+            font-size: 1rem;
         }
-        
+
+        .table td {
+            color: #E0E0E0;
+        }
+
         .table tr:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(123, 31, 162, 0.1);
         }
-        
+
         .group-section {
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
-        
+
         .group-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #3498db;
-            margin-bottom: 15px;
-            padding: 10px;
-            background: rgba(52, 152, 219, 0.2);
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #E1BEE7;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #2A2A2A;
+            border-left: 4px solid #4CAF50;
             border-radius: 8px;
         }
         
         .match-item {
-            background: rgba(0, 0, 0, 0.2);
+            background: #2A2A2A;
+            border: 1px solid rgba(123, 31, 162, 0.3);
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
             display: grid;
             grid-template-columns: 2fr auto 2fr auto auto;
-            gap: 15px;
+            gap: 20px;
             align-items: center;
+            transition: all 0.3s ease;
         }
-        
+
+        .match-item:hover {
+            border-color: #7B1FA2;
+            transform: translateY(-2px);
+        }
+
         .team-name {
-            font-weight: bold;
+            font-weight: 600;
+            color: #E1BEE7;
         }
-        
+
         .match-score {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #3498db;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #4CAF50;
             text-align: center;
         }
-        
+
         .match-status {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
             text-transform: uppercase;
         }
-        
-        .status-finalizado { background: #27ae60; }
-        .status-agendado { background: #f39c12; }
-        .status-em_andamento { background: #3498db; }
-        .status-cancelado { background: #e74c3c; }
-        
+
+        .status-finalizado { background: #4CAF50; color: white; }
+        .status-agendado { background: #FF9800; color: white; }
+        .status-em_andamento { background: #2196F3; color: white; }
+        .status-cancelado { background: #F44336; color: white; }
+
         .tournament-info {
-            background: rgba(52, 152, 219, 0.1);
-            border: 1px solid rgba(52, 152, 219, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
+            background: #2A2A2A;
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 35px;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .tournament-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #64B5F6;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            color: #E0E0E0;
+            font-weight: 500;
+            font-size: 1rem;
         }
         
         .info-item {
@@ -375,43 +501,56 @@ foreach ($matches as $match) {
             }
         }
         
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         @media print {
             body {
                 background: white;
                 color: black;
             }
-            
-            .container {
+
+            .main-container {
                 background: white;
                 box-shadow: none;
             }
-            
-            .btn {
+
+            .btn-standard {
                 display: none;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="main-container">
+        <div class="page-header fade-in">
             <div>
                 <h1><i class="fas fa-file-alt"></i> Relatório do Torneio</h1>
-                <p style="margin: 5px 0; opacity: 0.8;"><?= htmlspecialchars($tournament['name']) ?></p>
+                <p><?= htmlspecialchars($tournament['name']) ?></p>
             </div>
             <div>
-                <button onclick="window.print()" class="btn btn-success">
+                <button onclick="window.print()" class="btn-standard btn-success">
                     <i class="fas fa-print"></i> Imprimir
                 </button>
-                <a href="tournament_management.php?id=<?= $tournament_id ?>" class="btn btn-secondary">
+                <a href="tournament_management.php?tournament_id=<?= $tournament_id ?>" class="btn-standard">
                     <i class="fas fa-arrow-left"></i> Voltar
                 </a>
             </div>
         </div>
         
         <!-- Informações do Torneio -->
-        <div class="tournament-info">
-            <h3 style="margin-bottom: 15px; color: #3498db;">📋 Informações Gerais</h3>
+        <div class="tournament-info fade-in">
+            <h3 style="margin-bottom: 20px; color: #64B5F6; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-info-circle"></i> Informações Gerais
+            </h3>
             <div class="info-grid">
                 <div class="info-item">
                     <span class="info-label">Nome:</span>
@@ -430,31 +569,32 @@ foreach ($matches as $match) {
                     <span class="info-value"><?= date('d/m/Y', strtotime($tournament['created_at'])) ?></span>
                 </div>
             </div>
-            
+
             <?php if ($tournament['description']): ?>
-                <div style="margin-top: 15px;">
-                    <strong>Descrição:</strong> <?= htmlspecialchars($tournament['description']) ?>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(100, 181, 246, 0.1); border-radius: 8px;">
+                    <strong style="color: #64B5F6;">Descrição:</strong>
+                    <span style="color: #E0E0E0;"><?= htmlspecialchars($tournament['description']) ?></span>
                 </div>
             <?php endif; ?>
         </div>
-        
+
         <!-- Estatísticas Gerais -->
-        <div class="stats-grid">
+        <div class="stats-grid fade-in">
             <div class="stat-card">
                 <div class="stat-number"><?= $stats['total_teams'] ?? 0 ?></div>
                 <div class="stat-label">Times Participantes</div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-number"><?= $stats['total_groups'] ?? 0 ?></div>
                 <div class="stat-label">Grupos</div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-number"><?= $stats['total_matches'] ?? 0 ?></div>
                 <div class="stat-label">Total de Jogos</div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-number"><?= $stats['finished_matches'] ?? 0 ?></div>
                 <div class="stat-label">Jogos Finalizados</div>
@@ -556,24 +696,49 @@ foreach ($matches as $match) {
         <?php endif; ?>
         
         <!-- Rodapé do Relatório -->
-        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.2); opacity: 0.7;">
-            <p>Relatório gerado em <?= date('d/m/Y H:i:s') ?></p>
-            <p>Sistema Copa das Panelas - Gestão de Torneios</p>
+        <div class="fade-in" style="text-align: center; margin-top: 50px; padding-top: 25px; border-top: 2px solid rgba(123, 31, 162, 0.3); color: #9E9E9E;">
+            <p style="margin-bottom: 8px; font-weight: 500;">
+                <i class="fas fa-clock" style="margin-right: 8px; color: #7B1FA2;"></i>
+                Relatório gerado em <?= date('d/m/Y H:i:s') ?>
+            </p>
+            <p style="font-weight: 600; color: #E1BEE7;">
+                <i class="fas fa-trophy" style="margin-right: 8px; color: #7B1FA2;"></i>
+                Sistema Copa das Panelas - Gestão de Torneios
+            </p>
         </div>
     </div>
-    
+
     <script>
-        // Animações de entrada
+        // Animações Copa das Panelas
         document.addEventListener('DOMContentLoaded', function() {
-            const sections = document.querySelectorAll('.section, .stat-card');
-            sections.forEach((section, index) => {
-                section.style.opacity = '0';
-                section.style.transform = 'translateY(20px)';
+            // Aplicar fade-in aos elementos
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
                 setTimeout(() => {
-                    section.style.transition = 'all 0.5s ease';
-                    section.style.opacity = '1';
-                    section.style.transform = 'translateY(0)';
-                }, index * 100);
+                    element.classList.add('visible');
+                }, index * 200);
+            });
+
+            // Animação especial para cards de estatísticas
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        card.style.transform = 'scale(1)';
+                    }, 200);
+                }, 1000 + (index * 100));
+            });
+
+            // Animação para seções
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                setTimeout(() => {
+                    section.style.borderLeftColor = '#4CAF50';
+                    setTimeout(() => {
+                        section.style.borderLeftColor = '#7B1FA2';
+                    }, 300);
+                }, 1500 + (index * 200));
             });
         });
     </script>

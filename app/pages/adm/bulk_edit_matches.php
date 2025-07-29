@@ -178,252 +178,455 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edição em Lote - <?= htmlspecialchars($tournament['name']) ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon.ico">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(#281c3e, #0f051d);
             min-height: 100vh;
-            color: white;
+            color: #E0E0E0;
             margin: 0;
             padding: 20px;
         }
-        
-        .container {
+
+        .main-container {
             max-width: 1400px;
             margin: 0 auto;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
             padding: 30px;
-            backdrop-filter: blur(15px);
         }
-        
-        .header {
+
+        .page-header {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
         }
-        
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .tournament-info h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
+            font-weight: 600;
             margin-bottom: 10px;
-            color: #f39c12;
+            color: #E1BEE7;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-        
+
+        .tournament-info h1 i {
+            color: #7B1FA2;
+        }
+
         .tournament-year {
-            font-size: 1.2rem;
-            opacity: 0.8;
+            font-size: 1.1rem;
+            color: #9E9E9E;
+            padding-top: 5px;
         }
-        
+
         .back-link {
-            color: white;
-            text-decoration: none;
-            padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.2);
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
             border-radius: 8px;
+            color: #E1BEE7;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: 600;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
-        
+
         .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: #7B1FA2;
+            color: white;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
         }
-        
+
         .filters {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 30px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .filters select {
-            padding: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            min-width: 150px;
-        }
-        
-        .filters select option {
-            background: #2c3e50;
-            color: white;
-        }
-        
-        .bulk-actions {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
+            padding: 25px;
             margin-bottom: 30px;
             display: flex;
-            gap: 15px;
+            gap: 20px;
             align-items: center;
             flex-wrap: wrap;
-        }
-        
-        .matches-table {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+            position: relative;
             overflow: hidden;
         }
-        
+
+        .filters::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .filters select {
+            padding: 12px;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            background: #2A2A2A;
+            color: #E0E0E0;
+            min-width: 160px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+        }
+
+        .filters select:focus {
+            outline: none;
+            border-color: #E1BEE7;
+            box-shadow: 0 0 10px rgba(123, 31, 162, 0.3);
+        }
+
+        .filters select option {
+            background: #2A2A2A;
+            color: #E0E0E0;
+        }
+
+        .bulk-actions {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bulk-actions::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .matches-table {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .matches-table::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .table {
             width: 100%;
             border-collapse: collapse;
         }
-        
+
         .table th {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px 10px;
+            background: #2A2A2A;
+            padding: 18px 15px;
             text-align: left;
-            font-weight: bold;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+            color: #E1BEE7;
+            border-bottom: 2px solid #7B1FA2;
+            font-size: 0.95rem;
         }
-        
+
         .table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-bottom: 1px solid #333;
             vertical-align: middle;
+            color: #E0E0E0;
         }
-        
+
         .table tr:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: #2A2A2A;
         }
-        
+
         .table input, .table select {
-            padding: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            padding: 8px 10px;
+            border: 2px solid #7B1FA2;
+            border-radius: 6px;
+            background: #2A2A2A;
+            color: #E0E0E0;
             width: 100%;
-            max-width: 120px;
+            max-width: 130px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
         }
-        
+
+        .table input:focus, .table select:focus {
+            outline: none;
+            border-color: #E1BEE7;
+            background: #333;
+            box-shadow: 0 0 8px rgba(123, 31, 162, 0.3);
+        }
+
         .table input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: #9E9E9E;
         }
-        
+
         .table select option {
-            background: #2c3e50;
-            color: white;
+            background: #2A2A2A;
+            color: #E0E0E0;
         }
-        
-        .btn {
+
+        .btn-standard {
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            color: #E1BEE7;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            margin-right: 10px;
+            gap: 10px;
+            margin: 5px;
+            font-family: 'Space Grotesk', sans-serif;
         }
-        
-        .btn-primary { background: #3498db; color: white; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
-        .btn-danger { background: #e74c3c; color: white; }
-        .btn-secondary { background: rgba(255, 255, 255, 0.2); color: white; }
-        
-        .btn:hover {
+
+        .btn-standard:hover {
+            background: #7B1FA2;
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
         }
-        
+
+        .btn-success {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .btn-success:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-warning {
+            border-color: #FF9800;
+            color: #FF9800;
+        }
+
+        .btn-warning:hover {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-danger {
+            border-color: #F44336;
+            color: #F44336;
+        }
+
+        .btn-danger:hover {
+            background: #F44336;
+            color: white;
+        }
+
+        .btn-info {
+            border-color: #2196F3;
+            color: #2196F3;
+        }
+
+        .btn-info:hover {
+            background: #2196F3;
+            color: white;
+        }
+
         .alert {
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        
+
+        .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
         .alert-success {
-            background: rgba(39, 174, 96, 0.2);
-            border: 1px solid #27ae60;
-            color: #2ecc71;
+            background: rgba(76, 175, 80, 0.1);
+            border-left-color: #4CAF50;
+            color: #4CAF50;
         }
-        
+
+        .alert-success::before {
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+        }
+
         .alert-error {
-            background: rgba(231, 76, 60, 0.2);
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
+            background: rgba(244, 67, 54, 0.1);
+            border-left-color: #F44336;
+            color: #EF5350;
         }
-        
+
+        .alert-error::before {
+            background: linear-gradient(90deg, #F44336, #EF5350);
+        }
+
         .match-teams {
             font-weight: 600;
+            color: #E1BEE7;
         }
-        
+
         .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 2px solid;
         }
-        
-        .status-agendado { background: rgba(52, 152, 219, 0.3); color: #3498db; }
-        .status-finalizado { background: rgba(39, 174, 96, 0.3); color: #27ae60; }
-        .status-em_andamento { background: rgba(243, 156, 18, 0.3); color: #f39c12; }
-        .status-cancelado { background: rgba(231, 76, 60, 0.3); color: #e74c3c; }
-        
+
+        .status-agendado {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
+            border-color: #2196F3;
+        }
+        .status-finalizado {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+            border-color: #4CAF50;
+        }
+        .status-em_andamento {
+            background: rgba(255, 152, 0, 0.1);
+            color: #FF9800;
+            border-color: #FF9800;
+        }
+        .status-cancelado {
+            background: rgba(244, 67, 54, 0.1);
+            color: #F44336;
+            border-color: #F44336;
+        }
+
         .checkbox-column {
-            width: 50px;
+            width: 60px;
             text-align: center;
         }
-        
+
+        .checkbox-column input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #7B1FA2;
+        }
+
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            opacity: 0.7;
+            padding: 80px 20px;
+            color: #9E9E9E;
         }
-        
+
         .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            color: #95a5a6;
+            font-size: 5rem;
+            margin-bottom: 25px;
+            color: #7B1FA2;
+            opacity: 0.6;
         }
-        
+
+        .empty-state h3 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: #E1BEE7;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        /* Animações */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         @media (max-width: 768px) {
-            .header {
+            .page-header {
                 flex-direction: column;
                 gap: 20px;
                 text-align: center;
             }
-            
+
             .tournament-info h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
-            
+
             .filters, .bulk-actions {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 15px;
             }
-            
+
             .table {
-                font-size: 0.8rem;
+                font-size: 0.85rem;
             }
-            
+
             .table th, .table td {
-                padding: 8px 5px;
+                padding: 10px 8px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="main-container">
+        <div class="page-header fade-in">
             <div class="tournament-info">
                 <h1><i class="fas fa-edit"></i> Edição em Lote</h1>
                 <div class="tournament-year"><?= htmlspecialchars($tournament['name']) ?> - <?= $tournament['year'] ?></div>
@@ -432,26 +635,26 @@ try {
                 <i class="fas fa-arrow-left"></i> Voltar aos Jogos
             </a>
         </div>
-        
+
         <!-- Mensagens -->
         <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
+            <div class="alert alert-success fade-in" style="animation-delay: 0.2s;">
                 <i class="fas fa-check-circle"></i> <?= htmlspecialchars($_SESSION['success']) ?>
             </div>
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
-        
+
         <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-error">
+            <div class="alert alert-error fade-in" style="animation-delay: 0.2s;">
                 <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($_SESSION['error']) ?>
             </div>
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
-        
+
         <!-- Filtros -->
-        <div class="filters">
-            <label><strong>Filtros:</strong></label>
-            
+        <div class="filters fade-in" style="animation-delay: 0.3s;">
+            <label><strong><i class="fas fa-filter"></i> Filtros:</strong></label>
+
             <select onchange="updateFilters()" id="phaseFilter">
                 <option value="">Todas as Fases</option>
                 <?php foreach ($phases as $phase): ?>
@@ -460,7 +663,7 @@ try {
                     </option>
                 <?php endforeach; ?>
             </select>
-            
+
             <select onchange="updateFilters()" id="statusFilter">
                 <option value="">Todos os Status</option>
                 <option value="agendado" <?= $status_filter === 'agendado' ? 'selected' : '' ?>>Agendado</option>
@@ -468,30 +671,32 @@ try {
                 <option value="finalizado" <?= $status_filter === 'finalizado' ? 'selected' : '' ?>>Finalizado</option>
                 <option value="cancelado" <?= $status_filter === 'cancelado' ? 'selected' : '' ?>>Cancelado</option>
             </select>
-            
-            <button onclick="clearFilters()" class="btn btn-secondary">
+
+            <button onclick="clearFilters()" class="btn-standard">
                 <i class="fas fa-times"></i> Limpar Filtros
             </button>
         </div>
-        
+
         <!-- Ações em Lote -->
-        <div class="bulk-actions">
-            <button onclick="selectAll()" class="btn btn-secondary">
+        <div class="bulk-actions fade-in" style="animation-delay: 0.4s;">
+            <label><strong><i class="fas fa-tasks"></i> Ações em Lote:</strong></label>
+
+            <button onclick="selectAll()" class="btn-standard btn-info">
                 <i class="fas fa-check-square"></i> Selecionar Todos
             </button>
-            
-            <button onclick="selectNone()" class="btn btn-secondary">
+
+            <button onclick="selectNone()" class="btn-standard">
                 <i class="fas fa-square"></i> Desmarcar Todos
             </button>
-            
-            <button onclick="deleteSelected()" class="btn btn-danger">
+
+            <button onclick="deleteSelected()" class="btn-standard btn-danger">
                 <i class="fas fa-trash"></i> Excluir Selecionados
             </button>
         </div>
-        
+
         <!-- Tabela de Jogos -->
         <?php if (empty($matches)): ?>
-            <div class="empty-state">
+            <div class="empty-state fade-in" style="animation-delay: 0.5s;">
                 <i class="fas fa-futbol"></i>
                 <h3>Nenhum Jogo Encontrado</h3>
                 <p>Não há jogos que correspondam aos filtros selecionados.</p>
@@ -499,8 +704,8 @@ try {
         <?php else: ?>
             <form method="POST" id="bulkEditForm">
                 <input type="hidden" name="action" value="bulk_update">
-                
-                <div class="matches-table">
+
+                <div class="matches-table fade-in" style="animation-delay: 0.5s;">
                     <table class="table">
                         <thead>
                             <tr>
@@ -578,55 +783,60 @@ try {
                         </tbody>
                     </table>
                 </div>
-                
+
                 <div style="margin-top: 30px; text-align: center;">
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn-standard btn-success">
                         <i class="fas fa-save"></i> Salvar Todas as Alterações
                     </button>
                 </div>
             </form>
         <?php endif; ?>
     </div>
-    
+
     <script>
         function updateFilters() {
             const phase = document.getElementById('phaseFilter').value;
             const status = document.getElementById('statusFilter').value;
-            
+
             const url = new URL(window.location);
             url.searchParams.set('phase', phase);
             url.searchParams.set('status', status);
-            
+
             window.location.href = url.toString();
         }
-        
+
         function clearFilters() {
             const url = new URL(window.location);
             url.searchParams.delete('phase');
             url.searchParams.delete('status');
-            
+
             window.location.href = url.toString();
         }
-        
+
         function selectAll() {
             document.querySelectorAll('.match-checkbox').forEach(cb => cb.checked = true);
             document.getElementById('selectAllCheckbox').checked = true;
         }
-        
+
         function selectNone() {
             document.querySelectorAll('.match-checkbox').forEach(cb => cb.checked = false);
             document.getElementById('selectAllCheckbox').checked = false;
         }
-        
+
         function toggleAll() {
             const selectAll = document.getElementById('selectAllCheckbox').checked;
             document.querySelectorAll('.match-checkbox').forEach(cb => cb.checked = selectAll);
         }
-        
+
         function deleteSelected() {
             const selected = document.querySelectorAll('.match-checkbox:checked');
 
             if (selected.length === 0) {
+                alert('Por favor, selecione pelo menos um jogo para excluir.');
+                return;
+            }
+
+            if (!confirm(`Tem certeza que deseja excluir ${selected.length} jogo(s) selecionado(s)? Esta ação não pode ser desfeita.`)) {
                 return;
             }
 
@@ -645,6 +855,52 @@ try {
             document.body.appendChild(form);
             form.submit();
         }
+
+        // Animações e interatividade
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar fade-in aos elementos
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, index * 200);
+            });
+
+            // Adicionar efeitos hover às linhas da tabela
+            const tableRows = document.querySelectorAll('.table tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.01)';
+                    this.style.boxShadow = '0 3px 10px rgba(123, 31, 162, 0.2)';
+                });
+
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Validação do formulário
+            const bulkEditForm = document.getElementById('bulkEditForm');
+            if (bulkEditForm) {
+                bulkEditForm.addEventListener('submit', function(e) {
+                    const inputs = this.querySelectorAll('input[type="date"], input[type="time"], input[type="number"], select');
+                    let hasChanges = false;
+
+                    inputs.forEach(input => {
+                        if (input.value && input.value !== input.defaultValue) {
+                            hasChanges = true;
+                        }
+                    });
+
+                    if (!hasChanges) {
+                        e.preventDefault();
+                        alert('Nenhuma alteração foi detectada. Faça pelo menos uma modificação antes de salvar.');
+                        return false;
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

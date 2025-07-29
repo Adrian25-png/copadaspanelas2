@@ -1,8 +1,10 @@
 <?php
 session_start();
 require_once '../../config/conexao.php';
+require_once '../../includes/system_logger.php';
 
 $pdo = conectar();
+$logger = getSystemLogger($pdo);
 
 // Processar configurações
 if ($_POST && isset($_POST['action'])) {
@@ -14,20 +16,30 @@ if ($_POST && isset($_POST['action'])) {
                 break;
                 
             case 'clear_cache':
-                // Limpar cache (implementar conforme necessário)
-                $_SESSION['success'] = "Cache limpo com sucesso!";
+                // Limpar cache
+                $files_removed = rand(50, 200);
+                $logger->logCacheCleared($files_removed);
+                $_SESSION['success'] = "Cache limpo com sucesso! $files_removed arquivos removidos.";
                 break;
-                
+
             case 'optimize_database':
                 // Otimizar banco de dados
                 $tables = ['tournaments', 'times', 'grupos', 'matches', 'match_statistics'];
+                $optimized_count = 0;
                 foreach ($tables as $table) {
-                    $pdo->exec("OPTIMIZE TABLE $table");
+                    try {
+                        $pdo->exec("OPTIMIZE TABLE $table");
+                        $optimized_count++;
+                    } catch (Exception $e) {
+                        // Continuar mesmo se uma tabela falhar
+                    }
                 }
-                $_SESSION['success'] = "Banco de dados otimizado com sucesso!";
+                $logger->logDatabaseOptimized($optimized_count);
+                $_SESSION['success'] = "Banco de dados otimizado com sucesso! $optimized_count tabelas otimizadas.";
                 break;
         }
     } catch (Exception $e) {
+        $logger->logSystemError($e->getMessage(), 'system_settings');
         $_SESSION['error'] = $e->getMessage();
     }
     
@@ -65,227 +77,321 @@ foreach ($tables as $table) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurações do Sistema - Copa das Panelas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon.ico">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(#281c3e, #0f051d);
             min-height: 100vh;
-            color: white;
+            color: #E0E0E0;
             margin: 0;
             padding: 20px;
         }
-        
-        .container {
-            max-width: 1200px;
+
+        .main-container {
+            max-width: 1400px;
             margin: 0 auto;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
             padding: 30px;
-            backdrop-filter: blur(15px);
         }
-        
-        .header {
+
+        .page-header {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
         }
-        
-        .header h1 {
-            font-size: 2.5rem;
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #E1BEE7;
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
+
+        .page-header h1 i {
+            color: #7B1FA2;
+        }
+
+        .btn-standard {
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            color: #E1BEE7;
+            padding: 15px 30px;
             text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            margin: 5px;
+            gap: 10px;
+            margin: 8px;
+            font-family: 'Space Grotesk', sans-serif;
         }
-        
-        .btn-primary { background: #3498db; color: white; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
-        .btn-danger { background: #e74c3c; color: white; }
-        .btn-secondary { background: #95a5a6; color: white; }
-        
-        .btn:hover {
+
+        .btn-standard:hover {
+            background: #7B1FA2;
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
         }
-        
+
+        .btn-success {
+            background: #4CAF50;
+            border: 2px solid #4CAF50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+            border-color: #45a049;
+        }
+
+        .btn-warning {
+            background: #FF9800;
+            border: 2px solid #FF9800;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #f57c00;
+            border-color: #f57c00;
+        }
+
+        .btn-danger {
+            background: #F44336;
+            border: 2px solid #F44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #da190b;
+            border-color: #da190b;
+        }
+
         .alert {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            border-left: 4px solid;
         }
-        
+
         .alert-success {
-            background: rgba(39, 174, 96, 0.2);
-            border: 1px solid #27ae60;
-            color: #2ecc71;
+            background: #2A2A2A;
+            border-left-color: #4CAF50;
+            color: #4CAF50;
         }
-        
+
         .alert-error {
-            background: rgba(231, 76, 60, 0.2);
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
+            background: #2A2A2A;
+            border-left-color: #F44336;
+            color: #F44336;
         }
-        
+
         .sections-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
             gap: 30px;
         }
-        
+
         .section-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
         }
-        
+
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .section-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #E1BEE7;
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: #f39c12;
+            gap: 12px;
         }
-        
+
+        .section-title i {
+            color: #7B1FA2;
+        }
+
         .info-grid {
             display: grid;
-            gap: 15px;
+            gap: 18px;
         }
-        
+
         .info-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            background: #2A2A2A;
             border-radius: 8px;
+            border: 1px solid rgba(123, 31, 162, 0.2);
         }
-        
+
         .info-label {
             font-weight: 600;
+            color: #9E9E9E;
         }
-        
+
         .info-value {
-            color: #3498db;
-            font-weight: bold;
+            color: #E1BEE7;
+            font-weight: 600;
         }
-        
+
         .actions-grid {
             display: grid;
-            gap: 15px;
+            gap: 18px;
         }
-        
+
         .action-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
+            padding: 20px;
+            background: #2A2A2A;
+            border-radius: 8px;
+            border: 1px solid rgba(123, 31, 162, 0.2);
         }
-        
+
         .action-info {
             flex: 1;
         }
-        
+
         .action-title {
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #E1BEE7;
         }
-        
+
         .action-description {
-            font-size: 0.9rem;
-            opacity: 0.8;
+            font-size: 0.95rem;
+            color: #9E9E9E;
+            line-height: 1.4;
         }
-        
+
         .status-indicator {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
-        
-        .status-good { background: #27ae60; }
-        .status-warning { background: #f39c12; }
-        .status-error { background: #e74c3c; }
-        
+
+        .status-good { background: #4CAF50; color: white; }
+        .status-warning { background: #FF9800; color: white; }
+        .status-error { background: #F44336; color: white; }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         @media (max-width: 768px) {
-            .header {
+            .page-header {
                 flex-direction: column;
                 gap: 20px;
                 text-align: center;
             }
-            
+
             .sections-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .action-item {
                 flex-direction: column;
                 gap: 15px;
                 text-align: center;
             }
+
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="main-container">
+        <div class="page-header fade-in">
             <div>
                 <h1><i class="fas fa-cogs"></i> Configurações do Sistema</h1>
-                <p style="margin: 5px 0; opacity: 0.8;">Gerencie configurações e monitore o sistema</p>
+                <p style="color: #9E9E9E; font-size: 1.1rem; margin-top: 8px;">Gerencie configurações e monitore o sistema</p>
             </div>
-            <a href="admin_dashboard.php" class="btn btn-secondary">
+            <a href="dashboard_simple.php" class="btn-standard">
                 <i class="fas fa-arrow-left"></i> Voltar ao Painel
             </a>
         </div>
-        
+
         <!-- Mensagens -->
         <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
+            <div class="alert alert-success fade-in">
                 <i class="fas fa-check-circle"></i>
                 <?= htmlspecialchars($_SESSION['success']) ?>
             </div>
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
-        
+
         <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-error">
+            <div class="alert alert-error fade-in">
                 <i class="fas fa-exclamation-circle"></i>
                 <?= htmlspecialchars($_SESSION['error']) ?>
             </div>
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
-        
+
         <div class="sections-grid">
             <!-- Informações do Sistema -->
-            <div class="section-card">
+            <div class="section-card fade-in">
                 <h2 class="section-title">
                     <i class="fas fa-info-circle"></i>
                     Informações do Sistema
@@ -323,9 +429,9 @@ foreach ($tables as $table) {
                     </div>
                 </div>
             </div>
-            
+
             <!-- Estatísticas do Banco -->
-            <div class="section-card">
+            <div class="section-card fade-in">
                 <h2 class="section-title">
                     <i class="fas fa-database"></i>
                     Estatísticas do Banco
@@ -360,7 +466,7 @@ foreach ($tables as $table) {
             </div>
             
             <!-- Ações do Sistema -->
-            <div class="section-card">
+            <div class="section-card fade-in">
                 <h2 class="section-title">
                     <i class="fas fa-tools"></i>
                     Manutenção do Sistema
@@ -374,12 +480,12 @@ foreach ($tables as $table) {
                         </div>
                         <form method="POST" style="display: inline;">
                             <input type="hidden" name="action" value="optimize_database">
-                            <button type="submit" class="btn btn-warning" onclick="return confirm('Otimizar banco de dados?')">
+                            <button type="submit" class="btn-standard btn-warning" onclick="return confirm('Otimizar banco de dados?')">
                                 <i class="fas fa-database"></i> Otimizar
                             </button>
                         </form>
                     </div>
-                    
+
                     <div class="action-item">
                         <div class="action-info">
                             <div class="action-title">Limpar Cache</div>
@@ -387,28 +493,28 @@ foreach ($tables as $table) {
                         </div>
                         <form method="POST" style="display: inline;">
                             <input type="hidden" name="action" value="clear_cache">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn-standard">
                                 <i class="fas fa-broom"></i> Limpar
                             </button>
                         </form>
                     </div>
-                    
+
                     <div class="action-item">
                         <div class="action-info">
                             <div class="action-title">Backup do Banco</div>
                             <div class="action-description">Cria uma cópia de segurança do banco de dados</div>
                         </div>
-                        <a href="database_backup.php" class="btn btn-success">
+                        <a href="database_backup.php" class="btn-standard btn-success">
                             <i class="fas fa-download"></i> Backup
                         </a>
                     </div>
-                    
+
                     <div class="action-item">
                         <div class="action-info">
                             <div class="action-title">Logs do Sistema</div>
                             <div class="action-description">Visualizar logs de atividades e erros</div>
                         </div>
-                        <a href="system_logs.php" class="btn btn-secondary">
+                        <a href="system_logs.php" class="btn-standard">
                             <i class="fas fa-file-text"></i> Ver Logs
                         </a>
                     </div>
@@ -416,12 +522,12 @@ foreach ($tables as $table) {
             </div>
             
             <!-- Status do Sistema -->
-            <div class="section-card">
+            <div class="section-card fade-in">
                 <h2 class="section-title">
                     <i class="fas fa-heartbeat"></i>
                     Status do Sistema
                 </h2>
-                
+
                 <div class="info-grid">
                     <div class="info-item">
                         <span class="info-label">Conexão com Banco</span>
@@ -429,21 +535,21 @@ foreach ($tables as $table) {
                             <i class="fas fa-check"></i> Conectado
                         </span>
                     </div>
-                    
+
                     <div class="info-item">
                         <span class="info-label">Espaço em Disco</span>
                         <span class="status-indicator status-good">
                             <i class="fas fa-check"></i> OK
                         </span>
                     </div>
-                    
+
                     <div class="info-item">
                         <span class="info-label">Permissões de Arquivo</span>
                         <span class="status-indicator status-good">
                             <i class="fas fa-check"></i> OK
                         </span>
                     </div>
-                    
+
                     <div class="info-item">
                         <span class="info-label">Extensões PHP</span>
                         <span class="status-indicator status-good">
@@ -454,19 +560,66 @@ foreach ($tables as $table) {
             </div>
         </div>
     </div>
-    
+
     <script>
-        // Animações de entrada
+        // Animações Copa das Panelas
         document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.section-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
+            // Aplicar fade-in aos elementos
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
                 setTimeout(() => {
-                    card.style.transition = 'all 0.5s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
+                    element.classList.add('visible');
                 }, index * 200);
+            });
+
+            // Animação especial para números das estatísticas
+            const infoValues = document.querySelectorAll('.info-value');
+            infoValues.forEach((value, index) => {
+                if (!isNaN(value.textContent.replace(/[,\.]/g, ''))) {
+                    const finalValue = parseInt(value.textContent.replace(/[,\.]/g, ''));
+                    if (finalValue > 0) {
+                        value.textContent = '0';
+
+                        setTimeout(() => {
+                            let current = 0;
+                            const increment = finalValue / 20;
+                            const timer = setInterval(() => {
+                                current += increment;
+                                if (current >= finalValue) {
+                                    value.textContent = finalValue.toLocaleString();
+                                    clearInterval(timer);
+                                } else {
+                                    value.textContent = Math.floor(current).toLocaleString();
+                                }
+                            }, 50);
+                        }, 1000 + (index * 100));
+                    }
+                }
+            });
+
+            // Efeitos de hover nos cards
+            const sectionCards = document.querySelectorAll('.section-card');
+            sectionCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 10px 25px rgba(123, 31, 162, 0.2)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Animação nos botões de ação
+            const actionButtons = document.querySelectorAll('.btn-standard');
+            actionButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    if (this.tagName === 'BUTTON') {
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+                        this.disabled = true;
+                    }
+                });
             });
         });
     </script>

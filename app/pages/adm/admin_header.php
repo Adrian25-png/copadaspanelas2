@@ -7,8 +7,14 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
 // Processar logout
 if (isset($_GET['logout'])) {
+    // Limpar todas as variáveis de sessão
+    $_SESSION = array();
+
+    // Destruir a sessão
     session_destroy();
-    header('Location: login_simple.php');
+
+    // Redirecionar para página inicial do site
+    header('Location: ../HomePage2.php');
     exit;
 }
 ?>
@@ -143,12 +149,12 @@ if (isset($_GET['logout'])) {
         gap: 15px;
         text-align: center;
     }
-    
+
     .admin-user-info {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .admin-user-details {
         flex-direction: column;
         gap: 5px;
@@ -162,7 +168,7 @@ if (isset($_GET['logout'])) {
             <i class="fas fa-trophy"></i>
             Copa das Panelas - Admin
         </a>
-        
+
         <div class="admin-user-info">
             <div>
                 <div class="admin-user-details">
@@ -173,13 +179,13 @@ if (isset($_GET['logout'])) {
                     Logado desde <?= date('H:i', $_SESSION['login_time']) ?>
                 </div>
             </div>
-            
+
             <a href="../HomePage2.php" class="admin-btn admin-btn-site" title="Ver site como usuário comum">
                 <i class="fas fa-eye"></i>
                 Ver Site
             </a>
-            
-            <a href="?logout=1" class="admin-btn admin-btn-logout" onclick="return confirm('Tem certeza que deseja sair?')">
+
+            <a href="?logout=1" class="admin-btn admin-btn-logout">
                 <i class="fas fa-sign-out-alt"></i>
                 Sair
             </a>

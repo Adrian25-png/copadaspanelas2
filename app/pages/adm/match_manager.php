@@ -110,288 +110,466 @@ $status_names = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Jogos - <?= htmlspecialchars($tournament['name']) ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon.ico">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(#281c3e, #0f051d);
             min-height: 100vh;
-            color: white;
+            color: #E0E0E0;
             padding: 20px;
         }
-        
-        .container {
+
+        .main-container {
             max-width: 1400px;
             margin: 0 auto;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
             padding: 30px;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
-        
-        .header {
+
+        .page-header {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
         }
-        
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #E1BEE7;
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        
-        .header h1 i {
-            color: #f39c12;
+
+        .page-header h1 i {
+            color: #7B1FA2;
         }
-        
+
         .tournament-info {
-            opacity: 0.9;
+            color: #9E9E9E;
             font-size: 1.1rem;
+            margin-top: 5px;
         }
-        
+
         .back-link {
-            color: white;
-            text-decoration: none;
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            color: #E1BEE7;
             padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            text-decoration: none;
             font-weight: 600;
-        }
-        
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.15);
-        }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #3498db;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            font-size: 1rem;
-            opacity: 0.9;
-            font-weight: 500;
-        }
-        
-        .actions-section {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .actions-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
+
+        .back-link:hover {
+            background: #7B1FA2;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: #252525;
+            box-shadow: 0 10px 25px rgba(123, 31, 162, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #E1BEE7;
+            margin-bottom: 8px;
+            padding-top: 5px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #9E9E9E;
+            font-weight: 500;
+        }
+
+        .actions-section {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .actions-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .actions-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #E1BEE7;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-top: 5px;
+        }
+
+        .actions-title i {
+            color: #7B1FA2;
+        }
         
-        .btn {
+        .btn-standard {
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            color: #E1BEE7;
             padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             transition: all 0.3s ease;
             margin: 5px;
-            border: 2px solid transparent;
+            font-family: 'Space Grotesk', sans-serif;
         }
-        
-        .btn-primary { background: #3498db; color: white; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-danger { background: #e74c3c; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
-        .btn-secondary { background: #95a5a6; color: white; }
-        .btn-info { background: #17a2b8; color: white; }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+
+        .btn-standard:hover {
+            background: #7B1FA2;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
+        }
+
+        .btn-success {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .btn-success:hover {
+            background: #4CAF50;
+            color: white;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-warning {
+            border-color: #FF9800;
+            color: #FF9800;
+        }
+
+        .btn-warning:hover {
+            background: #FF9800;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+
+        .btn-danger {
+            border-color: #F44336;
+            color: #F44336;
+        }
+
+        .btn-danger:hover {
+            background: #F44336;
+            color: white;
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        .btn-info {
+            border-color: #2196F3;
+            color: #2196F3;
+        }
+
+        .btn-info:hover {
+            background: #2196F3;
+            color: white;
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
             border-color: rgba(255, 255, 255, 0.3);
         }
         
         .btn-sm {
-            padding: 8px 16px;
+            padding: 10px 18px;
             font-size: 0.9rem;
         }
-        
-        .matches-section {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            border-color: #666;
+            color: #666;
         }
-        
+
+        .matches-section {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .matches-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .phase-title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #f39c12;
-            text-transform: uppercase;
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #E1BEE7;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            padding-top: 5px;
         }
-        
+
+        .phase-title i {
+            color: #7B1FA2;
+        }
+
         .match-card {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
+            background: #2A2A2A;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
             padding: 20px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .match-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .match-card:hover {
-            transform: translateY(-2px);
-            background: rgba(0, 0, 0, 0.3);
+            transform: translateY(-3px);
+            background: #333;
+            box-shadow: 0 8px 20px rgba(123, 31, 162, 0.3);
         }
-        
+
         .match-header {
             display: grid;
             grid-template-columns: 1fr auto 1fr auto;
             gap: 20px;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            padding-top: 5px;
         }
-        
+
         .team-info {
             text-align: center;
         }
-        
+
         .team-name {
             font-size: 1.2rem;
             font-weight: 600;
             margin-bottom: 5px;
+            color: #E1BEE7;
         }
-        
+
         .team-group {
             font-size: 0.9rem;
-            opacity: 0.7;
-            color: #bdc3c7;
+            color: #9E9E9E;
         }
-        
+
         .match-score {
             text-align: center;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #3498db;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #E1BEE7;
+            background: #7B1FA2;
+            padding: 15px 20px;
+            border-radius: 8px;
+            min-width: 80px;
         }
-        
+
         .vs-text {
             font-size: 1.2rem;
-            opacity: 0.7;
+            color: #9E9E9E;
+            font-weight: 600;
         }
-        
+
         .match-actions {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
+            margin-top: 15px;
         }
-        
+
         .match-status {
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
+            font-size: 0.85rem;
+            font-weight: 600;
             text-transform: uppercase;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             display: inline-block;
+            border: 2px solid;
         }
-        
-        .status-agendado { background: #f39c12; color: white; }
-        .status-em_andamento { background: #3498db; color: white; }
-        .status-finalizado { background: #27ae60; color: white; }
-        .status-cancelado { background: #e74c3c; color: white; }
-        
+
+        .status-agendado {
+            background: rgba(255, 152, 0, 0.1);
+            color: #FF9800;
+            border-color: #FF9800;
+        }
+        .status-em_andamento {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
+            border-color: #2196F3;
+        }
+        .status-finalizado {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+            border-color: #4CAF50;
+        }
+        .status-cancelado {
+            background: rgba(244, 67, 54, 0.1);
+            color: #F44336;
+            border-color: #F44336;
+        }
+
         .alert {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid;
+            position: relative;
+            overflow: hidden;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-weight: 500;
+            gap: 12px;
         }
-        
+
+        .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
         .alert-success {
-            background: rgba(39, 174, 96, 0.2);
-            border: 1px solid #27ae60;
-            color: #2ecc71;
+            background: rgba(76, 175, 80, 0.1);
+            border-left-color: #4CAF50;
+            color: #4CAF50;
         }
-        
+
+        .alert-success::before {
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+        }
+
         .alert-error {
-            background: rgba(231, 76, 60, 0.2);
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
+            background: rgba(244, 67, 54, 0.1);
+            border-left-color: #F44336;
+            color: #EF5350;
         }
-        
+
+        .alert-error::before {
+            background: linear-gradient(90deg, #F44336, #EF5350);
+        }
+
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            opacity: 0.7;
+            padding: 80px 20px;
+            color: #9E9E9E;
         }
-        
+
         .empty-state i {
             font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
+            margin-bottom: 25px;
+            color: #7B1FA2;
+            opacity: 0.6;
         }
-        
+
         .empty-state h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #E1BEE7;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            line-height: 1.5;
         }
 
         .modal {
@@ -402,18 +580,31 @@ $status_names = [
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
             margin: 5% auto;
             padding: 30px;
-            border-radius: 15px;
+            border-radius: 8px;
             width: 90%;
             max-width: 500px;
-            color: white;
+            color: #E0E0E0;
             position: relative;
+            overflow: hidden;
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
         }
 
         .modal-close {
@@ -423,25 +614,40 @@ $status_names = [
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
-            color: white;
+            color: #E1BEE7;
+            transition: color 0.3s ease;
         }
 
         .modal-close:hover {
-            opacity: 0.7;
+            color: #7B1FA2;
+        }
+
+        /* Animações */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .modal-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
+            font-size: 1.4rem;
+            margin-bottom: 25px;
             text-align: center;
+            color: #E1BEE7;
+            padding-top: 5px;
         }
 
         .modal-teams {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
-            gap: 20px;
+            gap: 25px;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .modal-team {
@@ -449,121 +655,155 @@ $status_names = [
         }
 
         .modal-team-name {
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #E1BEE7;
+            font-size: 1.1rem;
         }
 
         .modal-score-input {
             width: 80px;
-            padding: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px;
+            border: 2px solid #7B1FA2;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            background: #2A2A2A;
+            color: #E1BEE7;
             text-align: center;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: bold;
+            font-family: 'Space Grotesk', sans-serif;
         }
 
         .modal-score-input:focus {
             outline: none;
-            border-color: #3498db;
-            background: rgba(255, 255, 255, 0.2);
+            border-color: #E1BEE7;
+            background: #333;
+            box-shadow: 0 0 10px rgba(123, 31, 162, 0.3);
         }
 
         .modal-vs {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #f39c12;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #9E9E9E;
         }
 
         .modal-actions {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             justify-content: center;
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
         .quick-scores {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin: 20px 0;
+            gap: 12px;
+            margin: 25px 0;
         }
 
         .quick-score-btn {
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 5px;
-            color: white;
+            padding: 10px;
+            background: #2A2A2A;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            color: #E1BEE7;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-weight: 600;
         }
 
         .quick-score-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: #7B1FA2;
+            color: white;
             transform: translateY(-2px);
         }
 
         @media (max-width: 768px) {
-            .header {
+            .page-header {
                 flex-direction: column;
                 gap: 20px;
                 text-align: center;
             }
-            
-            .header h1 {
-                font-size: 2rem;
+
+            .page-header h1 {
+                font-size: 1.8rem;
             }
-            
+
             .match-header {
                 grid-template-columns: 1fr;
                 text-align: center;
                 gap: 15px;
             }
-            
+
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
+
             .match-actions {
                 flex-direction: column;
+            }
+
+            .main-container {
+                padding: 15px;
+            }
+
+            .modal-teams {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .modal-vs {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .match-score {
+                font-size: 1.8rem;
+                padding: 12px 15px;
+            }
+
+            .quick-scores {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="main-container">
+        <div class="page-header fade-in">
             <div>
                 <h1><i class="fas fa-futbol"></i> Gerenciar Jogos</h1>
-                <div class="tournament-info"><?= htmlspecialchars($tournament['name']) ?></div>
+                <div class="tournament-info"><?= htmlspecialchars($tournament['name']) ?> - <?= $tournament['year'] ?></div>
             </div>
             <a href="tournament_management.php?id=<?= $tournament_id ?>" class="back-link">
-                <i class="fas fa-arrow-left"></i> Voltar
+                <i class="fas fa-arrow-left"></i> Voltar ao Torneio
             </a>
         </div>
         
         <!-- Mensagens -->
         <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
+            <div class="alert alert-success fade-in">
                 <i class="fas fa-check-circle"></i>
-                <?= htmlspecialchars($_SESSION['success']) ?>
+                <span><?= htmlspecialchars($_SESSION['success']) ?></span>
             </div>
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
-        
+
         <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-error">
+            <div class="alert alert-error fade-in">
                 <i class="fas fa-exclamation-circle"></i>
-                <?= htmlspecialchars($_SESSION['error']) ?>
+                <span><?= htmlspecialchars($_SESSION['error']) ?></span>
             </div>
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
-        
+
         <!-- Estatísticas -->
-        <div class="stats-grid">
+        <div class="stats-grid fade-in" style="animation-delay: 0.2s;">
             <div class="stat-card">
                 <div class="stat-number"><?= $statistics['total_matches'] ?? 0 ?></div>
                 <div class="stat-label">Total de Jogos</div>
@@ -581,30 +821,30 @@ $status_names = [
                 <div class="stat-label">Total de Gols</div>
             </div>
         </div>
-        
+
         <!-- Ações -->
-        <div class="actions-section">
+        <div class="actions-section fade-in" style="animation-delay: 0.4s;">
             <h2 class="actions-title"><i class="fas fa-tools"></i> Ações Rápidas</h2>
-            
+
             <form method="POST" style="display: inline;">
                 <input type="hidden" name="action" value="generate_matches">
-                <button type="submit" class="btn btn-success" onclick="return confirm('Gerar jogos da fase de grupos? Jogos já existentes não serão duplicados.')">
+                <button type="submit" class="btn-standard btn-success" onclick="return confirm('Gerar jogos da fase de grupos? Jogos já existentes não serão duplicados.')">
                     <i class="fas fa-plus-circle"></i> Gerar Jogos da Fase de Grupos
                 </button>
             </form>
-            
+
             <form method="POST" style="display: inline;">
                 <input type="hidden" name="action" value="recalculate_stats">
-                <button type="submit" class="btn btn-warning">
+                <button type="submit" class="btn-standard btn-warning">
                     <i class="fas fa-calculator"></i> Recalcular Estatísticas
                 </button>
             </form>
-            
-            <a href="tournament_standings.php?id=<?= $tournament_id ?>" class="btn btn-info">
+
+            <a href="tournament_standings.php?id=<?= $tournament_id ?>" class="btn-standard btn-info">
                 <i class="fas fa-trophy"></i> Ver Classificação
             </a>
-            
-            <a href="bulk_results.php?tournament=<?= $tournament_id ?>" class="btn btn-secondary">
+
+            <a href="bulk_results.php?tournament=<?= $tournament_id ?>" class="btn-standard">
                 <i class="fas fa-edit"></i> Resultados Rápidos
             </a>
 
@@ -852,6 +1092,62 @@ $status_names = [
                 closeEditModal();
             }
         }
+
+        // Animações de entrada
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar fade-in aos elementos
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, index * 200);
+            });
+
+            // Adicionar efeitos hover dinâmicos aos stat-cards
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                    this.style.boxShadow = '0 15px 35px rgba(123, 31, 162, 0.4)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 10px 25px rgba(123, 31, 162, 0.3)';
+                });
+            });
+
+            // Adicionar efeitos hover aos match-cards
+            const matchCards = document.querySelectorAll('.match-card');
+            matchCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 12px 30px rgba(123, 31, 162, 0.4)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-3px)';
+                    this.style.boxShadow = '0 8px 20px rgba(123, 31, 162, 0.3)';
+                });
+            });
+
+            // Animação de contagem para os números das estatísticas
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(element => {
+                const finalValue = parseInt(element.textContent);
+                let currentValue = 0;
+                const increment = Math.ceil(finalValue / 20);
+
+                const timer = setInterval(() => {
+                    currentValue += increment;
+                    if (currentValue >= finalValue) {
+                        currentValue = finalValue;
+                        clearInterval(timer);
+                    }
+                    element.textContent = currentValue;
+                }, 50);
+            });
+        });
     </script>
 </body>
 </html>

@@ -117,244 +117,417 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Fases Finais - <?= htmlspecialchars($tournament['name']) ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon.ico">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(#281c3e, #0f051d);
             min-height: 100vh;
-            color: white;
+            color: #E0E0E0;
             margin: 0;
             padding: 20px;
         }
-        
-        .container {
+
+        .main-container {
             max-width: 1200px;
             margin: 0 auto;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
             padding: 30px;
-            backdrop-filter: blur(15px);
         }
-        
-        .header {
+
+        .page-header {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
         }
-        
-        .header h1 {
-            margin: 0;
-            color: #f39c12;
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #E1BEE7;
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        
-        .back-link {
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.2);
+
+        .page-header h1 i {
+            color: #7B1FA2;
+        }
+
+        .btn-standard {
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
             border-radius: 8px;
+            color: #E1BEE7;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
             transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px;
+            font-family: 'Space Grotesk', sans-serif;
         }
-        
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
+
+        .btn-standard:hover {
+            background: #7B1FA2;
+            color: white;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
         }
-        
+
         .phase-section {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
             padding: 25px;
             margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .phase-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .phase-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-        
+
         .phase-title {
-            color: #f39c12;
-            font-size: 1.3rem;
-            font-weight: bold;
+            color: #E1BEE7;
+            font-size: 1.4rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            margin: 5px;
+
+        .phase-title i {
+            color: #7B1FA2;
         }
-        
-        .btn-primary { background: #3498db; color: white; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
-        .btn-danger { background: #e74c3c; color: white; }
-        .btn-secondary { background: rgba(255, 255, 255, 0.2); color: white; }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+
+        .btn-success {
+            border-color: #4CAF50;
+            color: #4CAF50;
         }
-        
+
+        .btn-success:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-warning {
+            border-color: #FF9800;
+            color: #FF9800;
+        }
+
+        .btn-warning:hover {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-danger {
+            border-color: #F44336;
+            color: #F44336;
+        }
+
+        .btn-danger:hover {
+            background: #F44336;
+            color: white;
+        }
+
+        .btn-info {
+            border-color: #2196F3;
+            color: #2196F3;
+        }
+
+        .btn-info:hover {
+            background: #2196F3;
+            color: white;
+        }
+
         .matches-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
         }
-        
+
         .match-card {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #2A2A2A;
+            border-radius: 8px;
+            padding: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .match-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #7B1FA2;
+        }
+
+        .match-card:hover {
+            border-color: #7B1FA2;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(123, 31, 162, 0.3);
+        }
+
         .match-teams {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
-        
+
         .team-name {
-            font-weight: bold;
-            color: #ffffff;
+            font-weight: 600;
+            color: #E1BEE7;
+            font-size: 1.1rem;
         }
-        
+
         .vs {
-            color: #f39c12;
-            font-weight: bold;
+            color: #7B1FA2;
+            font-weight: 700;
+            font-size: 1.2rem;
         }
-        
+
         .match-score {
             text-align: center;
-            color: #27ae60;
-            font-weight: bold;
+            color: #4CAF50;
+            font-weight: 600;
+            font-size: 1.1rem;
+            background: #1E1E1E;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 2px solid #4CAF50;
         }
-        
+
         .qualified-teams {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
         }
-        
+
         .team-card {
-            background: rgba(0, 0, 0, 0.2);
+            background: #2A2A2A;
             border-radius: 8px;
-            padding: 10px;
+            padding: 15px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .team-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
         .team-card.first-place {
-            border-color: #f39c12;
+            border-color: #FFD700;
+            color: #FFD700;
         }
-        
+
+        .team-card.first-place::before {
+            background: linear-gradient(90deg, #FFD700, #FFA000);
+        }
+
         .team-card.second-place {
-            border-color: #95a5a6;
+            border-color: #C0C0C0;
+            color: #C0C0C0;
         }
-        
+
+        .team-card.second-place::before {
+            background: linear-gradient(90deg, #C0C0C0, #9E9E9E);
+        }
+
         .alert {
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        
+
+        .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
         .alert-success {
-            background: rgba(39, 174, 96, 0.2);
-            border: 1px solid #27ae60;
-            color: #2ecc71;
+            background: rgba(76, 175, 80, 0.1);
+            border-left-color: #4CAF50;
+            color: #4CAF50;
         }
-        
+
+        .alert-success::before {
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+        }
+
         .alert-error {
-            background: rgba(231, 76, 60, 0.2);
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
+            background: rgba(244, 67, 54, 0.1);
+            border-left-color: #F44336;
+            color: #EF5350;
         }
-        
+
+        .alert-error::before {
+            background: linear-gradient(90deg, #F44336, #EF5350);
+        }
+
         .info-box {
-            background: rgba(52, 152, 219, 0.2);
-            border: 1px solid #3498db;
+            background: rgba(33, 150, 243, 0.1);
+            border-left: 4px solid #2196F3;
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            color: #74b9ff;
+            padding: 20px;
+            margin-bottom: 25px;
+            color: #2196F3;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .info-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+
+        /* Animações */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         @media (max-width: 768px) {
-            .header {
+            .page-header {
                 flex-direction: column;
-                gap: 15px;
+                gap: 20px;
                 text-align: center;
             }
-            
+
             .matches-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .qualified-teams {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
+            }
+
+            .phase-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="main-container">
+        <div class="page-header fade-in">
             <h1><i class="fas fa-trophy"></i> Gerenciar Fases Finais</h1>
-            <a href="tournament_management.php?id=<?= $tournament_id ?>" class="back-link">
+            <a href="tournament_management.php?id=<?= $tournament_id ?>" class="btn-standard">
                 <i class="fas fa-arrow-left"></i> Voltar
             </a>
         </div>
-        
+
         <!-- Mensagens -->
         <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
+            <div class="alert alert-success fade-in" style="animation-delay: 0.2s;">
                 <i class="fas fa-check-circle"></i> <?= htmlspecialchars($_SESSION['success']) ?>
             </div>
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
-        
+
         <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-error">
+            <div class="alert alert-error fade-in" style="animation-delay: 0.2s;">
                 <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($_SESSION['error']) ?>
             </div>
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
-        
+
         <!-- Info sobre times classificados -->
-        <div class="info-box">
+        <div class="info-box fade-in" style="animation-delay: 0.3s;">
             <i class="fas fa-info-circle"></i>
             <strong>Times Classificados:</strong> <?= count($qualified_teams) ?> times qualificados para as fases finais.
             Para criar eliminatórias, você precisa de 2, 4, 8 ou 16 times.
         </div>
-        
+
         <!-- Times Classificados -->
         <?php if (!empty($qualified_teams)): ?>
-        <div class="phase-section">
+        <div class="phase-section fade-in" style="animation-delay: 0.4s;">
             <div class="phase-title">
                 <i class="fas fa-users"></i> Times Classificados
             </div>
@@ -362,10 +535,10 @@ try {
                 <?php foreach ($qualified_teams as $team): ?>
                 <div class="team-card <?= $team['posicao'] == 1 ? 'first-place' : 'second-place' ?>">
                     <div class="team-name"><?= htmlspecialchars($team['nome']) ?></div>
-                    <div style="font-size: 0.8rem; opacity: 0.8;">
+                    <div style="font-size: 0.9rem; color: #9E9E9E; margin-top: 5px;">
                         <?= htmlspecialchars($team['grupo_nome']) ?> - <?= $team['posicao'] ?>º lugar
                     </div>
-                    <div style="font-size: 0.8rem; color: #f39c12;">
+                    <div style="font-size: 0.9rem; color: #E1BEE7; margin-top: 5px; font-weight: 600;">
                         <?= $team['pontos'] ?> pts
                     </div>
                 </div>
@@ -373,30 +546,30 @@ try {
             </div>
         </div>
         <?php endif; ?>
-        
+
         <!-- Fases das Eliminatórias -->
-        <?php foreach ($phases as $phase): ?>
-        <div class="phase-section">
+        <?php foreach ($phases as $index => $phase): ?>
+        <div class="phase-section fade-in" style="animation-delay: <?= 0.5 + ($index * 0.1) ?>s;">
             <div class="phase-header">
                 <div class="phase-title">
                     <i class="fas fa-trophy"></i> <?= $phase ?>
                 </div>
                 <div>
                     <?php if (empty($existing_matches[$phase])): ?>
-                        <button class="btn btn-success" onclick="createPhaseMatches('<?= $phase ?>')">
+                        <button class="btn-standard btn-success" onclick="createPhaseMatches('<?= $phase ?>')">
                             <i class="fas fa-plus"></i> Criar Confrontos
                         </button>
                     <?php else: ?>
-                        <button class="btn btn-danger" onclick="deletePhaseMatches('<?= $phase ?>')">
+                        <button class="btn-standard btn-danger" onclick="deletePhaseMatches('<?= $phase ?>')">
                             <i class="fas fa-trash"></i> Remover Jogos
                         </button>
-                        <a href="match_manager.php?tournament_id=<?= $tournament_id ?>&phase=<?= urlencode($phase) ?>" class="btn btn-primary">
+                        <a href="match_manager.php?tournament_id=<?= $tournament_id ?>&phase=<?= urlencode($phase) ?>" class="btn-standard">
                             <i class="fas fa-edit"></i> Editar Jogos
                         </a>
                     <?php endif; ?>
                 </div>
             </div>
-            
+
             <?php if (!empty($existing_matches[$phase])): ?>
             <div class="matches-grid">
                 <?php foreach ($existing_matches[$phase] as $match): ?>
@@ -411,7 +584,7 @@ try {
                         <?= $match['team1_goals'] ?> - <?= $match['team2_goals'] ?>
                     </div>
                     <?php else: ?>
-                    <div style="text-align: center; color: #95a5a6;">
+                    <div style="text-align: center; color: #9E9E9E; font-weight: 500;">
                         <?= ucfirst($match['status']) ?>
                     </div>
                     <?php endif; ?>
@@ -419,27 +592,27 @@ try {
                 <?php endforeach; ?>
             </div>
             <?php else: ?>
-            <div style="text-align: center; padding: 20px; opacity: 0.7;">
-                <i class="fas fa-calendar-times" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                <div>Nenhum confronto criado para esta fase</div>
+            <div style="text-align: center; padding: 30px; color: #9E9E9E;">
+                <i class="fas fa-calendar-times" style="font-size: 2.5rem; margin-bottom: 15px; color: #7B1FA2;"></i>
+                <div style="font-size: 1.1rem; font-weight: 500;">Nenhum confronto criado para esta fase</div>
             </div>
             <?php endif; ?>
         </div>
         <?php endforeach; ?>
-        
+
         <!-- Ações Rápidas -->
-        <div class="phase-section">
+        <div class="phase-section fade-in" style="animation-delay: 0.8s;">
             <div class="phase-title">
                 <i class="fas fa-magic"></i> Ações Rápidas
             </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
-                <a href="knockout_generator.php?tournament_id=<?= $tournament_id ?>" class="btn btn-warning">
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
+                <a href="knockout_generator.php?tournament_id=<?= $tournament_id ?>" class="btn-standard btn-warning">
                     <i class="fas fa-magic"></i> Gerador Automático
                 </a>
-                <a href="../exibir_finais.php" class="btn btn-secondary" target="_blank">
+                <a href="../exibir_finais.php" class="btn-standard" target="_blank">
                     <i class="fas fa-eye"></i> Visualizar Chaveamento
                 </a>
-                <a href="third_place_manager.php?tournament_id=<?= $tournament_id ?>" class="btn btn-secondary">
+                <a href="third_place_manager.php?tournament_id=<?= $tournament_id ?>" class="btn-standard btn-info">
                     <i class="fas fa-medal"></i> Disputa 3º Lugar
                 </a>
             </div>
@@ -447,20 +620,57 @@ try {
     </div>
 
     <script>
+        // Animações e interatividade
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar fade-in aos elementos
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, index * 200);
+            });
+
+            // Animações para cards de times
+            const teamCards = document.querySelectorAll('.team-card');
+            teamCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, (index * 100) + 1000);
+            });
+
+            // Animações para cards de jogos
+            const matchCards = document.querySelectorAll('.match-card');
+            matchCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateX(0)';
+                }, (index * 150) + 1200);
+            });
+        });
+
         function createPhaseMatches(phase) {
             // Implementar lógica de criação
             console.log('Funcionalidade em desenvolvimento');
         }
 
         function deletePhaseMatches(phase) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.innerHTML = `
-                <input type="hidden" name="action" value="delete_phase_matches">
-                <input type="hidden" name="phase" value="${phase}">
-            `;
-            document.body.appendChild(form);
-            form.submit();
+            if (confirm('Tem certeza que deseja excluir todos os jogos desta fase?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.innerHTML = `
+                    <input type="hidden" name="action" value="delete_phase_matches">
+                    <input type="hidden" name="phase" value="${phase}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
     </script>
 </body>

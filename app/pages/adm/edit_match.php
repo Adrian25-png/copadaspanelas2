@@ -198,313 +198,490 @@ $phase_options = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Jogo - <?= htmlspecialchars($tournament['name']) ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon.ico">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(#281c3e, #0f051d);
             min-height: 100vh;
-            color: white;
+            color: #E0E0E0;
             padding: 20px;
             margin: 0;
         }
-        
-        .container {
-            max-width: 800px;
+
+        .main-container {
+            max-width: 900px;
             margin: 0 auto;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
             padding: 30px;
-            backdrop-filter: blur(15px);
         }
-        
-        .header {
+
+        .page-header {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
         }
-        
-        .header h1 {
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .page-header h1 {
             font-size: 2rem;
+            font-weight: 600;
+            color: #E1BEE7;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
-        
+
+        .page-header h1 i {
+            color: #7B1FA2;
+        }
+
         .back-link {
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.2);
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
             border-radius: 8px;
+            color: #E1BEE7;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: 600;
             transition: all 0.3s ease;
-        }
-        
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        .alert {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
+
+        .back-link:hover {
+            background: #7B1FA2;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
         .alert-success {
-            background: rgba(39, 174, 96, 0.2);
-            border: 1px solid #27ae60;
-            color: #2ecc71;
+            background: rgba(76, 175, 80, 0.1);
+            border-left-color: #4CAF50;
+            color: #4CAF50;
         }
-        
+
+        .alert-success::before {
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+        }
+
         .alert-error {
-            background: rgba(231, 76, 60, 0.2);
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
+            background: rgba(244, 67, 54, 0.1);
+            border-left-color: #F44336;
+            color: #EF5350;
         }
-        
+
+        .alert-error::before {
+            background: linear-gradient(90deg, #F44336, #EF5350);
+        }
+
         .match-preview {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
             margin-bottom: 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .match-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .match-teams {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
-            gap: 20px;
+            gap: 25px;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            padding-top: 5px;
         }
-        
+
         .team-info {
             text-align: center;
         }
-        
+
         .team-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #E1BEE7;
         }
-        
+
         .team-group {
             font-size: 1rem;
-            opacity: 0.7;
+            color: #9E9E9E;
         }
-        
+
         .match-score {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #3498db;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #E1BEE7;
+            background: #7B1FA2;
+            padding: 15px 20px;
+            border-radius: 8px;
+            min-width: 80px;
         }
-        
+
         .match-info {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
         }
-        
+
         .info-item {
             text-align: center;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 10px;
+            background: #2A2A2A;
+            border: 2px solid #7B1FA2;
+            padding: 15px;
             border-radius: 8px;
+            transition: all 0.3s ease;
         }
-        
+
+        .info-item:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+
         .info-label {
             font-size: 0.9rem;
-            opacity: 0.7;
-            margin-bottom: 5px;
+            color: #9E9E9E;
+            margin-bottom: 8px;
         }
-        
+
         .info-value {
-            font-weight: bold;
+            font-weight: 600;
+            color: #E1BEE7;
+            font-size: 1.1rem;
         }
-        
+
         .form-section {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .form-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .section-title {
             font-size: 1.3rem;
-            font-weight: bold;
-            margin-bottom: 20px;
+            font-weight: 600;
+            margin-bottom: 25px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: #f39c12;
+            gap: 12px;
+            color: #E1BEE7;
+            padding-top: 5px;
         }
-        
+
+        .section-title i {
+            color: #7B1FA2;
+        }
+
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
         }
-        
+
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
-        
+
         .form-label {
             font-weight: 600;
-            font-size: 0.9rem;
-            color: #ecf0f1;
+            font-size: 0.95rem;
+            color: #E1BEE7;
         }
-        
+
         .form-input {
-            padding: 12px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            border: 2px solid #7B1FA2;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            background: #2A2A2A;
+            color: #E0E0E0;
             font-size: 1rem;
+            font-family: 'Space Grotesk', sans-serif;
             transition: all 0.3s ease;
         }
-        
+
         .form-input:focus {
             outline: none;
-            border-color: #3498db;
-            background: rgba(255, 255, 255, 0.2);
+            border-color: #E1BEE7;
+            background: #333;
+            box-shadow: 0 0 10px rgba(123, 31, 162, 0.3);
         }
-        
+
         .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+            color: #9E9E9E;
         }
-        
+
         .score-inputs {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
-            gap: 15px;
+            gap: 20px;
             align-items: end;
         }
-        
+
         .score-input {
             text-align: center;
         }
-        
+
         .score-input input {
-            width: 80px;
+            width: 90px;
             text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: #7B1FA2;
+            color: #E1BEE7;
+            border: 2px solid #E1BEE7;
         }
-        
+
         .vs-divider {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #3498db;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #9E9E9E;
             text-align: center;
         }
-        
-        .btn {
-            padding: 12px 24px;
-            border: none;
+
+        .btn-standard {
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
             border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
+            color: #E1BEE7;
+            padding: 12px 24px;
             text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
+            gap: 10px;
             margin: 5px;
+            font-family: 'Space Grotesk', sans-serif;
         }
-        
-        .btn-primary { background: #3498db; color: white; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
-        .btn-danger { background: #e74c3c; color: white; }
-        .btn-secondary { background: #95a5a6; color: white; }
-        
-        .btn:hover {
+
+        .btn-standard:hover {
+            background: #7B1FA2;
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
         }
-        
+
+        .btn-success {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .btn-success:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-warning {
+            border-color: #FF9800;
+            color: #FF9800;
+        }
+
+        .btn-warning:hover {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-danger {
+            border-color: #F44336;
+            color: #F44336;
+        }
+
+        .btn-danger:hover {
+            background: #F44336;
+            color: white;
+        }
+
+        .btn-info {
+            border-color: #2196F3;
+            color: #2196F3;
+        }
+
+        .btn-info:hover {
+            background: #2196F3;
+            color: white;
+        }
+
         .actions {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             justify-content: center;
             flex-wrap: wrap;
-            margin-top: 20px;
+            margin-top: 25px;
         }
-        
+
         .quick-actions {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
             margin-bottom: 20px;
         }
-        
+
+        /* Animações */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         @media (max-width: 768px) {
             .match-teams {
                 grid-template-columns: 1fr;
                 text-align: center;
                 gap: 15px;
             }
-            
+
             .score-inputs {
                 grid-template-columns: 1fr;
                 gap: 10px;
             }
-            
+
             .form-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .header {
+
+            .page-header {
                 flex-direction: column;
-                gap: 15px;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .main-container {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-header h1 {
+                font-size: 1.6rem;
+            }
+
+            .match-score {
+                font-size: 1.8rem;
+                padding: 12px 15px;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: center;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="main-container">
+        <div class="page-header fade-in">
             <div>
                 <h1><i class="fas fa-edit"></i> Editar Jogo</h1>
-                <p style="margin: 5px 0; opacity: 0.8;"><?= htmlspecialchars($tournament['name']) ?></p>
+                <p style="margin: 8px 0; color: #9E9E9E; font-size: 1.1rem;"><?= htmlspecialchars($tournament['name']) ?></p>
             </div>
             <a href="match_manager.php?tournament_id=<?= $tournament_id ?>" class="back-link">
-                <i class="fas fa-arrow-left"></i> Voltar
+                <i class="fas fa-arrow-left"></i> Voltar aos Jogos
             </a>
         </div>
-        
+
         <!-- Mensagens -->
         <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
+            <div class="alert alert-success fade-in">
                 <i class="fas fa-check-circle"></i>
-                <?= htmlspecialchars($_SESSION['success']) ?>
+                <span><?= htmlspecialchars($_SESSION['success']) ?></span>
             </div>
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
-        
+
         <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-error">
+            <div class="alert alert-error fade-in">
                 <i class="fas fa-exclamation-circle"></i>
-                <?= htmlspecialchars($_SESSION['error']) ?>
+                <span><?= htmlspecialchars($_SESSION['error']) ?></span>
             </div>
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
-        
+
         <!-- Preview do Jogo -->
-        <div class="match-preview">
+        <div class="match-preview fade-in" style="animation-delay: 0.2s;">
             <div class="match-teams">
                 <div class="team-info">
                     <div class="team-name"><?= htmlspecialchars($match['team1_name']) ?></div>
@@ -512,7 +689,7 @@ $phase_options = [
                         <div class="team-group"><?= htmlspecialchars($match['group_name']) ?></div>
                     <?php endif; ?>
                 </div>
-                
+
                 <div class="match-score">
                     <?php if ($match['status'] === 'finalizado' && $match['team1_goals'] !== null): ?>
                         <?= $match['team1_goals'] ?> - <?= $match['team2_goals'] ?>
@@ -520,7 +697,7 @@ $phase_options = [
                         VS
                     <?php endif; ?>
                 </div>
-                
+
                 <div class="team-info">
                     <div class="team-name"><?= htmlspecialchars($match['team2_name']) ?></div>
                     <?php if ($match['group_name']): ?>
@@ -571,16 +748,16 @@ $phase_options = [
             <div class="quick-actions">
                 <form method="POST" style="display: inline;">
                     <input type="hidden" name="action" value="swap_teams">
-                    <button type="submit" class="btn btn-warning" onclick="return confirm('Trocar os times de posição?')">
+                    <button type="submit" class="btn-standard btn-warning" onclick="return confirm('Trocar os times de posição?')">
                         <i class="fas fa-exchange-alt"></i> Trocar Times
                     </button>
                 </form>
-                
-                <button onclick="clearResult()" class="btn btn-secondary">
+
+                <button onclick="clearResult()" class="btn-standard">
                     <i class="fas fa-eraser"></i> Limpar Resultado
                 </button>
-                
-                <button onclick="setToday()" class="btn btn-primary">
+
+                <button onclick="setToday()" class="btn-standard btn-info">
                     <i class="fas fa-calendar-day"></i> Data de Hoje
                 </button>
             </div>
@@ -591,7 +768,7 @@ $phase_options = [
             <input type="hidden" name="action" value="update_match">
             
             <!-- Resultado -->
-            <div class="form-section">
+            <div class="form-section fade-in" style="animation-delay: 0.4s;">
                 <h3 class="section-title"><i class="fas fa-futbol"></i> Resultado</h3>
                 
                 <div class="score-inputs">
@@ -622,7 +799,7 @@ $phase_options = [
             </div>
             
             <!-- Data e Status -->
-            <div class="form-section">
+            <div class="form-section fade-in" style="animation-delay: 0.5s;">
                 <h3 class="section-title"><i class="fas fa-cog"></i> Configurações</h3>
                 
                 <div class="form-grid">
@@ -658,49 +835,53 @@ $phase_options = [
             </div>
             
             <!-- Ações -->
-            <div class="actions">
-                <button type="submit" class="btn btn-success">
+            <div class="actions fade-in" style="animation-delay: 0.6s;">
+                <button type="submit" class="btn-standard btn-success">
                     <i class="fas fa-save"></i> Salvar Alterações
                 </button>
-                
-                <a href="match_manager.php?tournament_id=<?= $tournament_id ?>" class="btn btn-secondary">
+
+                <a href="match_manager.php?tournament_id=<?= $tournament_id ?>" class="btn-standard">
                     <i class="fas fa-times"></i> Cancelar
                 </a>
-                
-                <button type="button" onclick="deleteMatch()" class="btn btn-danger">
+
+                <button type="button" onclick="deleteMatch()" class="btn-standard btn-danger">
                     <i class="fas fa-trash"></i> Excluir Jogo
                 </button>
             </div>
         </form>
     </div>
-    
+
     <script>
         function setResult(goals1, goals2) {
             document.getElementById('team1_goals').value = goals1;
             document.getElementById('team2_goals').value = goals2;
-            
+
             // Automaticamente definir como finalizado se há resultado
             if (goals1 !== '' && goals2 !== '') {
                 document.querySelector('select[name="status"]').value = 'finalizado';
             }
         }
-        
+
         function clearResult() {
             document.getElementById('team1_goals').value = '';
             document.getElementById('team2_goals').value = '';
             document.querySelector('select[name="status"]').value = 'agendado';
         }
-        
+
         function setToday() {
             const today = new Date();
             const dateStr = today.toISOString().split('T')[0];
             const timeStr = '20:00';
-            
+
             document.getElementById('match_date').value = dateStr;
             document.getElementById('match_time').value = timeStr;
         }
-        
+
         function deleteMatch() {
+            if (!confirm('Tem certeza que deseja excluir este jogo? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = 'match_manager.php?tournament_id=<?= $tournament_id ?>';
@@ -711,17 +892,39 @@ $phase_options = [
             document.body.appendChild(form);
             form.submit();
         }
-        
+
         // Auto-definir status baseado no resultado
         document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar fade-in aos elementos
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, index * 200);
+            });
+
+            // Adicionar efeitos hover aos form-sections
+            const formSections = document.querySelectorAll('.form-section');
+            formSections.forEach(section => {
+                section.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px)';
+                    this.style.boxShadow = '0 8px 20px rgba(123, 31, 162, 0.3)';
+                });
+
+                section.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
             const goals1Input = document.getElementById('team1_goals');
             const goals2Input = document.getElementById('team2_goals');
             const statusSelect = document.querySelector('select[name="status"]');
-            
+
             function updateStatus() {
                 const goals1 = goals1Input.value;
                 const goals2 = goals2Input.value;
-                
+
                 if (goals1 !== '' && goals2 !== '') {
                     if (statusSelect.value === 'agendado') {
                         statusSelect.value = 'finalizado';
@@ -732,7 +935,7 @@ $phase_options = [
                     }
                 }
             }
-            
+
             goals1Input.addEventListener('input', updateStatus);
             goals2Input.addEventListener('input', updateStatus);
         });

@@ -149,215 +149,427 @@ foreach ($grupos as $grupo) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Times - <?= htmlspecialchars($tournament['name']) ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon.ico">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(#281c3e, #0f051d);
             margin: 0;
             padding: 20px;
-            color: white;
+            color: #E0E0E0;
             min-height: 100vh;
         }
-        
-        .container {
+
+        .main-container {
             max-width: 1200px;
             margin: 0 auto;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
             padding: 30px;
-            backdrop-filter: blur(10px);
         }
-        
-        .header {
+
+        .page-header {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
         }
-        
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #E1BEE7;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-header h1 i {
+            color: #7B1FA2;
+        }
+
         .back-link {
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.2);
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
             border-radius: 8px;
+            color: #E1BEE7;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: 600;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        
+
         .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: #7B1FA2;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
         }
-        
-        .add-team-form {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
+
+        .form-section {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
             margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .form-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #E1BEE7;
+            padding-top: 5px;
+        }
+
+        .section-title i {
+            color: #7B1FA2;
+        }
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            color: #E1BEE7;
             font-size: 1rem;
         }
-        
-        .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            background: #2A2A2A;
+            color: #E0E0E0;
+            font-size: 1rem;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.3s ease;
         }
-        
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #E1BEE7;
+            background: #333333;
+            box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #9E9E9E;
+        }
+
+        .form-group select option {
+            background: #2A2A2A;
+            color: #E0E0E0;
+        }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr auto;
-            gap: 15px;
+            gap: 20px;
             align-items: end;
         }
-        
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
+
+        .btn-standard {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            padding: 14px 28px;
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            color: #E1BEE7;
+            font-weight: 600;
+            text-decoration: none;
             transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: 'Space Grotesk', sans-serif;
         }
-        
-        .btn-primary { background: #3498db; color: white; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-danger { background: #e74c3c; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
-        
-        .btn:hover {
+
+        .btn-standard:hover {
+            background: #7B1FA2;
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
         }
-        
+
+        .btn-primary {
+            border-color: #7B1FA2;
+            color: #E1BEE7;
+        }
+
+        .btn-success {
+            border-color: #4CAF50;
+            color: #66BB6A;
+        }
+
+        .btn-success:hover {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .btn-danger {
+            border-color: #F44336;
+            color: #EF5350;
+        }
+
+        .btn-danger:hover {
+            background: #F44336;
+            border-color: #F44336;
+        }
+
+        .btn-warning {
+            border-color: #FFC107;
+            color: #FFD54F;
+        }
+
+        .btn-warning:hover {
+            background: #FFC107;
+            border-color: #FFC107;
+            color: #1E1E1E;
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            border-left-color: #4CAF50;
+            color: #66BB6A;
+        }
+
+        .alert-success::before {
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+        }
+
+        .alert-error {
+            background: rgba(244, 67, 54, 0.1);
+            border-left-color: #F44336;
+            color: #EF5350;
+        }
+
+        .alert-error::before {
+            background: linear-gradient(90deg, #F44336, #EF5350);
+        }
+
         .groups-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 25px;
         }
-        
+
         .group-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
             padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
-        
+
+        .group-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .group-card:hover {
+            transform: translateY(-5px);
+            background: #252525;
+            box-shadow: 0 10px 25px rgba(123, 31, 162, 0.3);
+        }
+
         .group-title {
             font-size: 1.5rem;
-            font-weight: bold;
+            font-weight: 600;
             margin-bottom: 20px;
-            color: #f39c12;
-            text-align: center;
+            color: #E1BEE7;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-top: 5px;
         }
 
         .group-status {
             font-size: 0.9rem;
-            font-weight: normal;
-            opacity: 0.8;
+            font-weight: 500;
+            color: #E0E0E0;
+            opacity: 0.9;
         }
 
         .group-card.group-full {
-            border: 2px solid #27ae60;
-            background: rgba(39, 174, 96, 0.1);
+            border-left-color: #4CAF50;
+        }
+
+        .group-card.group-full::before {
+            background: linear-gradient(90deg, #4CAF50, #81C784);
         }
 
         .group-card.group-partial {
-            border: 2px solid #f39c12;
-            background: rgba(243, 156, 18, 0.1);
+            border-left-color: #FFC107;
+        }
+
+        .group-card.group-partial::before {
+            background: linear-gradient(90deg, #FFC107, #FFD54F);
         }
 
         .group-card.group-empty {
-            border: 2px solid #3498db;
-            background: rgba(52, 152, 219, 0.1);
+            border-left-color: #2196F3;
         }
-        
+
+        .group-card.group-empty::before {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+
         .team-item {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            padding: 15px;
+            background: #2A2A2A;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 18px;
             margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: all 0.3s ease;
         }
-        
+
+        .team-item:hover {
+            background: #333333;
+            border-color: #E1BEE7;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.2);
+        }
+
         .team-info {
             flex: 1;
+            display: flex;
+            align-items: center;
         }
-        
+
         .team-name {
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 5px;
+            color: #E1BEE7;
         }
-        
+
         .team-stats {
             font-size: 0.9rem;
-            opacity: 0.7;
+            color: #9E9E9E;
+            margin-top: 5px;
         }
-        
+
         .team-actions {
             display: flex;
             gap: 10px;
         }
-        
+
         .btn-sm {
-            padding: 6px 12px;
+            padding: 8px 16px;
             font-size: 0.9rem;
         }
-        
+
         .logo-preview {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             object-fit: cover;
             margin-right: 15px;
+            border: 2px solid #7B1FA2;
         }
-        
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9E9E9E;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
             margin-bottom: 20px;
+            color: #7B1FA2;
+            opacity: 0.6;
         }
-        
-        .alert-success {
-            background: rgba(39, 174, 96, 0.2);
-            border: 1px solid #27ae60;
-            color: #2ecc71;
+
+        .empty-state h3 {
+            color: #E1BEE7;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
         }
-        
-        .alert-error {
-            background: rgba(231, 76, 60, 0.2);
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
+
+        .empty-state p {
+            font-size: 1rem;
+            line-height: 1.5;
         }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -368,48 +580,102 @@ foreach ($grupos as $grupo) {
             background: rgba(0, 0, 0, 0.8);
             z-index: 1000;
         }
-        
+
         .modal-content {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            border-radius: 15px;
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
+            border-radius: 12px;
             padding: 30px;
             max-width: 500px;
             width: 90%;
         }
-        
+
+        /* Animações */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         @media (max-width: 768px) {
+            .main-container {
+                padding: 20px 15px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+                padding: 25px 20px;
+            }
+
+            .page-header h1 {
+                font-size: 1.8rem;
+                justify-content: center;
+            }
+
             .form-row {
                 grid-template-columns: 1fr;
+                gap: 15px;
             }
-            
+
             .groups-container {
                 grid-template-columns: 1fr;
+                gap: 20px;
             }
-            
+
             .team-item {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
             }
-            
+
             .team-actions {
                 width: 100%;
                 justify-content: flex-end;
+            }
+
+            .btn-standard {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .form-section {
+                padding: 25px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-header h1 {
+                font-size: 1.6rem;
+            }
+
+            .groups-container {
+                grid-template-columns: 1fr;
+            }
+
+            .group-card {
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="main-container">
+        <div class="page-header fade-in">
             <div>
                 <h1><i class="fas fa-users"></i> Gerenciar Times</h1>
-                <p style="margin: 5px 0; opacity: 0.8;"><?= htmlspecialchars($tournament['name']) ?></p>
-                <div style="background: rgba(52, 152, 219, 0.2); padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #3498db;">
+                <p style="margin: 5px 0; color: #E0E0E0; opacity: 0.9; font-size: 1.1rem;"><?= htmlspecialchars($tournament['name']) ?></p>
+                <div style="background: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 8px; margin-top: 15px; border: 2px solid #2196F3; color: #64B5F6;">
                     <i class="fas fa-info-circle"></i>
                     <strong>Configuração:</strong> <?= count($grupos) ?> grupos com máximo de <?= $tournament['teams_per_group'] ?? 4 ?> times cada
                     <span style="margin-left: 15px;">
@@ -439,18 +705,18 @@ foreach ($grupos as $grupo) {
         <?php endif; ?>
         
         <!-- Formulário para Adicionar Time -->
-        <div class="add-team-form">
-            <h2><i class="fas fa-plus-circle"></i> Adicionar Novo Time</h2>
-            
+        <div class="form-section fade-in">
+            <h3 class="section-title"><i class="fas fa-plus-circle"></i> Adicionar Novo Time</h3>
+
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="add_team">
-                
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nome">Nome do Time</label>
                         <input type="text" id="nome" name="nome" placeholder="Ex: Águias FC" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="grupo_id">Grupo</label>
                         <select id="grupo_id" name="grupo_id" required>
@@ -467,13 +733,13 @@ foreach ($grupos as $grupo) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <small style="color: #ccc; margin-top: 5px; display: block;">
+                        <small style="color: #9E9E9E; margin-top: 8px; display: block; font-size: 0.9rem;">
                             <i class="fas fa-info-circle"></i> Limite: <?= $teams_per_group ?> times por grupo
                         </small>
                     </div>
-                    
+
                     <div class="form-group">
-                        <button type="submit" class="btn btn-success">
+                        <button type="submit" class="btn-standard btn-success">
                             <i class="fas fa-plus"></i> Adicionar
                         </button>
                     </div>
@@ -490,65 +756,67 @@ foreach ($grupos as $grupo) {
         <div class="groups-container">
             <?php
             $teams_per_group = $tournament['teams_per_group'] ?? 4;
-            foreach ($grupos as $grupo):
+            foreach ($grupos as $index => $grupo):
                 $current_teams = count($times_por_grupo[$grupo['grupo_id']] ?? []);
                 $is_full = $current_teams >= $teams_per_group;
                 $status_class = $is_full ? 'group-full' : ($current_teams > 0 ? 'group-partial' : 'group-empty');
             ?>
-                <div class="group-card <?= $status_class ?>">
+                <div class="group-card <?= $status_class ?> fade-in" style="animation-delay: <?= $index * 0.1 ?>s;">
                     <div class="group-title">
                         <?= htmlspecialchars($grupo['grupo_nome']) ?>
                         <span class="group-status">
                             <?= $current_teams ?>/<?= $teams_per_group ?>
                             <?php if ($is_full): ?>
-                                <i class="fas fa-check-circle" style="color: #27ae60; margin-left: 5px;"></i>
+                                <i class="fas fa-check-circle" style="color: #4CAF50; margin-left: 8px;"></i>
                             <?php elseif ($current_teams > 0): ?>
-                                <i class="fas fa-clock" style="color: #f39c12; margin-left: 5px;"></i>
+                                <i class="fas fa-clock" style="color: #FFC107; margin-left: 8px;"></i>
                             <?php else: ?>
-                                <i class="fas fa-plus-circle" style="color: #3498db; margin-left: 5px;"></i>
+                                <i class="fas fa-plus-circle" style="color: #2196F3; margin-left: 8px;"></i>
                             <?php endif; ?>
                         </span>
                     </div>
-                    
+
                     <?php if (!empty($times_por_grupo[$grupo['grupo_id']])): ?>
                         <?php foreach ($times_por_grupo[$grupo['grupo_id']] as $time): ?>
                             <div class="team-item">
-                                <div style="display: flex; align-items: center; flex: 1;">
+                                <div class="team-info">
                                     <?php if ($time['logo']): ?>
-                                        <img src="data:image/jpeg;base64,<?= base64_encode($time['logo']) ?>" 
+                                        <img src="data:image/jpeg;base64,<?= base64_encode($time['logo']) ?>"
                                              class="logo-preview" alt="Logo">
                                     <?php endif; ?>
-                                    
-                                    <div class="team-info">
+
+                                    <div>
                                         <div class="team-name"><?= htmlspecialchars($time['nome']) ?></div>
                                         <div class="team-stats">
-                                            <?= $time['total_jogadores'] ?> jogadores | 
-                                            <?= $time['pts'] ?> pts | 
+                                            <?= $time['total_jogadores'] ?> jogadores |
+                                            <?= $time['pts'] ?> pts |
                                             <?= $time['vitorias'] ?>V <?= $time['empates'] ?>E <?= $time['derrotas'] ?>D
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="team-actions">
-                                    <button onclick="editTeam(<?= $time['id'] ?>, '<?= htmlspecialchars($time['nome']) ?>')" 
-                                            class="btn btn-primary btn-sm">
+                                    <button onclick="editTeam(<?= $time['id'] ?>, '<?= htmlspecialchars($time['nome']) ?>')"
+                                            class="btn-standard btn-primary btn-sm">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button onclick="deleteTeam(<?= $time['id'] ?>, '<?= htmlspecialchars($time['nome']) ?>')" 
-                                            class="btn btn-danger btn-sm">
+                                    <button onclick="deleteTeam(<?= $time['id'] ?>, '<?= htmlspecialchars($time['nome']) ?>')"
+                                            class="btn-standard btn-danger btn-sm">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                    <a href="player_manager.php?tournament_id=<?= $tournament_id ?>&team_id=<?= $time['id'] ?>" 
-                                       class="btn btn-warning btn-sm">
+                                    <a href="player_manager.php?tournament_id=<?= $tournament_id ?>&team_id=<?= $time['id'] ?>"
+                                       class="btn-standard btn-warning btn-sm">
                                         <i class="fas fa-user"></i>
                                     </a>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p style="text-align: center; opacity: 0.7; font-style: italic;">
-                            Nenhum time cadastrado neste grupo
-                        </p>
+                        <div class="empty-state">
+                            <i class="fas fa-users"></i>
+                            <h3>Nenhum time cadastrado</h3>
+                            <p>Este grupo ainda não possui times cadastrados.</p>
+                        </div>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
@@ -558,22 +826,22 @@ foreach ($grupos as $grupo) {
     <!-- Modal para Editar Time -->
     <div id="editModal" class="modal">
         <div class="modal-content">
-            <h3><i class="fas fa-edit"></i> Editar Time</h3>
-            
+            <h3 style="color: #E1BEE7; margin-bottom: 25px;"><i class="fas fa-edit"></i> Editar Time</h3>
+
             <form method="POST">
                 <input type="hidden" name="action" value="edit_team">
                 <input type="hidden" name="time_id" id="edit_time_id">
-                
+
                 <div class="form-group">
                     <label for="edit_nome">Nome do Time</label>
                     <input type="text" id="edit_nome" name="nome" required>
                 </div>
-                
-                <div style="display: flex; gap: 15px; justify-content: flex-end;">
-                    <button type="button" onclick="closeModal()" class="btn btn-secondary">
+
+                <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 25px;">
+                    <button type="button" onclick="closeModal()" class="btn-standard" style="border-color: #666; color: #ccc;">
                         Cancelar
                     </button>
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn-standard btn-success">
                         <i class="fas fa-save"></i> Salvar
                     </button>
                 </div>
@@ -589,22 +857,24 @@ foreach ($grupos as $grupo) {
             document.getElementById('edit_nome').value = name;
             document.getElementById('editModal').style.display = 'block';
         }
-        
+
         function deleteTeam(id, name) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.innerHTML = `
-                <input type="hidden" name="action" value="delete_team">
-                <input type="hidden" name="time_id" value="${id}">
-            `;
-            document.body.appendChild(form);
-            form.submit();
+            if (confirm(`Tem certeza que deseja excluir o time "${name}"?`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.innerHTML = `
+                    <input type="hidden" name="action" value="delete_team">
+                    <input type="hidden" name="time_id" value="${id}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
-        
+
         function closeModal() {
             document.getElementById('editModal').style.display = 'none';
         }
-        
+
         // Validação do formulário de adicionar time
         document.querySelector('form[method="POST"]').addEventListener('submit', function(e) {
             const grupoSelect = document.getElementById('grupo_id');
@@ -612,11 +882,13 @@ foreach ($grupos as $grupo) {
 
             if (selectedOption && selectedOption.disabled) {
                 e.preventDefault();
+                alert('Este grupo está cheio. Selecione outro grupo.');
                 return false;
             }
 
             if (selectedOption && selectedOption.text.includes('CHEIO')) {
                 e.preventDefault();
+                alert('Este grupo está cheio. Selecione outro grupo.');
                 return false;
             }
         });
@@ -629,12 +901,39 @@ foreach ($grupos as $grupo) {
             if (selectedOption && selectedOption.disabled) {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-ban"></i> Grupo Cheio';
-                submitBtn.style.background = '#95a5a6';
+                submitBtn.style.background = '#666';
+                submitBtn.style.borderColor = '#666';
             } else {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-plus"></i> Adicionar';
-                submitBtn.style.background = '#27ae60';
+                submitBtn.style.background = '#1E1E1E';
+                submitBtn.style.borderColor = '#4CAF50';
             }
+        });
+
+        // Animações de entrada
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar fade-in aos elementos
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, index * 200);
+            });
+
+            // Adicionar efeitos hover dinâmicos aos form-sections
+            const formSections = document.querySelectorAll('.form-section');
+            formSections.forEach(section => {
+                section.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px)';
+                    this.style.boxShadow = '0 10px 25px rgba(123, 31, 162, 0.2)';
+                });
+
+                section.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
         });
 
         // Fechar modal clicando fora

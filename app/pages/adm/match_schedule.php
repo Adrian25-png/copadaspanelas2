@@ -73,255 +73,465 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agenda de Jogos - <?= htmlspecialchars($tournament['name']) ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon.ico">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(#281c3e, #0f051d);
             min-height: 100vh;
-            color: white;
+            color: #E0E0E0;
             margin: 0;
             padding: 20px;
         }
-        
-        .container {
+
+        .main-container {
             max-width: 1200px;
             margin: 0 auto;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
             padding: 30px;
-            backdrop-filter: blur(15px);
         }
-        
-        .header {
+
+        .page-header {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
         }
-        
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .tournament-info h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
+            font-weight: 600;
             margin-bottom: 10px;
-            color: #f39c12;
+            color: #E1BEE7;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-        
+
+        .tournament-info h1 i {
+            color: #7B1FA2;
+        }
+
         .tournament-year {
-            font-size: 1.2rem;
-            opacity: 0.8;
+            font-size: 1.1rem;
+            color: #9E9E9E;
+            padding-top: 5px;
         }
-        
+
         .back-link {
-            color: white;
-            text-decoration: none;
-            padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.2);
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
             border-radius: 8px;
+            color: #E1BEE7;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: 600;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
-        
+
         .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: #7B1FA2;
+            color: white;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
         }
-        
+
         .section {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
             margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .section-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #f39c12;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .calendar-section {
+            font-size: 1.4rem;
+            font-weight: 600;
             margin-bottom: 25px;
-        }
-        
-        .date-header {
-            background: rgba(52, 152, 219, 0.3);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            font-weight: bold;
-            color: #3498db;
+            color: #E1BEE7;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            padding-top: 5px;
         }
-        
-        .match-item {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: grid;
-            grid-template-columns: 80px 1fr 120px;
-            gap: 15px;
+
+        .section-title i {
+            color: #7B1FA2;
+        }
+
+        .calendar-section {
+            margin-bottom: 30px;
+        }
+
+        .date-header {
+            background: #2A2A2A;
+            border: 2px solid #7B1FA2;
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #E1BEE7;
+            display: flex;
             align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .date-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .date-header i {
+            color: #7B1FA2;
+        }
+
+        .match-item {
+            background: #2A2A2A;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: 90px 1fr 140px;
+            gap: 20px;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .match-item:hover {
+            background: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.3);
+        }
+
         .match-time {
-            font-weight: bold;
-            color: #f39c12;
+            font-weight: 700;
+            color: #E1BEE7;
             text-align: center;
+            background: #7B1FA2;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.9rem;
         }
-        
+
         .match-teams {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        
+
         .team-name {
             font-weight: 600;
+            color: #E1BEE7;
         }
-        
+
         .vs-text {
-            color: #95a5a6;
-            font-weight: bold;
+            color: #9E9E9E;
+            font-weight: 600;
         }
-        
+
         .match-score {
-            background: rgba(39, 174, 96, 0.3);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            color: #27ae60;
-        }
-        
-        .match-status {
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            font-weight: bold;
+            background: rgba(76, 175, 80, 0.1);
+            border: 2px solid #4CAF50;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #4CAF50;
             text-align: center;
         }
-        
-        .status-agendado { background: rgba(52, 152, 219, 0.3); color: #3498db; }
-        .status-finalizado { background: rgba(39, 174, 96, 0.3); color: #27ae60; }
-        .status-em_andamento { background: rgba(243, 156, 18, 0.3); color: #f39c12; }
-        .status-cancelado { background: rgba(231, 76, 60, 0.3); color: #e74c3c; }
-        
+
+        .match-status {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            border: 2px solid;
+        }
+
+        .status-agendado {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
+            border-color: #2196F3;
+        }
+        .status-finalizado {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+            border-color: #4CAF50;
+        }
+        .status-em_andamento {
+            background: rgba(255, 152, 0, 0.1);
+            color: #FF9800;
+            border-color: #FF9800;
+        }
+        .status-cancelado {
+            background: rgba(244, 67, 54, 0.1);
+            color: #F44336;
+            border-color: #F44336;
+        }
+
         .schedule-form {
             display: grid;
-            grid-template-columns: 1fr 100px 100px 120px;
-            gap: 10px;
+            grid-template-columns: 1fr 110px 110px 130px;
+            gap: 15px;
             align-items: center;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            background: #2A2A2A;
+            border: 2px solid #7B1FA2;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
         }
-        
+
+        .schedule-form:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+
         .schedule-form input {
-            padding: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            padding: 12px;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            background: #1E1E1E;
+            color: #E0E0E0;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
         }
-        
+
+        .schedule-form input:focus {
+            outline: none;
+            border-color: #E1BEE7;
+            background: #333;
+            box-shadow: 0 0 10px rgba(123, 31, 162, 0.3);
+        }
+
         .schedule-form input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: #9E9E9E;
         }
-        
-        .btn {
+
+        .btn-standard {
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            color: #E1BEE7;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            margin-right: 10px;
-            margin-bottom: 10px;
+            gap: 10px;
+            margin: 5px;
+            font-family: 'Space Grotesk', sans-serif;
         }
-        
-        .btn-primary { background: #3498db; color: white; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
-        .btn-secondary { background: rgba(255, 255, 255, 0.2); color: white; }
-        
-        .btn:hover {
+
+        .btn-standard:hover {
+            background: #7B1FA2;
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
         }
-        
+
+        .btn-success {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .btn-success:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-warning {
+            border-color: #FF9800;
+            color: #FF9800;
+        }
+
+        .btn-warning:hover {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-info {
+            border-color: #2196F3;
+            color: #2196F3;
+        }
+
+        .btn-info:hover {
+            background: #2196F3;
+            color: white;
+        }
+
         .alert {
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        
+
+        .alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
         .alert-success {
-            background: rgba(39, 174, 96, 0.2);
-            border: 1px solid #27ae60;
-            color: #2ecc71;
+            background: rgba(76, 175, 80, 0.1);
+            border-left-color: #4CAF50;
+            color: #4CAF50;
         }
-        
+
+        .alert-success::before {
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+        }
+
         .alert-error {
-            background: rgba(231, 76, 60, 0.2);
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
+            background: rgba(244, 67, 54, 0.1);
+            border-left-color: #F44336;
+            color: #EF5350;
         }
-        
+
+        .alert-error::before {
+            background: linear-gradient(90deg, #F44336, #EF5350);
+        }
+
         .empty-state {
             text-align: center;
-            padding: 40px;
-            opacity: 0.7;
+            padding: 60px 20px;
+            color: #9E9E9E;
         }
-        
+
         .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: #95a5a6;
+            font-size: 4rem;
+            margin-bottom: 25px;
+            color: #7B1FA2;
+            opacity: 0.6;
         }
-        
+
+        .empty-state h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #E1BEE7;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Animações */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         @media (max-width: 768px) {
-            .header {
+            .page-header {
                 flex-direction: column;
                 gap: 20px;
                 text-align: center;
             }
-            
+
             .tournament-info h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
-            
+
             .match-item {
                 grid-template-columns: 1fr;
-                gap: 10px;
+                gap: 15px;
                 text-align: center;
             }
-            
+
             .schedule-form {
                 grid-template-columns: 1fr;
-                gap: 10px;
+                gap: 15px;
+            }
+
+            .main-container {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tournament-info h1 {
+                font-size: 1.6rem;
+            }
+
+            .date-header {
+                padding: 15px;
+            }
+
+            .match-item {
+                padding: 15px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="main-container">
+        <div class="page-header fade-in">
             <div class="tournament-info">
                 <h1><i class="fas fa-calendar-alt"></i> Agenda de Jogos</h1>
                 <div class="tournament-year"><?= htmlspecialchars($tournament['name']) ?> - <?= $tournament['year'] ?></div>
@@ -333,21 +543,21 @@ try {
         
         <!-- Mensagens -->
         <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
+            <div class="alert alert-success fade-in" style="animation-delay: 0.2s;">
                 <i class="fas fa-check-circle"></i> <?= htmlspecialchars($_SESSION['success']) ?>
             </div>
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
-        
+
         <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-error">
+            <div class="alert alert-error fade-in" style="animation-delay: 0.2s;">
                 <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($_SESSION['error']) ?>
             </div>
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
-        
+
         <!-- Jogos Agendados -->
-        <div class="section">
+        <div class="section fade-in" style="animation-delay: 0.3s;">
             <div class="section-title">
                 <i class="fas fa-calendar-check"></i>
                 Jogos Agendados
@@ -397,16 +607,16 @@ try {
         
         <!-- Jogos Sem Data -->
         <?php if (!empty($unscheduled_matches)): ?>
-        <div class="section">
+        <div class="section fade-in" style="animation-delay: 0.4s;">
             <div class="section-title">
                 <i class="fas fa-calendar-plus"></i>
                 Agendar Jogos
                 <span style="font-size: 1rem; opacity: 0.7;">(<?= count($unscheduled_matches) ?> jogos)</span>
             </div>
-            
+
             <form method="POST" id="scheduleForm">
                 <input type="hidden" name="action" value="schedule_matches">
-                
+
                 <?php foreach ($unscheduled_matches as $match): ?>
                     <div class="schedule-form">
                         <div>
@@ -415,28 +625,28 @@ try {
                                 <br><small style="opacity: 0.7;"><?= htmlspecialchars($match['group_name']) ?></small>
                             <?php endif; ?>
                         </div>
-                        
-                        <input type="date" 
-                               name="schedules[<?= $match['id'] ?>][date]" 
+
+                        <input type="date"
+                               name="schedules[<?= $match['id'] ?>][date]"
                                min="<?= date('Y-m-d') ?>"
                                placeholder="Data">
-                        
-                        <input type="time" 
-                               name="schedules[<?= $match['id'] ?>][time]" 
+
+                        <input type="time"
+                               name="schedules[<?= $match['id'] ?>][time]"
                                placeholder="Horário">
-                        
+
                         <div class="match-status status-<?= $match['status'] ?>">
                             <?= ucfirst(str_replace('_', ' ', $match['status'])) ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
-                
-                <div style="margin-top: 20px;">
-                    <button type="submit" class="btn btn-success">
+
+                <div style="margin-top: 25px;">
+                    <button type="submit" class="btn-standard btn-success">
                         <i class="fas fa-save"></i> Salvar Agendamentos
                     </button>
-                    
-                    <button type="button" onclick="fillSampleDates()" class="btn btn-secondary">
+
+                    <button type="button" onclick="fillSampleDates()" class="btn-standard btn-info">
                         <i class="fas fa-magic"></i> Preencher Datas Exemplo
                     </button>
                 </div>
@@ -449,26 +659,96 @@ try {
         function fillSampleDates() {
             const dateInputs = document.querySelectorAll('input[type="date"]');
             const timeInputs = document.querySelectorAll('input[type="time"]');
-            
+
             let currentDate = new Date();
             currentDate.setDate(currentDate.getDate() + 1); // Começar amanhã
-            
+
             dateInputs.forEach((input, index) => {
                 // Distribuir jogos ao longo de vários dias
                 const gameDate = new Date(currentDate);
                 gameDate.setDate(currentDate.getDate() + Math.floor(index / 3)); // 3 jogos por dia
-                
+
                 input.value = gameDate.toISOString().split('T')[0];
             });
-            
+
             timeInputs.forEach((input, index) => {
                 // Horários: 14:00, 16:00, 18:00
                 const times = ['14:00', '16:00', '18:00'];
                 input.value = times[index % 3];
             });
-            
-            console.log('Datas e horários de exemplo preenchidos!');
+
+            // Feedback visual
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Preenchido!';
+            button.style.background = '#4CAF50';
+
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.background = '';
+            }, 2000);
         }
+
+        // Animações e interatividade
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar fade-in aos elementos
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, index * 200);
+            });
+
+            // Adicionar efeitos hover aos cards de jogos
+            const matchItems = document.querySelectorAll('.match-item');
+            matchItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px)';
+                    this.style.boxShadow = '0 8px 20px rgba(123, 31, 162, 0.3)';
+                });
+
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Adicionar efeitos hover aos formulários de agendamento
+            const scheduleForms = document.querySelectorAll('.schedule-form');
+            scheduleForms.forEach(form => {
+                form.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 5px 15px rgba(123, 31, 162, 0.2)';
+                });
+
+                form.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Validação do formulário
+            const scheduleForm = document.getElementById('scheduleForm');
+            if (scheduleForm) {
+                scheduleForm.addEventListener('submit', function(e) {
+                    const dateInputs = this.querySelectorAll('input[type="date"]');
+                    const timeInputs = this.querySelectorAll('input[type="time"]');
+
+                    let hasSchedule = false;
+                    dateInputs.forEach((input, index) => {
+                        if (input.value && timeInputs[index].value) {
+                            hasSchedule = true;
+                        }
+                    });
+
+                    if (!hasSchedule) {
+                        e.preventDefault();
+                        alert('Por favor, preencha pelo menos uma data e horário para agendar.');
+                        return false;
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

@@ -72,280 +72,449 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todos os Jogos - Copa das Panelas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon.ico">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(#281c3e, #0f051d);
             min-height: 100vh;
-            color: white;
+            color: #E0E0E0;
             margin: 0;
             padding: 20px;
         }
-        
-        .container {
+
+        .main-container {
             max-width: 1400px;
             margin: 0 auto;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
             padding: 30px;
-            backdrop-filter: blur(15px);
         }
-        
-        .header {
+
+        .page-header {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
         }
-        
-        .header h1 {
-            font-size: 2.5rem;
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #E1BEE7;
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        
-        .btn {
+
+        .page-header h1 i {
+            color: #7B1FA2;
+        }
+
+        .btn-standard {
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            color: #E1BEE7;
             padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
             text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
+            gap: 10px;
+            margin: 5px;
+            font-family: 'Space Grotesk', sans-serif;
         }
-        
-        .btn-secondary { background: #95a5a6; color: white; }
-        .btn-primary { background: #3498db; color: white; }
-        
-        .btn:hover {
+
+        .btn-standard:hover {
+            background: #7B1FA2;
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
         }
-        
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
             margin-bottom: 30px;
         }
-        
+
         .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 25px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
-        
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(123, 31, 162, 0.3);
+        }
+
         .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #3498db;
-            margin-bottom: 5px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #E1BEE7;
+            margin-bottom: 8px;
         }
-        
+
         .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
+            font-size: 1rem;
+            color: #9E9E9E;
+            font-weight: 500;
         }
-        
+
+        .stat-icon {
+            font-size: 1.5rem;
+            color: #7B1FA2;
+            margin-bottom: 15px;
+        }
+
         .filters {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 25px;
             margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .filters::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .filters-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
             align-items: end;
         }
-        
+
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 8px;
         }
-        
+
         .filter-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        
-        .filter-input {
-            padding: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
             font-size: 1rem;
-        }
-        
-        .filter-input:focus {
-            outline: none;
-            border-color: #3498db;
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .matches-list {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-        }
-        
-        .match-item {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .match-item:hover {
-            background: rgba(0, 0, 0, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        .match-header {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr auto auto;
-            gap: 20px;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .team-info {
-            text-align: center;
-        }
-        
-        .team-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .team-group {
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-        
-        .match-score {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #3498db;
-            text-align: center;
-        }
-        
-        .vs-text {
-            font-size: 1.2rem;
-            opacity: 0.7;
-        }
-        
-        .match-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            font-size: 0.9rem;
-        }
-        
-        .info-item {
+            font-weight: 600;
+            color: #E1BEE7;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        
-        .match-status {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
+
+        .filter-input {
+            padding: 12px;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            background: #2A2A2A;
+            color: #E0E0E0;
+            font-size: 1rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
         }
-        
-        .status-agendado { background: #f39c12; }
-        .status-em_andamento { background: #3498db; }
-        .status-finalizado { background: #27ae60; }
-        .status-cancelado { background: #e74c3c; }
-        
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #E1BEE7;
+            background: #333;
+            box-shadow: 0 0 10px rgba(123, 31, 162, 0.3);
+        }
+
+        .filter-input option {
+            background: #2A2A2A;
+            color: #E0E0E0;
+        }
+
+        .matches-list {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .matches-list::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
+        .match-item {
+            background: #2A2A2A;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .match-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #7B1FA2;
+        }
+
+        .match-item:hover {
+            background: #333;
+            border-color: #7B1FA2;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(123, 31, 162, 0.3);
+        }
+
+        .match-header {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto auto;
+            gap: 25px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .team-info {
+            text-align: center;
+        }
+
+        .team-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #E1BEE7;
+        }
+
+        .team-group {
+            font-size: 0.9rem;
+            color: #9E9E9E;
+            font-weight: 500;
+        }
+
+        .match-score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #E1BEE7;
+            text-align: center;
+            background: #1E1E1E;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid #7B1FA2;
+        }
+
+        .vs-text {
+            font-size: 1.3rem;
+            color: #9E9E9E;
+            font-weight: 600;
+        }
+
+        .match-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            font-size: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #E0E0E0;
+        }
+
+        .info-item i {
+            color: #7B1FA2;
+            width: 20px;
+        }
+
+        .match-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            border: 2px solid;
+        }
+
+        .status-agendado {
+            background: rgba(255, 152, 0, 0.1);
+            color: #FF9800;
+            border-color: #FF9800;
+        }
+        .status-em_andamento {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
+            border-color: #2196F3;
+        }
+        .status-finalizado {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+            border-color: #4CAF50;
+        }
+        .status-cancelado {
+            background: rgba(244, 67, 54, 0.1);
+            color: #F44336;
+            border-color: #F44336;
+        }
+
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            opacity: 0.7;
+            padding: 80px 20px;
+            color: #9E9E9E;
         }
-        
+
         .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
+            font-size: 5rem;
+            margin-bottom: 25px;
+            color: #7B1FA2;
+            opacity: 0.6;
         }
-        
+
+        .empty-state h3 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: #E1BEE7;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        /* Animações */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         @media (max-width: 768px) {
-            .header {
+            .page-header {
                 flex-direction: column;
                 gap: 20px;
                 text-align: center;
             }
-            
+
             .match-header {
                 grid-template-columns: 1fr;
                 text-align: center;
                 gap: 15px;
             }
-            
+
             .filters-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="main-container">
+        <div class="page-header fade-in">
             <div>
                 <h1><i class="fas fa-futbol"></i> Todos os Jogos</h1>
-                <p style="margin: 5px 0; opacity: 0.8;">Visualize e gerencie todos os jogos do sistema</p>
+                <p style="margin: 8px 0; color: #9E9E9E; font-size: 1.1rem;">Visualize e gerencie todos os jogos do sistema</p>
             </div>
-            <a href="dashboard_simple.php" class="btn btn-secondary">
+            <a href="dashboard_simple.php" class="btn-standard">
                 <i class="fas fa-arrow-left"></i> Voltar ao Painel
             </a>
         </div>
-        
+
         <!-- Estatísticas -->
-        <div class="stats-grid">
+        <div class="stats-grid fade-in" style="animation-delay: 0.2s;">
             <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-futbol"></i></div>
                 <div class="stat-number"><?= $stats['total'] ?></div>
                 <div class="stat-label">Total de Jogos</div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
                 <div class="stat-number"><?= $stats['finished'] ?></div>
                 <div class="stat-label">Finalizados</div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
                 <div class="stat-number"><?= $stats['scheduled'] ?></div>
                 <div class="stat-label">Agendados</div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
                 <div class="stat-number"><?= $stats['today'] ?></div>
                 <div class="stat-label">Hoje</div>
             </div>
         </div>
-        
+
         <!-- Filtros -->
-        <div class="filters">
+        <div class="filters fade-in" style="animation-delay: 0.3s;">
             <form method="GET">
                 <div class="filters-grid">
                     <div class="filter-group">
-                        <label class="filter-label">Torneio</label>
+                        <label class="filter-label"><i class="fas fa-trophy"></i> Torneio</label>
                         <select name="tournament" class="filter-input">
                             <option value="">Todos os torneios</option>
                             <?php foreach ($tournaments as $tournament): ?>
@@ -355,9 +524,9 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC);
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    
+
                     <div class="filter-group">
-                        <label class="filter-label">Status</label>
+                        <label class="filter-label"><i class="fas fa-flag"></i> Status</label>
                         <select name="status" class="filter-input">
                             <option value="">Todos os status</option>
                             <option value="agendado" <?= $status_filter == 'agendado' ? 'selected' : '' ?>>Agendado</option>
@@ -366,25 +535,25 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC);
                             <option value="cancelado" <?= $status_filter == 'cancelado' ? 'selected' : '' ?>>Cancelado</option>
                         </select>
                     </div>
-                    
+
                     <div class="filter-group">
-                        <label class="filter-label">Data</label>
+                        <label class="filter-label"><i class="fas fa-calendar"></i> Data</label>
                         <input type="date" name="date" class="filter-input" value="<?= htmlspecialchars($date_filter) ?>">
                     </div>
-                    
+
                     <div class="filter-group">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn-standard">
                             <i class="fas fa-search"></i> Filtrar
                         </button>
                     </div>
                 </div>
             </form>
         </div>
-        
+
         <!-- Lista de Jogos -->
-        <div class="matches-list">
+        <div class="matches-list fade-in" style="animation-delay: 0.4s;">
             <?php if (!empty($matches)): ?>
-                <?php foreach ($matches as $match): ?>
+                <?php foreach ($matches as $index => $match): ?>
                     <div class="match-item">
                         <div class="match-header">
                             <div class="team-info">
@@ -414,30 +583,30 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC);
                             </div>
                             
                             <div>
-                                <a href="edit_match.php?tournament_id=<?= $match['tournament_id'] ?>&match_id=<?= $match['id'] ?>" 
-                                   class="btn btn-primary" style="padding: 8px 16px; font-size: 0.9rem;">
+                                <a href="edit_match.php?tournament_id=<?= $match['tournament_id'] ?>&match_id=<?= $match['id'] ?>"
+                                   class="btn-standard" style="padding: 10px 18px; font-size: 0.9rem;">
                                     <i class="fas fa-edit"></i> Editar
                                 </a>
                             </div>
                         </div>
-                        
+
                         <div class="match-info">
                             <div class="info-item">
                                 <i class="fas fa-trophy"></i>
                                 <span><?= htmlspecialchars($match['tournament_name']) ?></span>
                             </div>
-                            
+
                             <div class="info-item">
                                 <i class="fas fa-layer-group"></i>
                                 <span><?= ucfirst($match['phase']) ?></span>
                             </div>
-                            
+
                             <?php if ($match['match_date']): ?>
                                 <div class="info-item">
                                     <i class="fas fa-calendar"></i>
                                     <span><?= date('d/m/Y', strtotime($match['match_date'])) ?></span>
                                 </div>
-                                
+
                                 <div class="info-item">
                                     <i class="fas fa-clock"></i>
                                     <span><?= date('H:i', strtotime($match['match_date'])) ?></span>
@@ -460,19 +629,51 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </div>
     </div>
-    
+
     <script>
-        // Animações de entrada
+        // Animações e interatividade
         document.addEventListener('DOMContentLoaded', function() {
-            const items = document.querySelectorAll('.match-item, .stat-card');
-            items.forEach((item, index) => {
+            // Aplicar fade-in aos elementos
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, index * 200);
+            });
+
+            // Animações de entrada para cards de estatísticas
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, (index * 100) + 400);
+            });
+
+            // Animações de entrada para itens de jogos
+            const matchItems = document.querySelectorAll('.match-item');
+            matchItems.forEach((item, index) => {
                 item.style.opacity = '0';
-                item.style.transform = 'translateY(20px)';
+                item.style.transform = 'translateX(-30px)';
                 setTimeout(() => {
                     item.style.transition = 'all 0.5s ease';
                     item.style.opacity = '1';
-                    item.style.transform = 'translateY(0)';
-                }, index * 50);
+                    item.style.transform = 'translateX(0)';
+                }, (index * 100) + 800);
+            });
+
+            // Efeitos hover adicionais
+            matchItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.borderColor = '#E1BEE7';
+                });
+
+                item.addEventListener('mouseleave', function() {
+                    this.style.borderColor = 'transparent';
+                });
             });
         });
     </script>
