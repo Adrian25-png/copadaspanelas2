@@ -572,7 +572,7 @@ foreach ($matches as $match) {
                                     <i class="fas fa-eye"></i> Detalhes
                                 </a>
                                 <?php if ($match['status'] !== 'finalizado'): ?>
-                                    <a href="edit_match.php?id=<?= $match['id'] ?>" class="btn btn-secondary btn-sm">
+                                    <a href="edit_match.php?tournament_id=<?= $match['tournament_id'] ?>&match_id=<?= $match['id'] ?>" class="btn btn-secondary btn-sm">
                                         <i class="fas fa-edit"></i> Editar
                                     </a>
                                 <?php endif; ?>

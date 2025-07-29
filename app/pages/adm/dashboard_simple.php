@@ -193,6 +193,33 @@ try {
             </div>
             
             <div class="action-card">
+                <div class="action-title">📺 Transmissão</div>
+                <div class="action-links">
+                    <a href="gerenciar_transmissao.php" class="action-link">
+                        <i class="fas fa-broadcast-tower"></i> Gerenciar Live
+                    </a>
+                    <a href="../JogosProximos.php" class="action-link">
+                        <i class="fas fa-eye"></i> Ver Página Pública
+                    </a>
+                </div>
+            </div>
+
+            <div class="action-card">
+                <div class="action-title">👨‍💼 Administradores</div>
+                <div class="action-links">
+                    <a href="admin_manager.php" class="action-link">
+                        <i class="fas fa-users-cog"></i> Gerenciar Admins
+                    </a>
+                    <a href="create_admin.php" class="action-link">
+                        <i class="fas fa-user-plus"></i> Cadastrar Admin
+                    </a>
+                    <a href="admin_permissions.php" class="action-link">
+                        <i class="fas fa-key"></i> Permissões
+                    </a>
+                </div>
+            </div>
+
+            <div class="action-card">
                 <div class="action-title">📊 Sistema</div>
                 <div class="action-links">
                     <a href="statistics.php" class="action-link">

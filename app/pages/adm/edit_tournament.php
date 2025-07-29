@@ -427,22 +427,15 @@ if ($_POST && isset($_POST['action']) && $_POST['action'] === 'update_tournament
     
     <script>
         function deleteTournament() {
-            if (confirm('⚠️ ATENÇÃO!\n\nEsta ação excluirá PERMANENTEMENTE:\n- O torneio\n- Todos os times\n- Todos os grupos\n- Todos os jogos\n- Todas as estatísticas\n\nEsta ação NÃO PODE ser desfeita!\n\nTem certeza que deseja continuar?')) {
-                const confirmation = prompt('Digite "EXCLUIR" para confirmar a exclusão definitiva:');
-                if (confirmation === 'EXCLUIR') {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = 'tournament_list.php';
-                    form.innerHTML = `
-                        <input type="hidden" name="action" value="delete_tournament">
-                        <input type="hidden" name="tournament_id" value="<?= $tournament_id ?>">
-                    `;
-                    document.body.appendChild(form);
-                    form.submit();
-                } else {
-                    alert('Confirmação incorreta. Exclusão cancelada.');
-                }
-            }
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'tournament_list.php';
+            form.innerHTML = `
+                <input type="hidden" name="action" value="delete_tournament">
+                <input type="hidden" name="tournament_id" value="<?= $tournament_id ?>">
+            `;
+            document.body.appendChild(form);
+            form.submit();
         }
         
         // Validação do formulário

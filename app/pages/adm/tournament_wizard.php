@@ -551,26 +551,22 @@
             switch(currentStep) {
                 case 1:
                     if (!document.getElementById('tournament_name').value) {
-                        alert('Por favor, digite o nome do torneio!');
                         return false;
                     }
                     return true;
                 case 2:
                     const requiredTeams = parseInt(document.getElementById('required_teams').textContent);
                     if (teams.length !== requiredTeams) {
-                        alert(`Você precisa cadastrar exatamente ${requiredTeams} times!`);
                         return false;
                     }
                     return true;
                 case 3:
                     if (groups.length === 0) {
-                        alert('Por favor, distribua os times nos grupos!');
                         return false;
                     }
                     return true;
                 case 4:
                     if (matches.length === 0) {
-                        alert('Por favor, gere os jogos da fase de grupos!');
                         return false;
                     }
                     return true;
@@ -673,17 +669,14 @@
 
             const requiredTeamsElement = document.getElementById('required_teams');
             if (!requiredTeamsElement) {
-                alert('Erro: Elemento required_teams não encontrado!');
                 return;
             }
 
             const requiredTeams = parseInt(requiredTeamsElement.textContent);
 
-            // Confirmar ação
+            // Substituir times existentes se houver
             if (teams.length > 0) {
-                if (!confirm(`Isso irá substituir os ${teams.length} times já cadastrados.\n\nDeseja continuar?`)) {
-                    return;
-                }
+                // Continuar sem confirmação
             }
 
             const sampleNames = [
@@ -766,25 +759,21 @@
         
         function removeTeam(index) {
             if (index < 0 || index >= teams.length) {
-                alert('Erro: Índice de time inválido!');
                 return;
             }
 
             const teamName = teams[index].name;
 
-            if (confirm(`Tem certeza que deseja remover o time "${teamName}"?`)) {
-                teams.splice(index, 1);
+            teams.splice(index, 1);
 
-                // Reindexar IDs
-                teams.forEach((team, i) => {
-                    team.id = i + 1;
-                });
+            // Reindexar IDs
+            teams.forEach((team, i) => {
+                team.id = i + 1;
+            });
 
-                updateTeamsList();
+            updateTeamsList();
 
-                console.log(`Time "${teamName}" removido`); // Debug
-                alert(`✅ Time "${teamName}" removido com sucesso!`);
-            }
+            console.log(`Time "${teamName}" removido`); // Debug
         }
 
         function updateNextButtonStatus() {
@@ -974,14 +963,7 @@
             };
             
             // Simular criação do torneio
-            alert('🏆 TORNEIO CRIADO COM SUCESSO!\n\n' +
-                  'Próximos passos:\n' +
-                  '1. Acompanhar os jogos da fase de grupos\n' +
-                  '2. Inserir resultados conforme os jogos acontecem\n' +
-                  '3. Sistema calculará automaticamente a classificação\n' +
-                  '4. Após fase de grupos, criar as eliminatórias\n' +
-                  '5. Chegar até a grande final!\n\n' +
-                  'Boa sorte com seu torneio!');
+            console.log('🏆 TORNEIO CRIADO COM SUCESSO!');
             
             // Redirecionar para guia de gerenciamento
             window.location.href = 'tournament_management_guide.php';

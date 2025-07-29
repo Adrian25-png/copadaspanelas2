@@ -9,6 +9,38 @@
     <!-- LINK da imagem de LOGIN e icones do YOUTUBE e INSTAGRAM do FOOTER-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        .no-tournament-message {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(30, 30, 30, 0.9);
+            border-radius: 15px;
+            margin: 40px auto;
+            max-width: 500px;
+            border: 2px solid rgba(123, 31, 162, 0.3);
+        }
+
+        .no-tournament-message h3 {
+            color: #E1BEE7;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .no-tournament-message p {
+            color: #B0B0B0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .no-tournament-message::before {
+            content: "🏆";
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
 <!-- Navegação -->
@@ -28,7 +60,7 @@
 
 <div class="main">
     <div class="wrapper-container">
-        <h1 class="fade-in">FASE DE GRUPOS</h1>  
+        <h1 class="fade-in">FASE DE GRUPOS</h1>
         <div id="tabela-wrapper" class="fade-in">
             <h4 class="fade-in">Tabela de Classificação</h4>
             <?php mostrarGrupos(); ?>
@@ -36,8 +68,25 @@
                 function mostrarGrupos() {
                     $pdo = conectar(); // Usando PDO corretamente
 
-                    $sqlGrupos = "SELECT id, nome FROM grupos ORDER BY nome";
-                    $stmtGrupos = $pdo->query($sqlGrupos);
+                    // Primeiro, buscar o torneio ativo
+                    $sqlTorneioAtivo = "SELECT id FROM tournaments WHERE status IN ('active', 'ativo') ORDER BY id DESC LIMIT 1";
+                    $stmtTorneio = $pdo->query($sqlTorneioAtivo);
+                    $torneioAtivo = $stmtTorneio->fetch(PDO::FETCH_ASSOC);
+
+                    if (!$torneioAtivo) {
+                        echo '<div class="no-tournament-message">';
+                        echo '<h3>Nenhum torneio ativo</h3>';
+                        echo '<p>Não há nenhum torneio ativo no momento.</p>';
+                        echo '</div>';
+                        return;
+                    }
+
+                    $tournament_id = $torneioAtivo['id'];
+
+                    // Buscar apenas grupos do torneio ativo
+                    $sqlGrupos = "SELECT id, nome FROM grupos WHERE tournament_id = ? ORDER BY nome";
+                    $stmtGrupos = $pdo->prepare($sqlGrupos);
+                    $stmtGrupos->execute([$tournament_id]);
 
                     $grupos = $stmtGrupos->fetchAll(PDO::FETCH_ASSOC);
 
@@ -76,12 +125,12 @@
                                             COUNT(CASE WHEN j.resultado_timeA IS NOT NULL THEN j.id END) AS partidas
                                         FROM times t
                                         LEFT JOIN jogos_fase_grupos j ON (t.id = j.timeA_id OR t.id = j.timeB_id) AND t.grupo_id = j.grupo_id
-                                        WHERE t.grupo_id = :grupoId
+                                        WHERE t.grupo_id = :grupoId AND t.tournament_id = :tournament_id
                                         GROUP BY t.id
                                         ORDER BY (vitorias*3 + empates) DESC, (gm - gc) DESC, gm DESC";
 
                             $stmtTimes = $pdo->prepare($sqlTimes);
-                            $stmtTimes->execute(['grupoId' => $grupoId]);
+                            $stmtTimes->execute(['grupoId' => $grupoId, 'tournament_id' => $tournament_id]);
                             $times = $stmtTimes->fetchAll(PDO::FETCH_ASSOC);
 
                             if ($times) {
@@ -202,6 +251,6 @@
     });
 </script>
 
-<?php include 'footer.php'; ?>   
+<?php include 'footer.php'; ?>
 </body>
 </html>

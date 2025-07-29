@@ -510,7 +510,7 @@
             resultDiv.style.animation = 'fadeIn 0.5s ease';
             
             setTimeout(() => {
-                alert('✅ Exemplo de resultado salvo!\n\nAssim você deve fazer com todos os jogos:\n1. Acesse o gerenciador de jogos\n2. Selecione o jogo\n3. Insira os gols de cada time\n4. Salve o resultado\n\nO sistema atualizará automaticamente:\n• Pontos dos times\n• Classificação dos grupos\n• Estatísticas dos jogadores');
+                console.log('✅ Exemplo de resultado salvo!');
             }, 1000);
         }
     </script>

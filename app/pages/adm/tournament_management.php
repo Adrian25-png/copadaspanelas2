@@ -335,58 +335,111 @@ try {
         </div>
         <?php endif; ?>
         
-        <!-- Ações de Gerenciamento -->
-        <div class="actions-grid">
-            <div class="action-card">
-                <div class="action-title">
-                    <i class="fas fa-layer-group"></i>
-                    Gerenciar Grupos
+        <!-- Seção Principal de Gerenciamento -->
+        <div style="background: rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 25px; margin-bottom: 30px; border: 1px solid rgba(255, 255, 255, 0.2);">
+            <h3 style="color: #f39c12; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-cogs"></i> Gerenciamento Completo do Torneio
+            </h3>
+
+            <!-- Seção de Grupos -->
+            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <h4 style="color: #3498db; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-layer-group"></i> Gerenciamento de Grupos
+                </h4>
+                <p style="margin-bottom: 15px; opacity: 0.9;">Organize os times em grupos para a fase inicial do torneio.</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <a href="group_manager.php?tournament_id=<?= $tournament_id ?>" class="btn btn-primary">
+                        <i class="fas fa-cog"></i> Gerenciar Grupos
+                    </a>
+                    <a href="team_manager.php?tournament_id=<?= $tournament_id ?>" class="btn btn-success">
+                        <i class="fas fa-users"></i> Gerenciar Times
+                    </a>
+                    <a href="tournament_standings.php?id=<?= $tournament_id ?>" class="btn btn-secondary">
+                        <i class="fas fa-table"></i> Classificação
+                    </a>
                 </div>
-                <div class="action-description">
-                    Organize os times em grupos para a fase inicial do torneio.
-                </div>
-                <a href="group_manager.php?tournament_id=<?= $tournament_id ?>" class="btn btn-primary">
-                    <i class="fas fa-cog"></i> Gerenciar Grupos
-                </a>
             </div>
-            
-            <div class="action-card">
-                <div class="action-title">
-                    <i class="fas fa-users"></i>
-                    Gerenciar Times
+
+            <!-- Seção de Rodadas e Jogos -->
+            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <h4 style="color: #27ae60; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-futbol"></i> Gerenciamento de Rodadas e Jogos
+                </h4>
+                <p style="margin-bottom: 15px; opacity: 0.9;">Gere jogos, organize rodadas e insira resultados da fase de grupos.</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <a href="match_manager.php?tournament_id=<?= $tournament_id ?>" class="btn btn-warning">
+                        <i class="fas fa-futbol"></i> Gerenciar Jogos
+                    </a>
+                    <a href="match_schedule.php?tournament_id=<?= $tournament_id ?>" class="btn btn-secondary">
+                        <i class="fas fa-calendar-alt"></i> Agenda de Jogos
+                    </a>
+                    <a href="bulk_edit_matches.php?tournament_id=<?= $tournament_id ?>" class="btn btn-secondary">
+                        <i class="fas fa-edit"></i> Edição em Lote
+                    </a>
+                    <a href="all_matches.php?tournament_id=<?= $tournament_id ?>" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> Todos os Jogos
+                    </a>
                 </div>
-                <div class="action-description">
-                    Adicione, edite ou remova times do torneio.
-                </div>
-                <a href="team_manager.php?tournament_id=<?= $tournament_id ?>" class="btn btn-success">
-                    <i class="fas fa-users"></i> Gerenciar Times
-                </a>
             </div>
-            
-            <div class="action-card">
-                <div class="action-title">
-                    <i class="fas fa-futbol"></i>
-                    Gerenciar Jogos
+
+            <!-- Seção de Fases Finais -->
+            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <h4 style="color: #f39c12; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-trophy"></i> Gerenciamento de Fases Finais
+                </h4>
+                <p style="margin-bottom: 15px; opacity: 0.9;">Configure e gerencie as eliminatórias: oitavas, quartas, semifinais e final.</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <a href="finals_manager.php?tournament_id=<?= $tournament_id ?>" class="btn btn-warning">
+                        <i class="fas fa-trophy"></i> Configurar Finais
+                    </a>
+                    <a href="knockout_generator.php?tournament_id=<?= $tournament_id ?>" class="btn btn-primary">
+                        <i class="fas fa-magic"></i> Gerar Eliminatórias
+                    </a>
+                    <a href="../exibir_finais.php" class="btn btn-secondary" target="_blank">
+                        <i class="fas fa-eye"></i> Visualizar Chaveamento
+                    </a>
+                    <a href="third_place_manager.php?tournament_id=<?= $tournament_id ?>" class="btn btn-secondary">
+                        <i class="fas fa-medal"></i> Terceiro Lugar
+                    </a>
                 </div>
-                <div class="action-description">
-                    Gere jogos, insira resultados e acompanhe o progresso.
-                </div>
-                <a href="match_manager.php?tournament_id=<?= $tournament_id ?>" class="btn btn-warning">
-                    <i class="fas fa-futbol"></i> Gerenciar Jogos
-                </a>
             </div>
-            
-            <div class="action-card">
-                <div class="action-title">
-                    <i class="fas fa-edit"></i>
-                    Configurações
+
+            <!-- Seção de Relatórios e Análises -->
+            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <h4 style="color: #9b59b6; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-chart-bar"></i> Relatórios e Análises
+                </h4>
+                <p style="margin-bottom: 15px; opacity: 0.9;">Visualize estatísticas, relatórios e análises do torneio.</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <a href="tournament_report.php?tournament_id=<?= $tournament_id ?>" class="btn btn-primary">
+                        <i class="fas fa-file-alt"></i> Relatório Completo
+                    </a>
+                    <a href="statistics.php?tournament_id=<?= $tournament_id ?>" class="btn btn-secondary">
+                        <i class="fas fa-chart-line"></i> Estatísticas
+                    </a>
+                    <a href="match_reports.php?tournament_id=<?= $tournament_id ?>" class="btn btn-secondary">
+                        <i class="fas fa-clipboard-list"></i> Relatórios de Jogos
+                    </a>
                 </div>
-                <div class="action-description">
-                    Edite as informações básicas do torneio.
+            </div>
+
+            <!-- Seção de Configurações Avançadas -->
+            <div style="background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 20px;">
+                <h4 style="color: #e74c3c; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-cog"></i> Configurações Avançadas
+                </h4>
+                <p style="margin-bottom: 15px; opacity: 0.9;">Edite configurações do torneio e gerencie aspectos avançados.</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <a href="edit_tournament.php?id=<?= $tournament_id ?>" class="btn btn-secondary">
+                        <i class="fas fa-edit"></i> Editar Torneio
+                    </a>
+                    <a href="player_manager.php?tournament_id=<?= $tournament_id ?>" class="btn btn-secondary">
+                        <i class="fas fa-user-friends"></i> Gerenciar Jogadores
+                    </a>
+                    <a href="system_settings.php?tournament_id=<?= $tournament_id ?>" class="btn btn-secondary">
+                        <i class="fas fa-tools"></i> Configurações Sistema
+                    </a>
                 </div>
-                <a href="edit_tournament.php?id=<?= $tournament_id ?>" class="btn btn-secondary">
-                    <i class="fas fa-edit"></i> Editar Torneio
-                </a>
             </div>
         </div>
     </div>

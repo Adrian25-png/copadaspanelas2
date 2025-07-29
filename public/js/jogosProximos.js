@@ -48,7 +48,7 @@ function onYouTubeIframeAPIReady() {
   }
 }
 function link_live() {
-  var link_live = window.prompt("Por favor, digite o link atual da live", "");
+  var link_live = ""; // Removido prompt
   if (link_live) {
     link_live = link_live.replace("https://www.youtube.com/watch?v=", "");
     console.log("Enviando link para salvar: ", link_live);

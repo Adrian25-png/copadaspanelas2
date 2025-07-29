@@ -688,29 +688,7 @@ if ($team_id) {
         </div>
     </div>
     
-    <!-- Modal para Confirmar Exclusão -->
-    <div id="deleteModal" class="modal">
-        <div class="modal-content">
-            <h3><i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão</h3>
-            
-            <p>Tem certeza que deseja excluir o jogador <strong id="delete_player_name"></strong>?</p>
-            <p style="color: #e74c3c;">Esta ação não pode ser desfeita.</p>
-            
-            <form method="POST">
-                <input type="hidden" name="action" value="delete_player">
-                <input type="hidden" name="jogador_id" id="delete_jogador_id">
-                
-                <div style="display: flex; gap: 15px; justify-content: flex-end;">
-                    <button type="button" onclick="closeModal()" class="btn btn-secondary">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash"></i> Excluir
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+
     
     <script>
         function editPlayer(id, name, position, number, currentImage) {
@@ -751,14 +729,18 @@ if ($team_id) {
         }
         
         function deletePlayer(id, name) {
-            document.getElementById('delete_jogador_id').value = id;
-            document.getElementById('delete_player_name').textContent = name;
-            document.getElementById('deleteModal').style.display = 'block';
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.innerHTML = `
+                <input type="hidden" name="action" value="delete_player">
+                <input type="hidden" name="jogador_id" value="${id}">
+            `;
+            document.body.appendChild(form);
+            form.submit();
         }
-        
+
         function closeModal() {
             document.getElementById('editModal').style.display = 'none';
-            document.getElementById('deleteModal').style.display = 'none';
         }
         
         function filterByTeam() {

@@ -684,7 +684,6 @@ function createThirdPlaceMatch($pdo, $tournament_id) {
             // Verificar se é fase eliminatória e há empate
             if (team1Score === team2Score && !hasExtraTime) {
                 e.preventDefault();
-                alert("Em fases eliminatórias, empates devem ir para prorrogação!");
                 return false;
             }
 

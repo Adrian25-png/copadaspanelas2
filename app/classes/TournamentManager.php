@@ -80,7 +80,7 @@ class TournamentManager {
             // 4. Criar novo torneio
             $stmt = $this->pdo->prepare("
                 INSERT INTO tournaments (nome, name, year, description, descricao, status, created_at, data_inicio, data_fim)
-                VALUES (?, ?, ?, ?, ?, 'setup', NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY))
+                VALUES (?, ?, ?, ?, ?, 'draft', NOW(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY))
             ");
             $stmt->execute([$name, $name, $year, $description, $description]);
             $tournament_id = $this->pdo->lastInsertId();
@@ -207,6 +207,8 @@ class TournamentManager {
             // Não falhar a criação do torneio por causa das fases finais
         }
     }
+
+
 
 
     
@@ -417,5 +419,7 @@ class TournamentManager {
         $stmt->execute([$tournament_id, $tournament_id, $tournament_id, $tournament_id, $tournament_id, $tournament_id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+
 }
 ?>

@@ -36,10 +36,22 @@ if ($_POST && isset($_POST['action'])) {
             case 'update_status':
                 $tournament_id = $_POST['tournament_id'];
                 $status = $_POST['status'];
-                
+
+                // Se está tentando ativar um torneio, verificar se já existe outro ativo
+                if ($status === 'active') {
+                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM tournaments WHERE status = 'active' AND id != ?");
+                    $stmt->execute([$tournament_id]);
+                    $active_count = $stmt->fetchColumn();
+
+                    if ($active_count > 0) {
+                        $_SESSION['error'] = "Erro: Já existe um torneio ativo! Apenas um torneio pode estar ativo por vez. Desative o torneio atual antes de ativar outro.";
+                        break;
+                    }
+                }
+
                 $stmt = $pdo->prepare("UPDATE tournaments SET status = ?, updated_at = NOW() WHERE id = ?");
                 $stmt->execute([$status, $tournament_id]);
-                
+
                 $_SESSION['success'] = "Status do torneio atualizado!";
                 break;
         }
@@ -57,7 +69,7 @@ if ($_POST && isset($_POST['action'])) {
 // Obter todos os torneios
 try {
     $stmt = $pdo->query("
-        SELECT t.*, 
+        SELECT t.*,
                (SELECT COUNT(*) FROM times WHERE tournament_id = t.id) as team_count,
                (SELECT COUNT(*) FROM grupos WHERE tournament_id = t.id) as group_count,
                (SELECT COUNT(*) FROM matches WHERE tournament_id = t.id) as match_count,
@@ -66,8 +78,13 @@ try {
         ORDER BY t.created_at DESC
     ");
     $tournaments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Contar torneios ativos
+    $stmt = $pdo->query("SELECT COUNT(*) FROM tournaments WHERE status = 'active'");
+    $active_tournaments_count = $stmt->fetchColumn();
 } catch (Exception $e) {
     $tournaments = [];
+    $active_tournaments_count = 0;
     $_SESSION['error'] = "Erro ao carregar torneios: " . $e->getMessage();
 }
 ?>
@@ -261,6 +278,11 @@ try {
             font-size: 0.9rem;
             margin-bottom: 10px;
         }
+
+        .status-select option:disabled {
+            color: #999;
+            background: rgba(0, 0, 0, 0.5);
+        }
         
         .empty-state {
             text-align: center;
@@ -326,7 +348,16 @@ try {
             </div>
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
-        
+
+        <!-- Aviso sobre Torneios Ativos -->
+        <?php if ($active_tournaments_count > 0): ?>
+            <div class="alert alert-info" style="background: rgba(52, 152, 219, 0.2); border: 1px solid #3498db; color: #3498db;">
+                <i class="fas fa-info-circle"></i>
+                <strong>Torneio Ativo:</strong> Existe <?= $active_tournaments_count ?> torneio ativo no momento.
+                Apenas um torneio pode estar ativo por vez. Para ativar outro torneio, primeiro desative o atual.
+            </div>
+        <?php endif; ?>
+
         <!-- Lista de Torneios -->
         <?php if (!empty($tournaments)): ?>
             <div class="tournaments-grid">
@@ -371,7 +402,11 @@ try {
                             <input type="hidden" name="tournament_id" value="<?= $tournament['id'] ?>">
                             <select name="status" class="status-select" onchange="this.form.submit()">
                                 <option value="draft" <?= $tournament['status'] === 'draft' ? 'selected' : '' ?>>Rascunho</option>
-                                <option value="active" <?= $tournament['status'] === 'active' ? 'selected' : '' ?>>Ativo</option>
+                                <option value="active"
+                                    <?= $tournament['status'] === 'active' ? 'selected' : '' ?>
+                                    <?= ($active_tournaments_count > 0 && $tournament['status'] !== 'active') ? 'disabled' : '' ?>>
+                                    Ativo<?= ($active_tournaments_count > 0 && $tournament['status'] !== 'active') ? ' (Já existe um ativo)' : '' ?>
+                                </option>
                                 <option value="completed" <?= $tournament['status'] === 'completed' ? 'selected' : '' ?>>Finalizado</option>
                                 <option value="cancelled" <?= $tournament['status'] === 'cancelled' ? 'selected' : '' ?>>Cancelado</option>
                             </select>
@@ -412,21 +447,14 @@ try {
     
     <script>
         function deleteTournament(tournamentId, tournamentName) {
-            if (confirm(`⚠️ ATENÇÃO!\n\nEsta ação excluirá PERMANENTEMENTE o torneio "${tournamentName}" e todos os dados relacionados:\n\n- Todos os times\n- Todos os grupos\n- Todos os jogos\n- Todas as estatísticas\n\nEsta ação NÃO PODE ser desfeita!\n\nTem certeza que deseja continuar?`)) {
-                const confirmation = prompt('Digite "EXCLUIR" para confirmar a exclusão definitiva:');
-                if (confirmation === 'EXCLUIR') {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.innerHTML = `
-                        <input type="hidden" name="action" value="delete_tournament">
-                        <input type="hidden" name="tournament_id" value="${tournamentId}">
-                    `;
-                    document.body.appendChild(form);
-                    form.submit();
-                } else {
-                    alert('Confirmação incorreta. Exclusão cancelada.');
-                }
-            }
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.innerHTML = `
+                <input type="hidden" name="action" value="delete_tournament">
+                <input type="hidden" name="tournament_id" value="${tournamentId}">
+            `;
+            document.body.appendChild(form);
+            form.submit();
         }
         
         // Animações de entrada

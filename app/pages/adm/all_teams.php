@@ -593,16 +593,14 @@ $avg_points = $total_teams > 0 ? round($total_points / $total_teams, 1) : 0;
         }
         
         function deleteTeam(teamId, teamName) {
-            if (confirm(`⚠️ ATENÇÃO!\n\nTem certeza que deseja excluir o time "${teamName}"?\n\nEsta ação não pode ser desfeita!`)) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.innerHTML = `
-                    <input type="hidden" name="action" value="delete_team">
-                    <input type="hidden" name="team_id" value="${teamId}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
-            }
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.innerHTML = `
+                <input type="hidden" name="action" value="delete_team">
+                <input type="hidden" name="team_id" value="${teamId}">
+            `;
+            document.body.appendChild(form);
+            form.submit();
         }
         
         // Animações de entrada

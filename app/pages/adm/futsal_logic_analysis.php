@@ -370,7 +370,7 @@
                     <i class="fas fa-chart-bar"></i>
                     Ver Estatísticas
                 </a>
-                <a href="javascript:history.back()" class="btn" onclick="setTimeout(() => { if(confirm('Remover esta análise?')) window.location.href='dashboard_simple.php'; }, 100)">
+                <a href="dashboard_simple.php" class="btn">
                     <i class="fas fa-trash"></i>
                     Remover Análise
                 </a>

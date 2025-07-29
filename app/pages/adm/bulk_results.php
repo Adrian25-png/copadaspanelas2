@@ -530,17 +530,12 @@ try {
             });
         });
         
-        // Confirmação antes de salvar
+        // Validação antes de salvar
         document.getElementById('bulkResultsForm').addEventListener('submit', function(e) {
             const filledInputs = document.querySelectorAll('.score-input[value]:not([value=""])').length;
             if (filledInputs === 0) {
-                alert('Preencha pelo menos um resultado antes de salvar.');
                 e.preventDefault();
                 return;
-            }
-            
-            if (!confirm(`Tem certeza que deseja salvar os resultados?\n\nEsta ação irá:\n- Finalizar os jogos\n- Atualizar as estatísticas dos times\n- Não poderá ser desfeita facilmente`)) {
-                e.preventDefault();
             }
         });
     </script>

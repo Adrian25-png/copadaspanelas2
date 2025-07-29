@@ -174,8 +174,8 @@ if (isset($_GET['logout'])) {
                 </div>
             </div>
             
-            <a href="../HomePage2.php" class="admin-btn admin-btn-site" target="_blank" title="Ver site como usuário comum">
-                <i class="fas fa-external-link-alt"></i>
+            <a href="../HomePage2.php" class="admin-btn admin-btn-site" title="Ver site como usuário comum">
+                <i class="fas fa-eye"></i>
                 Ver Site
             </a>
             

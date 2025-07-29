@@ -390,7 +390,6 @@
                 
             } catch (error) {
                 console.error('❌ Erro nas funções JavaScript:', error);
-                alert('Erro detectado: ' + error.message);
             }
         }
         

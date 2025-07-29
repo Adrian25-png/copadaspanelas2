@@ -1,5 +1,5 @@
 <?php
-#session_start(); // Inicie a sessão para verificar a autenticação
+session_start(); // Inicie a sessão para verificar a autenticação
 ?>
 <header>
     <!--Icone da copa-->
@@ -8,17 +8,7 @@
             <img src="/copadaspanelas2/public/img/ESCUDO COPA DAS PANELAS.png" alt="Logo">
         </a>
     </div>
-    <!--Cadastro-->
-    <div class="cadastro">
-        <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
-            <a href="adm/dashboard_simple.php" style="background: #27ae60; padding: 8px 12px; border-radius: 5px; margin-right: 10px; text-decoration: none; color: white;">
-                <i class="fas fa-cogs"></i> Admin
-            </a>
-            <a href="adm/login_simple.php?logout=1">Sair</a>
-        <?php else: ?>
-            <a href="adm/login_simple.php">Login Admin</a>
-        <?php endif; ?>
-    </div>
+
     <!-- Barra de navegação -->
     <nav id="nav-menu">
         <ul>
@@ -44,4 +34,29 @@
         </ul>
     </nav>
 
+    <!--Login Admin-->
+    <div class="admin-login">
+        <?php
+        // Detectar se estamos em uma subpasta
+        $currentPath = $_SERVER['REQUEST_URI'];
+        $isInAdmFolder = strpos($currentPath, '/adm/') !== false;
+        $adminPath = $isInAdmFolder ? '' : 'adm/';
+        ?>
+        <?php if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true): ?>
+            <a href="<?= $adminPath ?>dashboard_simple.php" class="admin-btn">
+                <i class="fas fa-cogs"></i> Dashboard
+            </a>
+            <a href="<?= $adminPath ?>login_simple.php?logout=1" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </a>
+        <?php else: ?>
+            <a href="<?= $adminPath ?>login_simple.php" class="login-btn">
+                <i class="fas fa-user-shield"></i> Admin
+            </a>
+        <?php endif; ?>
+    </div>
+
 </header>
+
+<!-- Script de áudio global -->
+<script src="/copadaspanelas2/public/js/global-audio.js"></script>

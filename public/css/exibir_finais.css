@@ -22,13 +22,10 @@ body {
     align-items: center;
     text-align: center;
     flex-direction: column;
+    padding: 40px 20px 20px 20px;
 }
 
-#titulo_eli{
-font-size: 30px;
-margin-bottom: 10px;
-text-align: center;
-}
+
 .container {
     display: flex;
     justify-content: center;

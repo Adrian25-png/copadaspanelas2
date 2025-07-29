@@ -535,6 +535,7 @@ if (!empty($groups)) {
     
     <script>
         function editGroup(groupId, groupName) {
+            // Criar um modal simples para edição
             const newName = prompt('Novo nome do grupo:', groupName);
             if (newName && newName.trim() !== '') {
                 const form = document.createElement('form');
@@ -548,23 +549,20 @@ if (!empty($groups)) {
                 form.submit();
             }
         }
-        
+
         function deleteGroup(groupId, groupName, teamCount) {
             if (teamCount > 0) {
-                alert(`Não é possível excluir o grupo "${groupName}" pois ele possui ${teamCount} time(s).`);
                 return;
             }
-            
-            if (confirm(`Tem certeza que deseja excluir o grupo "${groupName}"?\n\nEsta ação não pode ser desfeita.`)) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.innerHTML = `
-                    <input type="hidden" name="action" value="delete_group">
-                    <input type="hidden" name="group_id" value="${groupId}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
-            }
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.innerHTML = `
+                <input type="hidden" name="action" value="delete_group">
+                <input type="hidden" name="group_id" value="${groupId}">
+            `;
+            document.body.appendChild(form);
+            form.submit();
         }
         
         // Animações de entrada

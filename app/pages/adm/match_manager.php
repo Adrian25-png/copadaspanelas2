@@ -595,7 +595,7 @@ $status_names = [
             
             <form method="POST" style="display: inline;">
                 <input type="hidden" name="action" value="recalculate_stats">
-                <button type="submit" class="btn btn-warning" onclick="return confirm('Recalcular todas as estatísticas? Esta ação irá reprocessar todos os resultados.')">
+                <button type="submit" class="btn btn-warning">
                     <i class="fas fa-calculator"></i> Recalcular Estatísticas
                 </button>
             </form>
@@ -795,16 +795,14 @@ $status_names = [
         }
         
         function deleteMatch(id, team1, team2) {
-            if (confirm(`Tem certeza que deseja excluir o jogo:\n${team1} vs ${team2}?\n\nEsta ação não pode ser desfeita.`)) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.innerHTML = `
-                    <input type="hidden" name="action" value="delete_match">
-                    <input type="hidden" name="match_id" value="${id}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
-            }
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.innerHTML = `
+                <input type="hidden" name="action" value="delete_match">
+                <input type="hidden" name="match_id" value="${id}">
+            `;
+            document.body.appendChild(form);
+            form.submit();
         }
         
         // Eventos de teclado e inicialização

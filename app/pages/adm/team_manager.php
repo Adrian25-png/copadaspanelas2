@@ -32,24 +32,44 @@ if ($_POST) {
                 case 'add_team':
                     $grupo_id = $_POST['grupo_id'];
                     $nome = trim($_POST['nome']);
-                    
+
                     if (empty($nome)) {
                         throw new Exception("Nome do time é obrigatório");
                     }
-                    
+
+                    // Verificar limite de times por grupo
+                    $teams_per_group = $tournament['teams_per_group'] ?? 4; // Default 4 se não configurado
+
+                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM times WHERE grupo_id = ?");
+                    $stmt->execute([$grupo_id]);
+                    $current_teams_count = $stmt->fetchColumn();
+
+                    if ($current_teams_count >= $teams_per_group) {
+                        throw new Exception("Este grupo já atingiu o limite máximo de $teams_per_group times. Não é possível adicionar mais times.");
+                    }
+
+                    // Verificar se já existe um time com o mesmo nome no torneio
+                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM times WHERE nome = ? AND tournament_id = ?");
+                    $stmt->execute([$nome, $tournament_id]);
+                    $name_exists = $stmt->fetchColumn();
+
+                    if ($name_exists > 0) {
+                        throw new Exception("Já existe um time com o nome '$nome' neste torneio.");
+                    }
+
                     // Processar logo se enviada
                     $logo_data = null;
                     if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
                         $logo_data = file_get_contents($_FILES['logo']['tmp_name']);
                     }
-                    
+
                     $stmt = $pdo->prepare("
                         INSERT INTO times (nome, logo, grupo_id, tournament_id, pts, vitorias, empates, derrotas, gm, gc, sg, token)
                         VALUES (?, ?, ?, ?, 0, 0, 0, 0, 0, 0, 0, ?)
                     ");
                     $token = bin2hex(random_bytes(16));
                     $stmt->execute([$nome, $logo_data, $grupo_id, $tournament_id, $token]);
-                    
+
                     $tournamentManager->logActivity($tournament_id, 'TIME_ADICIONADO', "Time '$nome' adicionado");
                     $_SESSION['success'] = "Time '$nome' adicionado com sucesso!";
                     break;
@@ -251,6 +271,30 @@ foreach ($grupos as $grupo) {
             margin-bottom: 20px;
             color: #f39c12;
             text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .group-status {
+            font-size: 0.9rem;
+            font-weight: normal;
+            opacity: 0.8;
+        }
+
+        .group-card.group-full {
+            border: 2px solid #27ae60;
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        .group-card.group-partial {
+            border: 2px solid #f39c12;
+            background: rgba(243, 156, 18, 0.1);
+        }
+
+        .group-card.group-empty {
+            border: 2px solid #3498db;
+            background: rgba(52, 152, 219, 0.1);
         }
         
         .team-item {
@@ -365,6 +409,14 @@ foreach ($grupos as $grupo) {
             <div>
                 <h1><i class="fas fa-users"></i> Gerenciar Times</h1>
                 <p style="margin: 5px 0; opacity: 0.8;"><?= htmlspecialchars($tournament['name']) ?></p>
+                <div style="background: rgba(52, 152, 219, 0.2); padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #3498db;">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Configuração:</strong> <?= count($grupos) ?> grupos com máximo de <?= $tournament['teams_per_group'] ?? 4 ?> times cada
+                    <span style="margin-left: 15px;">
+                        <i class="fas fa-calculator"></i>
+                        Total máximo: <?= count($grupos) * ($tournament['teams_per_group'] ?? 4) ?> times
+                    </span>
+                </div>
             </div>
             <a href="tournament_management.php?id=<?= $tournament_id ?>" class="back-link">
                 <i class="fas fa-arrow-left"></i> Voltar
@@ -403,10 +455,21 @@ foreach ($grupos as $grupo) {
                         <label for="grupo_id">Grupo</label>
                         <select id="grupo_id" name="grupo_id" required>
                             <option value="">Selecione um grupo</option>
-                            <?php foreach ($grupos as $grupo): ?>
-                                <option value="<?= $grupo['grupo_id'] ?>"><?= htmlspecialchars($grupo['grupo_nome']) ?></option>
+                            <?php
+                            $teams_per_group = $tournament['teams_per_group'] ?? 4;
+                            foreach ($grupos as $grupo):
+                                $current_teams = count($times_por_grupo[$grupo['grupo_id']] ?? []);
+                                $is_full = $current_teams >= $teams_per_group;
+                                $status_text = $is_full ? " (CHEIO - $current_teams/$teams_per_group)" : " ($current_teams/$teams_per_group)";
+                            ?>
+                                <option value="<?= $grupo['grupo_id'] ?>" <?= $is_full ? 'disabled' : '' ?>>
+                                    <?= htmlspecialchars($grupo['grupo_nome']) ?><?= $status_text ?>
+                                </option>
                             <?php endforeach; ?>
                         </select>
+                        <small style="color: #ccc; margin-top: 5px; display: block;">
+                            <i class="fas fa-info-circle"></i> Limite: <?= $teams_per_group ?> times por grupo
+                        </small>
                     </div>
                     
                     <div class="form-group">
@@ -425,9 +488,27 @@ foreach ($grupos as $grupo) {
         
         <!-- Lista de Times por Grupo -->
         <div class="groups-container">
-            <?php foreach ($grupos as $grupo): ?>
-                <div class="group-card">
-                    <div class="group-title"><?= htmlspecialchars($grupo['grupo_nome']) ?></div>
+            <?php
+            $teams_per_group = $tournament['teams_per_group'] ?? 4;
+            foreach ($grupos as $grupo):
+                $current_teams = count($times_por_grupo[$grupo['grupo_id']] ?? []);
+                $is_full = $current_teams >= $teams_per_group;
+                $status_class = $is_full ? 'group-full' : ($current_teams > 0 ? 'group-partial' : 'group-empty');
+            ?>
+                <div class="group-card <?= $status_class ?>">
+                    <div class="group-title">
+                        <?= htmlspecialchars($grupo['grupo_nome']) ?>
+                        <span class="group-status">
+                            <?= $current_teams ?>/<?= $teams_per_group ?>
+                            <?php if ($is_full): ?>
+                                <i class="fas fa-check-circle" style="color: #27ae60; margin-left: 5px;"></i>
+                            <?php elseif ($current_teams > 0): ?>
+                                <i class="fas fa-clock" style="color: #f39c12; margin-left: 5px;"></i>
+                            <?php else: ?>
+                                <i class="fas fa-plus-circle" style="color: #3498db; margin-left: 5px;"></i>
+                            <?php endif; ?>
+                        </span>
+                    </div>
                     
                     <?php if (!empty($times_por_grupo[$grupo['grupo_id']])): ?>
                         <?php foreach ($times_por_grupo[$grupo['grupo_id']] as $time): ?>
@@ -500,29 +581,7 @@ foreach ($grupos as $grupo) {
         </div>
     </div>
     
-    <!-- Modal para Confirmar Exclusão -->
-    <div id="deleteModal" class="modal">
-        <div class="modal-content">
-            <h3><i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão</h3>
-            
-            <p>Tem certeza que deseja excluir o time <strong id="delete_team_name"></strong>?</p>
-            <p style="color: #e74c3c;">Esta ação não pode ser desfeita.</p>
-            
-            <form method="POST">
-                <input type="hidden" name="action" value="delete_team">
-                <input type="hidden" name="time_id" id="delete_time_id">
-                
-                <div style="display: flex; gap: 15px; justify-content: flex-end;">
-                    <button type="button" onclick="closeModal()" class="btn btn-secondary">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash"></i> Excluir
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+
     
     <script>
         function editTeam(id, name) {
@@ -532,26 +591,58 @@ foreach ($grupos as $grupo) {
         }
         
         function deleteTeam(id, name) {
-            document.getElementById('delete_time_id').value = id;
-            document.getElementById('delete_team_name').textContent = name;
-            document.getElementById('deleteModal').style.display = 'block';
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.innerHTML = `
+                <input type="hidden" name="action" value="delete_team">
+                <input type="hidden" name="time_id" value="${id}">
+            `;
+            document.body.appendChild(form);
+            form.submit();
         }
         
         function closeModal() {
             document.getElementById('editModal').style.display = 'none';
-            document.getElementById('deleteModal').style.display = 'none';
         }
         
+        // Validação do formulário de adicionar time
+        document.querySelector('form[method="POST"]').addEventListener('submit', function(e) {
+            const grupoSelect = document.getElementById('grupo_id');
+            const selectedOption = grupoSelect.options[grupoSelect.selectedIndex];
+
+            if (selectedOption && selectedOption.disabled) {
+                e.preventDefault();
+                return false;
+            }
+
+            if (selectedOption && selectedOption.text.includes('CHEIO')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Atualizar informações quando mudar o grupo selecionado
+        document.getElementById('grupo_id').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const submitBtn = document.querySelector('button[type="submit"]');
+
+            if (selectedOption && selectedOption.disabled) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-ban"></i> Grupo Cheio';
+                submitBtn.style.background = '#95a5a6';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-plus"></i> Adicionar';
+                submitBtn.style.background = '#27ae60';
+            }
+        });
+
         // Fechar modal clicando fora
         window.onclick = function(event) {
             const editModal = document.getElementById('editModal');
-            const deleteModal = document.getElementById('deleteModal');
-            
+
             if (event.target === editModal) {
                 editModal.style.display = 'none';
-            }
-            if (event.target === deleteModal) {
-                deleteModal.style.display = 'none';
             }
         }
     </script>
