@@ -122,132 +122,293 @@ if ($pdo) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Permissões - Copa das Panelas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon.ico">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            min-height: 100vh;
+        * {
             margin: 0;
-            color: white;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        .container {
-            max-width: 1000px;
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(#281c3e, #0f051d);
+            min-height: 100vh;
+            color: #E0E0E0;
+            padding: 20px;
+        }
+
+        .main-container {
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 30px;
         }
         
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
+        .page-header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
         }
-        
-        .header h1 {
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="50" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="30" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-title h1 {
             font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-title .icon {
+            font-size: 3rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .header-subtitle {
+            margin-top: 10px;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.9);
+            font-weight: 400;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
         }
         
         .admin-selector {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border-radius: 20px;
+            padding: 30px;
             margin-bottom: 30px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .admin-selector h3 {
-            margin-bottom: 15px;
-            color: #ecf0f1;
+            margin-bottom: 20px;
+            color: #E0E0E0;
+            font-weight: 700;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-        
+
+        .admin-selector h3 i {
+            color: #6366f1;
+            font-size: 1.2rem;
+        }
+
         .admin-selector select {
             width: 100%;
-            padding: 12px;
+            padding: 12px 16px;
             border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+            border-radius: 12px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
             font-size: 1rem;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.3s ease;
         }
-        
+
+        .admin-selector select:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
         .admin-selector select option {
-            background: #2c3e50;
+            background: #1a1a2e;
             color: white;
         }
         
         .permissions-container {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border-radius: 20px;
+            padding: 30px;
             margin-bottom: 30px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
-        .permission-group {
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        .permission-group h4 {
-            margin: 0 0 15px 0;
-            color: #3498db;
-            font-size: 1.2rem;
+
+        .permissions-container h3 {
+            margin-bottom: 25px;
+            color: #E0E0E0;
+            font-weight: 700;
+            font-size: 1.4rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+        }
+
+        .permissions-container h3 i {
+            color: #6366f1;
+            font-size: 1.2rem;
+        }
+
+        .permission-group {
+            margin-bottom: 25px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .permission-group::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #d946ef);
+        }
+
+        .permission-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        .permission-group h4 {
+            margin: 0 0 20px 0;
+            color: #E0E0E0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .permission-group h4 i {
+            color: #6366f1;
+            font-size: 1.2rem;
         }
         
         .permission-item {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
-            padding: 8px;
-            border-radius: 5px;
-            transition: background 0.3s ease;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .permission-item:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        
+
         .permission-item input[type="checkbox"] {
-            margin-right: 12px;
-            transform: scale(1.2);
+            margin-right: 15px;
+            transform: scale(1.3);
+            accent-color: #6366f1;
         }
-        
+
         .permission-item label {
             cursor: pointer;
             flex: 1;
-        }
-        
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            font-weight: 500;
+            color: #E0E0E0;
             font-size: 1rem;
         }
         
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            font-family: 'Space Grotesk', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
         .btn-success {
-            background: #27ae60;
+            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
         }
-        
+
         .btn-secondary {
-            background: #95a5a6;
+            background: linear-gradient(135deg, #6b7280, #4b5563);
             color: white;
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4);
         }
-        
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
         }
         
         .actions {
@@ -257,33 +418,50 @@ if ($pdo) {
         }
         
         .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 20px 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        
+
         .alert-success {
-            background: rgba(39, 174, 96, 0.2);
-            border: 1px solid #27ae60;
-            color: #27ae60;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.3);
         }
-        
+
         .alert-danger {
-            background: rgba(231, 76, 60, 0.2);
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
         }
         
         .no-admin-selected {
             text-align: center;
-            padding: 60px 20px;
-            opacity: 0.7;
+            padding: 80px 20px;
+            color: rgba(255,255,255,0.6);
         }
-        
+
         .no-admin-selected i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
+            font-size: 5rem;
+            margin-bottom: 30px;
+            color: rgba(99, 102, 241, 0.3);
+        }
+
+        .no-admin-selected h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #E0E0E0;
+        }
+
+        .no-admin-selected p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
         }
         
         @media (max-width: 768px) {
@@ -305,10 +483,22 @@ if ($pdo) {
 <body>
     <?php include 'admin_header.php'; ?>
     
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-key"></i> Gerenciar Permissões</h1>
-            <p>Configure as permissões de acesso dos administradores</p>
+    <div class="main-container">
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <i class="fas fa-key icon"></i>
+                    <div>
+                        <h1>Gerenciar Permissões</h1>
+                        <div class="header-subtitle">Configure as permissões de acesso dos administradores</div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <a href="dashboard_simple.php" class="btn btn-warning">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </div>
+            </div>
         </div>
         
         <?php if (isset($success)): ?>
@@ -381,10 +571,127 @@ if ($pdo) {
             <a href="admin_manager.php" class="btn btn-secondary">
                 <i class="fas fa-users-cog"></i> Gerenciar Admins
             </a>
-            <a href="dashboard_simple.php" class="btn btn-secondary">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
         </div>
     </div>
+
+    <script>
+        // Animações de entrada
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animação do header
+            const header = document.querySelector('.page-header');
+            if (header) {
+                header.style.opacity = '0';
+                header.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    header.style.transition = 'all 0.8s ease';
+                    header.style.opacity = '1';
+                    header.style.transform = 'translateY(0)';
+                }, 100);
+            }
+
+            // Animação dos alertas
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach((alert, index) => {
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateX(-30px)';
+                setTimeout(() => {
+                    alert.style.transition = 'all 0.5s ease';
+                    alert.style.opacity = '1';
+                    alert.style.transform = 'translateX(0)';
+                }, 200 + (index * 100));
+            });
+
+            // Animação do seletor de admin
+            const adminSelector = document.querySelector('.admin-selector');
+            if (adminSelector) {
+                adminSelector.style.opacity = '0';
+                adminSelector.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    adminSelector.style.transition = 'all 0.6s ease';
+                    adminSelector.style.opacity = '1';
+                    adminSelector.style.transform = 'translateY(0)';
+                }, 300);
+            }
+
+            // Animação do container de permissões
+            const permissionsContainer = document.querySelector('.permissions-container');
+            if (permissionsContainer) {
+                permissionsContainer.style.opacity = '0';
+                permissionsContainer.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    permissionsContainer.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                    permissionsContainer.style.opacity = '1';
+                    permissionsContainer.style.transform = 'translateY(0)';
+                }, 500);
+            }
+
+            // Animação dos grupos de permissões
+            const permissionGroups = document.querySelectorAll('.permission-group');
+            permissionGroups.forEach((group, index) => {
+                group.style.opacity = '0';
+                group.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    group.style.transition = 'all 0.5s ease';
+                    group.style.opacity = '1';
+                    group.style.transform = 'translateX(0)';
+                }, 700 + (index * 150));
+            });
+
+            // Animação dos itens de permissão
+            const permissionItems = document.querySelectorAll('.permission-item');
+            permissionItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.4s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'scale(1)';
+                }, 900 + (index * 50));
+            });
+
+            // Animação do estado vazio
+            const emptyState = document.querySelector('.no-admin-selected');
+            if (emptyState) {
+                emptyState.style.opacity = '0';
+                emptyState.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    emptyState.style.transition = 'all 0.6s ease';
+                    emptyState.style.opacity = '1';
+                    emptyState.style.transform = 'scale(1)';
+                }, 500);
+            }
+
+            // Animação dos botões de ação
+            const actionButtons = document.querySelectorAll('.actions .btn');
+            actionButtons.forEach((btn, index) => {
+                btn.style.opacity = '0';
+                btn.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    btn.style.transition = 'all 0.4s ease';
+                    btn.style.opacity = '1';
+                    btn.style.transform = 'translateY(0)';
+                }, 1200 + (index * 100));
+            });
+        });
+
+        // Melhorar a experiência do select
+        document.addEventListener('DOMContentLoaded', function() {
+            const select = document.querySelector('.admin-selector select');
+            if (select) {
+                select.addEventListener('change', function() {
+                    if (this.value) {
+                        // Adicionar loading visual
+                        this.style.opacity = '0.7';
+                        this.style.pointerEvents = 'none';
+
+                        // Simular carregamento
+                        setTimeout(() => {
+                            window.location.href = '?admin_id=' + this.value;
+                        }, 300);
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -380,7 +380,7 @@ try {
                         <i class="fas fa-users"></i>
                         <span>Todos os Times</span>
                     </a>
-                    <a href="team_manager.php" class="action-link">
+                    <a href="select_tournament_for_team_management.php" class="action-link">
                         <i class="fas fa-cog"></i>
                         <span>Gerenciar Times</span>
                     </a>

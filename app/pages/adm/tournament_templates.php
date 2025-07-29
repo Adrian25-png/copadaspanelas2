@@ -114,112 +114,213 @@ if ($_POST && isset($_POST['template_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Templates de Torneio - Copa das Panelas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon.ico">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            min-height: 100vh;
+        * {
             margin: 0;
-            color: white;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        .container {
-            max-width: 1200px;
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(#281c3e, #0f051d);
+            min-height: 100vh;
+            color: #E0E0E0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .main-container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 30px;
         }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
+
+        .page-header {
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
         }
-        
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #E1BEE7;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-header h1 i {
+            color: #7B1FA2;
+        }
+
+        .btn-standard {
+            background: #1E1E1E;
+            border: 2px solid #7B1FA2;
+            border-radius: 8px;
+            color: #E1BEE7;
+            padding: 15px 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .btn-standard:hover {
+            background: #7B1FA2;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
+        }
+
+        .alert {
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #2A2A2A;
+            border-left-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .alert-error {
+            background: #2A2A2A;
+            border-left-color: #F44336;
+            color: #F44336;
+        }
+
+        .alert-info {
+            background: #2A2A2A;
+            border-left-color: #2196F3;
+            color: #2196F3;
+        }
+
         .templates-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
         }
-        
+
         .template-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+            background: #1E1E1E;
+            border-left: 4px solid #7B1FA2;
+            border-radius: 8px;
             padding: 25px;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
             position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
-        
+
+        .template-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7B1FA2, #E1BEE7);
+        }
+
         .template-card:hover {
             transform: translateY(-5px);
-            border-color: #3498db;
-            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 10px 25px rgba(123, 31, 162, 0.3);
         }
-        
+
         .template-header {
             display: flex;
             align-items: center;
             gap: 15px;
             margin-bottom: 15px;
         }
-        
+
         .template-icon {
             font-size: 2.5rem;
-            color: #3498db;
+            color: #7B1FA2;
         }
-        
+
         .template-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #ecf0f1;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #E1BEE7;
         }
-        
+
         .template-description {
-            color: rgba(255, 255, 255, 0.8);
+            color: #9E9E9E;
             margin-bottom: 20px;
             line-height: 1.6;
+            font-size: 1rem;
         }
-        
+
         .template-specs {
             margin-bottom: 25px;
         }
-        
+
         .spec-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 12px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .spec-item:last-child {
             border-bottom: none;
         }
-        
+
         .spec-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
+            color: #9E9E9E;
+            font-size: 0.95rem;
+            font-weight: 500;
         }
-        
+
         .spec-value {
-            color: #3498db;
+            color: #E1BEE7;
             font-weight: 600;
         }
-        
+
         .template-actions {
             display: flex;
             gap: 10px;
         }
-        
-        .btn {
-            padding: 10px 20px;
-            border: none;
+
+        .btn-template {
+            padding: 12px 20px;
+            border: 2px solid #7B1FA2;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
@@ -231,142 +332,202 @@ if ($_POST && isset($_POST['template_id'])) {
             font-size: 0.9rem;
             flex: 1;
             justify-content: center;
-        }
-        
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-        
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            background: #1E1E1E;
+            color: #E1BEE7;
         }
 
-        .btn-warning {
-            background: #f39c12;
+        .btn-template:hover {
+            background: #7B1FA2;
             color: white;
-        }
-        
-        .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
         }
-        
+
+        .btn-template.secondary {
+            border-color: #2196F3;
+            color: #64B5F6;
+        }
+
+        .btn-template.secondary:hover {
+            background: #2196F3;
+            color: white;
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
         .quick-create {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+            background: #1E1E1E;
+            border-left: 4px solid #FF9800;
+            border-radius: 8px;
             padding: 25px;
             margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .quick-create::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+
         .quick-create h3 {
             margin-bottom: 20px;
-            color: #f39c12;
+            color: #FFB74D;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-size: 1.3rem;
+            font-weight: 600;
         }
-        
+
         .quick-form {
-            display: flex;
-            gap: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 20px;
             align-items: end;
-            flex-wrap: wrap;
         }
-        
+
         .form-group {
-            flex: 1;
-            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        
+
         .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
+            font-weight: 600;
+            color: #9E9E9E;
+            font-size: 0.95rem;
         }
-        
+
         .form-group input,
         .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            padding: 12px;
+            border: 2px solid rgba(123, 31, 162, 0.3);
+            border-radius: 8px;
+            background: #2A2A2A;
+            color: #E0E0E0;
             font-size: 1rem;
-            box-sizing: border-box;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.3s ease;
         }
-        
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #7B1FA2;
+            box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.1);
+        }
+
         .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+            color: #666;
         }
-        
+
         .form-group select option {
-            background: #2c3e50;
-            color: white;
+            background: #2A2A2A;
+            color: #E0E0E0;
         }
-        
+
         .back-actions {
             text-align: center;
             margin-top: 40px;
         }
-        
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+
             .templates-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .quick-form {
-                flex-direction: column;
+                grid-template-columns: 1fr;
+                gap: 15px;
             }
-            
-            .form-group {
-                min-width: 100%;
-            }
-            
+
             .template-actions {
                 flex-direction: column;
+            }
+
+            .back-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                align-items: center;
+            }
+
+            .btn-standard {
+                width: 100%;
+                max-width: 300px;
             }
         }
     </style>
 </head>
 <body>
-    <?php include 'admin_header.php'; ?>
-    
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-file-alt"></i> Templates de Torneio</h1>
-            <p>Escolha um modelo pré-configurado para criar seu torneio rapidamente</p>
+    <div class="main-container">
+        <div class="page-header fade-in">
+            <div>
+                <h1><i class="fas fa-file-alt"></i> Templates de Torneio</h1>
+                <p style="color: #9E9E9E; font-size: 1.1rem; margin-top: 8px;">Escolha um modelo pré-configurado para criar seu torneio rapidamente</p>
+            </div>
+            <div>
+                <a href="tournament_list.php" class="btn-standard">
+                    <i class="fas fa-list"></i> Ver Torneios
+                </a>
+                <a href="dashboard_simple.php" class="btn-standard">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
         </div>
 
+        <!-- Mensagens -->
         <?php if (isset($error)): ?>
-            <div style="background: rgba(231, 76, 60, 0.2); border: 1px solid #e74c3c; color: #e74c3c; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
+            <div class="alert alert-error fade-in">
+                <i class="fas fa-exclamation-circle"></i>
+                <?= htmlspecialchars($error) ?>
             </div>
         <?php endif; ?>
 
         <?php if (isset($debug_info)): ?>
-            <div style="background: rgba(52, 152, 219, 0.2); border: 1px solid #3498db; color: #3498db; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <i class="fas fa-info-circle"></i> Debug: <?= htmlspecialchars($debug_info) ?>
+            <div class="alert alert-info fade-in">
+                <i class="fas fa-info-circle"></i>
+                Debug: <?= htmlspecialchars($debug_info) ?>
             </div>
         <?php endif; ?>
-        
-        <div class="quick-create">
+
+        <!-- Criação Rápida -->
+        <div class="quick-create fade-in">
             <h3><i class="fas fa-rocket"></i> Criação Rápida</h3>
             <form method="POST" class="quick-form">
                 <div class="form-group">
                     <label for="tournament_name">Nome do Torneio</label>
-                    <input type="text" id="tournament_name" name="tournament_name" 
+                    <input type="text" id="tournament_name" name="tournament_name"
                            placeholder="Ex: Copa das Panelas 2024" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="template_id">Template</label>
                     <select id="template_id" name="template_id" required>
@@ -378,16 +539,17 @@ if ($_POST && isset($_POST['template_id'])) {
                         <?php endforeach; ?>
                     </select>
                 </div>
-                
-                <button type="submit" class="btn btn-success">
+
+                <button type="submit" class="btn-standard">
                     <i class="fas fa-plus"></i> Criar Agora
                 </button>
             </form>
         </div>
-        
+
+        <!-- Templates Grid -->
         <div class="templates-grid">
-            <?php foreach ($templates as $template): ?>
-                <div class="template-card">
+            <?php foreach ($templates as $index => $template): ?>
+                <div class="template-card fade-in" style="animation-delay: <?= $index * 0.1 ?>s">
                     <div class="template-header">
                         <div class="template-icon">
                             <i class="fas fa-trophy"></i>
@@ -396,113 +558,104 @@ if ($_POST && isset($_POST['template_id'])) {
                             <?= htmlspecialchars($template['name']) ?>
                         </div>
                     </div>
-                    
+
                     <div class="template-description">
                         <?= htmlspecialchars($template['description']) ?>
                     </div>
-                    
+
                     <div class="template-specs">
                         <div class="spec-item">
-                            <span class="spec-label">Times</span>
+                            <span class="spec-label"><i class="fas fa-users"></i> Times</span>
                             <span class="spec-value"><?= $template['teams'] ?> times</span>
                         </div>
                         <div class="spec-item">
-                            <span class="spec-label">Grupos</span>
+                            <span class="spec-label"><i class="fas fa-layer-group"></i> Grupos</span>
                             <span class="spec-value"><?= $template['groups'] ?> grupos</span>
                         </div>
                         <div class="spec-item">
-                            <span class="spec-label">Formato</span>
+                            <span class="spec-label"><i class="fas fa-cogs"></i> Formato</span>
                             <span class="spec-value"><?= htmlspecialchars($template['format']) ?></span>
                         </div>
                         <div class="spec-item">
-                            <span class="spec-label">Duração</span>
+                            <span class="spec-label"><i class="fas fa-clock"></i> Duração</span>
                             <span class="spec-value"><?= htmlspecialchars($template['duration']) ?></span>
                         </div>
                     </div>
-                    
+
                     <div class="template-actions">
-                        <button onclick="useTemplate(<?= $template['id'] ?>, '<?= htmlspecialchars($template['name']) ?>')" class="btn btn-primary">
+                        <a href="template_preview.php?id=<?= $template['id'] ?>" class="btn-template">
                             <i class="fas fa-magic"></i> Usar Template
-                        </button>
-                        <button onclick="previewTemplate(<?= $template['id'] ?>)" class="btn btn-secondary">
+                        </a>
+                        <a href="template_preview.php?id=<?= $template['id'] ?>" class="btn-template secondary">
                             <i class="fas fa-eye"></i> Preview
-                        </button>
+                        </a>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
-        
-        <div class="back-actions">
-            <a href="tournament_list.php" class="btn btn-secondary">
-                <i class="fas fa-list"></i> Ver Torneios
-            </a>
-            <a href="create_tournament.php" class="btn btn-primary">
+
+        <!-- Ações Adicionais -->
+        <div class="back-actions fade-in">
+            <a href="create_tournament.php" class="btn-standard">
                 <i class="fas fa-plus"></i> Criar do Zero
             </a>
-            <a href="../../debug_tournament_creation.php" class="btn btn-warning">
-                <i class="fas fa-bug"></i> Debug
-            </a>
-            <a href="dashboard_simple.php" class="btn btn-success">
-                <i class="fas fa-home"></i> Dashboard
+            <a href="../../debug_tournament_creation.php" class="btn-standard">
+                <i class="fas fa-bug"></i> Debug Sistema
             </a>
         </div>
     </div>
-    
+
     <script>
-        function useTemplate(templateId, templateName) {
-            const tournamentName = 'Copa das Panelas 2024';
+        // Animações Copa das Panelas
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar fade-in aos elementos
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, index * 150);
+            });
 
-            if (tournamentName && tournamentName.trim() !== '') {
-                // Criar formulário dinamicamente
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.style.display = 'none';
+            // Efeitos de hover nos cards
+            const templateCards = document.querySelectorAll('.template-card');
+            templateCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                    this.style.boxShadow = '0 15px 35px rgba(123, 31, 162, 0.4)';
+                });
 
-                const templateInput = document.createElement('input');
-                templateInput.type = 'hidden';
-                templateInput.name = 'template_id';
-                templateInput.value = templateId;
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 10px 25px rgba(123, 31, 162, 0.3)';
+                });
+            });
+        });
 
-                const nameInput = document.createElement('input');
-                nameInput.type = 'hidden';
-                nameInput.name = 'tournament_name';
-                nameInput.value = tournamentName.trim();
+        // Função para auto-preencher nome do torneio baseado no template
+        function autoFillTournamentName() {
+            const tournamentNameInput = document.getElementById('tournament_name');
+            const templateSelect = document.getElementById('template_id');
 
-                form.appendChild(templateInput);
-                form.appendChild(nameInput);
-                document.body.appendChild(form);
-
-                // Submeter formulário
-                form.submit();
-            }
-        }
-
-        function previewTemplate(templateId) {
-            // Mostrar detalhes do template
-            const templates = {
-                1: {
-                    name: 'Copa Simples',
-                    details: '• 8 times divididos em 2 grupos\n• Fase de grupos (todos contra todos)\n• Classificam os 2 primeiros de cada grupo\n• Semifinais e Final\n• Disputa de 3º lugar'
-                },
-                2: {
-                    name: 'Liga Completa',
-                    details: '• 12 times em grupo único\n• Todos jogam contra todos\n• Sistema de pontos corridos\n• Campeão é quem fizer mais pontos'
-                },
-                3: {
-                    name: 'Mata-Mata',
-                    details: '• 16 times em eliminação direta\n• Oitavas de final\n• Quartas de final\n• Semifinais\n• Final e 3º lugar'
-                },
-                4: {
-                    name: 'Copa das Panelas Oficial',
-                    details: '• 16 times divididos em 4 grupos\n• Fase de grupos (4 times por grupo)\n• Oitavas de final (2 primeiros de cada grupo)\n• Quartas, Semifinais e Final\n• Disputa de 3º lugar'
+            if (tournamentNameInput && templateSelect) {
+                const selectedOption = templateSelect.options[templateSelect.selectedIndex];
+                if (selectedOption && selectedOption.value) {
+                    const currentYear = new Date().getFullYear();
+                    tournamentNameInput.value = `${selectedOption.text} ${currentYear}`;
                 }
-            };
-
-            const template = templates[templateId];
-            if (template) {
-                alert(template.name + ':\n\n' + template.details);
             }
         }
+
+        // Event listener para auto-preenchimento
+        document.addEventListener('DOMContentLoaded', function() {
+            const templateSelect = document.getElementById('template_id');
+            if (templateSelect) {
+                templateSelect.addEventListener('change', function() {
+                    if (this.value) {
+                        autoFillTournamentName();
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
