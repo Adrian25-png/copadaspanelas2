@@ -599,5 +599,14 @@
 
     <!-- Footer -->
     <?php include 'footer.php'; ?>
+
+    <script>
+        // Verificação automática removida para evitar recarregamentos indesejados
+        // A progressão automática agora acontece apenas no gerenciador de jogos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Página carrega normalmente sem verificações automáticas
+            console.log('Página de exibição das finais carregada');
+        });
+    </script>
 </body>
 </html>

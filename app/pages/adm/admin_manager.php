@@ -1,9 +1,21 @@
 <?php
 session_start();
 require_once '../../config/conexao.php';
+require_once '../../includes/PermissionManager.php';
+
+// Verificar se está logado
+if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
+    header('Location: login_simple.php');
+    exit;
+}
 
 try {
     $pdo = conectar();
+    $permissionManager = getPermissionManager($pdo);
+
+    // Verificar permissão para gerenciar administradores
+    $permissionManager->requireAnyPermission(['create_admin', 'edit_admin', 'view_admin']);
+
 } catch (Exception $e) {
     $error = "Erro de conexão: " . $e->getMessage();
     $pdo = null;

@@ -1,4 +1,13 @@
 <?php
+/**
+ * PROTEÇÃO AUTOMÁTICA - NÃO REMOVER
+ * Aplicada automaticamente em 2025-07-30 16:47:18
+ */
+require_once '../../includes/AdminProtection.php';
+$adminProtection = protectAdminPage();
+// Fim da proteção automática
+
+
 include "../../config/conexao.php";
 session_start(); // Iniciar a sessão
 

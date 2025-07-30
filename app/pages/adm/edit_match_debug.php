@@ -1,4 +1,13 @@
 <?php
+/**
+ * PROTEÇÃO AUTOMÁTICA - NÃO REMOVER
+ * Aplicada automaticamente em 2025-07-30 16:47:18
+ */
+require_once '../../includes/AdminProtection.php';
+$adminProtection = protectAdminPage();
+// Fim da proteção automática
+
+
 // Debug version to identify the issue
 error_reporting(E_ALL);
 ini_set('display_errors', 1);

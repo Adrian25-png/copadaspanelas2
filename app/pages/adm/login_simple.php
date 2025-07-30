@@ -16,14 +16,51 @@ if ($_POST) {
             $pdo = conectar();
             $logger = getSystemLogger($pdo);
 
-            $stmt = $pdo->prepare("SELECT * FROM administradores WHERE usuario = ?");
-            $stmt->execute([$username]);
-            $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+            $admin = null;
+            $admin_source = '';
 
-            if ($admin && password_verify($password, $admin['senha'])) {
+            // Tentar login na tabela 'administradores' primeiro
+            $stmt = $pdo->prepare("SELECT id, usuario as username, nome, email, senha as password FROM administradores WHERE usuario = ?");
+            $stmt->execute([$username]);
+            $admin_temp = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($admin_temp && password_verify($password, $admin_temp['password'])) {
+                $admin = $admin_temp;
+                $admin_source = 'administradores';
+            }
+
+            // Se não encontrou, tentar na tabela 'admins'
+            if (!$admin) {
+                $stmt = $pdo->prepare("SELECT id, username, email, password, role, active FROM admins WHERE username = ? AND active = 1");
+                $stmt->execute([$username]);
+                $admin_temp = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($admin_temp && password_verify($password, $admin_temp['password'])) {
+                    $admin = $admin_temp;
+                    $admin['nome'] = $admin_temp['username']; // Usar username como nome
+                    $admin_source = 'admins';
+                }
+            }
+
+            // Se não encontrou, tentar na tabela 'admin' (usando cod_adm como username)
+            if (!$admin) {
+                $stmt = $pdo->prepare("SELECT cod_adm, nome, email, senha as password FROM admin WHERE cod_adm = ?");
+                $stmt->execute([$username]);
+                $admin_temp = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($admin_temp && password_verify($password, $admin_temp['password'])) {
+                    $admin = $admin_temp;
+                    $admin['id'] = $admin_temp['cod_adm']; // Usar cod_adm como id
+                    $admin['username'] = $admin_temp['cod_adm'];
+                    $admin_source = 'admin';
+                }
+            }
+
+            if ($admin) {
                 $_SESSION['admin_logged_in'] = true;
                 $_SESSION['admin_username'] = $admin['nome'];
                 $_SESSION['admin_id'] = $admin['id'];
+                $_SESSION['admin_source'] = $admin_source; // Para saber de qual tabela veio
                 $_SESSION['login_time'] = time();
 
                 // Registrar login bem-sucedido

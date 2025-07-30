@@ -1,5 +1,13 @@
 <?php
+/**
+ * PROTEÇÃO AUTOMÁTICA - NÃO REMOVER
+ * Aplicada automaticamente em 2025-01-30 15:30:00
+ */
 session_start();
+require_once '../../includes/AdminProtection.php';
+$adminProtection = protectAdminPage();
+// Fim da proteção automática
+
 require_once '../../config/conexao.php';
 
 $pdo = conectar();

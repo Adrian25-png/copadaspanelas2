@@ -8,9 +8,20 @@ session_start();
 require_once '../../config/conexao.php';
 require_once '../../classes/TournamentManager.php';
 require_once '../../classes/MatchManager.php';
+require_once '../../includes/PermissionManager.php';
+
+// Verificar se está logado
+if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
+    header('Location: login_simple.php');
+    exit;
+}
 
 $pdo = conectar();
 $tournamentManager = new TournamentManager($pdo);
+$permissionManager = getPermissionManager($pdo);
+
+// Verificar permissão para gerenciar jogos
+$permissionManager->requireAnyPermission(['create_match', 'edit_match', 'view_match']);
 
 // Obter ID do torneio
 $tournament_id = $_GET['tournament_id'] ?? $_GET['id'] ?? null;

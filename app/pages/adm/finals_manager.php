@@ -1,5 +1,14 @@
 <?php
 /**
+ * PROTEÇÃO AUTOMÁTICA - NÃO REMOVER
+ * Aplicada automaticamente em 2025-07-30 16:47:18
+ */
+require_once '../../includes/AdminProtection.php';
+$adminProtection = protectAdminPage();
+// Fim da proteção automática
+
+
+/**
  * Gerenciador de Fases Finais
  * Configuração e gerenciamento das eliminatórias
  */
@@ -556,9 +565,58 @@ try {
                 </div>
                 <div>
                     <?php if (empty($existing_matches[$phase])): ?>
-                        <button class="btn-standard btn-success" onclick="createPhaseMatches('<?= $phase ?>')">
-                            <i class="fas fa-plus"></i> Criar Confrontos
-                        </button>
+                        <?php
+                        // Verificar se pode criar esta fase
+                        $pode_criar = true;
+                        $motivo_bloqueio = '';
+
+                        if ($phase !== 'Oitavas') {
+                            // Verificar fase anterior
+                            $fase_anterior = '';
+                            switch($phase) {
+                                case 'Quartas': $fase_anterior = 'Oitavas'; break;
+                                case 'Semifinal': $fase_anterior = 'Quartas'; break;
+                                case 'Final': $fase_anterior = 'Semifinal'; break;
+                            }
+
+                            if ($fase_anterior) {
+                                // Verificar se fase anterior existe e está completa
+                                $stmt = $pdo->prepare("
+                                    SELECT COUNT(*) as total,
+                                           SUM(CASE WHEN status = 'finalizado' THEN 1 ELSE 0 END) as finalizados,
+                                           SUM(CASE WHEN status = 'finalizado' AND team1_goals = team2_goals THEN 1 ELSE 0 END) as empates
+                                    FROM matches
+                                    WHERE tournament_id = ? AND phase = ?
+                                ");
+                                $stmt->execute([$tournament_id, $fase_anterior]);
+                                $status_anterior = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                                if ($status_anterior['total'] == 0) {
+                                    $pode_criar = false;
+                                    $motivo_bloqueio = "Fase {$fase_anterior} não foi criada ainda";
+                                } elseif ($status_anterior['total'] != $status_anterior['finalizados']) {
+                                    $pode_criar = false;
+                                    $motivo_bloqueio = "Fase {$fase_anterior} tem jogos não finalizados";
+                                } elseif ($status_anterior['empates'] > 0) {
+                                    $pode_criar = false;
+                                    $motivo_bloqueio = "Fase {$fase_anterior} tem empates não resolvidos";
+                                }
+                            }
+                        }
+                        ?>
+
+                        <?php if ($pode_criar): ?>
+                            <button class="btn-standard btn-success" onclick="createPhaseMatches('<?= $phase ?>')">
+                                <i class="fas fa-plus"></i> Criar Confrontos
+                            </button>
+                        <?php else: ?>
+                            <button class="btn-standard" disabled style="opacity: 0.5; cursor: not-allowed;" title="<?= $motivo_bloqueio ?>">
+                                <i class="fas fa-lock"></i> Bloqueado
+                            </button>
+                            <div style="font-size: 0.8rem; color: #dc3545; margin-top: 5px;">
+                                <?= $motivo_bloqueio ?>
+                            </div>
+                        <?php endif; ?>
                     <?php else: ?>
                         <button class="btn-standard btn-danger" onclick="deletePhaseMatches('<?= $phase ?>')">
                             <i class="fas fa-trash"></i> Remover Jogos
@@ -614,6 +672,9 @@ try {
                 </a>
                 <a href="third_place_manager.php?tournament_id=<?= $tournament_id ?>" class="btn-standard btn-info">
                     <i class="fas fa-medal"></i> Disputa 3º Lugar
+                </a>
+                <a href="fix_invalid_phases.php" class="btn-standard btn-danger">
+                    <i class="fas fa-tools"></i> Corrigir Fases Inválidas
                 </a>
             </div>
         </div>

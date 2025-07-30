@@ -4,8 +4,31 @@ require_once '../../config/conexao.php';
 
 try {
     $pdo = conectar();
-    $stmt = $pdo->query("SELECT usuario, nome, email FROM administradores");
-    $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Buscar administradores de todas as tabelas
+    $all_admins = [];
+
+    // Tabela administradores
+    $stmt = $pdo->query("SELECT id, usuario as username, nome, email, 'administradores' as source FROM administradores");
+    $admins_administradores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $all_admins = array_merge($all_admins, $admins_administradores);
+
+    // Tabela admins
+    $stmt = $pdo->query("SELECT id, username, email, role, active, 'admins' as source FROM admins WHERE active = 1");
+    $admins_admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($admins_admins as &$admin) {
+        $admin['nome'] = $admin['username']; // Usar username como nome para consistência
+    }
+    $all_admins = array_merge($all_admins, $admins_admins);
+
+    // Tabela admin
+    $stmt = $pdo->query("SELECT cod_adm as username, nome, email, 'admin' as source FROM admin");
+    $admins_admin = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($admins_admin as &$admin) {
+        $admin['id'] = $admin['username']; // Usar cod_adm como id
+    }
+    $all_admins = array_merge($all_admins, $admins_admin);
+
 } catch (Exception $e) {
     $error = $e->getMessage();
 }
@@ -97,6 +120,36 @@ try {
             margin: 10px 0;
             border-radius: 8px;
             border-left: 4px solid #27ae60;
+            position: relative;
+        }
+
+        .admin-source {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .source-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .source-administradores {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .source-admins {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .source-admin {
+            background-color: #f39c12;
+            color: white;
         }
         
         .btn {
@@ -163,18 +216,29 @@ try {
             </div>
         </div>
         
-        <?php if (isset($admins) && !empty($admins)): ?>
+        <?php if (isset($all_admins) && !empty($all_admins)): ?>
             <div class="admin-list">
                 <h3 style="color: #3498db; margin-bottom: 15px;">
-                    <i class="fas fa-users"></i> Administradores Cadastrados
+                    <i class="fas fa-users"></i> Todos os Administradores Cadastrados (<?= count($all_admins) ?>)
                 </h3>
-                <?php foreach ($admins as $admin): ?>
+                <?php foreach ($all_admins as $admin): ?>
                     <div class="admin-item">
-                        <strong>Usuário:</strong> <?= htmlspecialchars($admin['usuario']) ?><br>
+                        <div class="admin-source">
+                            <span class="source-badge source-<?= $admin['source'] ?>">
+                                <?= ucfirst($admin['source']) ?>
+                            </span>
+                        </div>
+                        <strong>Usuário para Login:</strong> <?= htmlspecialchars($admin['username']) ?><br>
                         <strong>Nome:</strong> <?= htmlspecialchars($admin['nome']) ?><br>
-                        <?php if ($admin['email']): ?>
-                            <strong>Email:</strong> <?= htmlspecialchars($admin['email']) ?>
+                        <?php if (isset($admin['email']) && $admin['email']): ?>
+                            <strong>Email:</strong> <?= htmlspecialchars($admin['email']) ?><br>
                         <?php endif; ?>
+                        <?php if (isset($admin['role'])): ?>
+                            <strong>Função:</strong> <?= htmlspecialchars($admin['role']) ?><br>
+                        <?php endif; ?>
+                        <small style="color: #666;">
+                            <strong>Senha padrão:</strong> admin123 (altere após primeiro login)
+                        </small>
                     </div>
                 <?php endforeach; ?>
             </div>

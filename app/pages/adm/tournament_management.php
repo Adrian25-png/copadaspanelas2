@@ -1,5 +1,14 @@
 <?php
 /**
+ * PROTEÇÃO AUTOMÁTICA - NÃO REMOVER
+ * Aplicada automaticamente em 2025-07-30 16:47:18
+ */
+require_once '../../includes/AdminProtection.php';
+$adminProtection = protectAdminPage();
+// Fim da proteção automática
+
+
+/**
  * Página Principal de Gerenciamento de Torneio
  * Dashboard central para gerenciar um torneio específico
  */
@@ -611,6 +620,9 @@ try {
                     </a>
                     <a href="knockout_generator.php?tournament_id=<?= $tournament_id ?>" class="btn-standard btn-primary">
                         <i class="fas fa-magic"></i> Gerar Eliminatórias
+                    </a>
+                    <a href="finals_matches_manager.php?tournament_id=<?= $tournament_id ?>" class="btn-standard btn-success">
+                        <i class="fas fa-futbol"></i> Gerenciar Jogos das Finais
                     </a>
                     <a href="../exibir_finais.php" class="btn-standard btn-secondary" target="_blank">
                         <i class="fas fa-eye"></i> Visualizar Chaveamento

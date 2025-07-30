@@ -1,5 +1,14 @@
 <?php
 /**
+ * PROTEÇÃO AUTOMÁTICA - NÃO REMOVER
+ * Aplicada automaticamente em 2025-07-30 16:47:18
+ */
+require_once '../../includes/AdminProtection.php';
+$adminProtection = protectAdminPage();
+// Fim da proteção automática
+
+
+/**
  * Agenda de Jogos do Torneio
  * Visualização e agendamento de jogos por data
  */

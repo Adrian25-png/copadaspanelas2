@@ -624,7 +624,27 @@ function obterRodadas($pdo, $tournament_id) {
                     this.style.transform = 'translateY(-5px) scale(1)';
                 });
             });
+
+            // Verificar automaticamente progressão das eliminatórias (silencioso)
+            setTimeout(() => {
+                // Verificar classificação para eliminatórias (fase de grupos)
+                fetch('../actions/funcoes/auto_classificacao.php?ajax=1')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Execução silenciosa - sem notificação
+                    })
+                    .catch(error => console.log('Verificação automática de classificação falhou:', error));
+
+                // Verificar progressão das eliminatórias
+                fetch('../actions/funcoes/progressao_eliminatorias.php?ajax=1')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Execução silenciosa - sem notificação
+                    })
+                    .catch(error => console.log('Verificação automática de progressão falhou:', error));
+            }, 2000); // Aguardar 2 segundos após carregar a página
         });
+
     </script>
 
 <?php include 'footer.php'?>

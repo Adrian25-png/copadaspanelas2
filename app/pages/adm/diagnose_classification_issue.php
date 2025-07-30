@@ -1,0 +1,270 @@
+<?php
+/**
+ * PROTEÇÃO AUTOMÁTICA - NÃO REMOVER
+ * Aplicada automaticamente em 2025-07-30 16:47:18
+ */
+require_once '../../includes/AdminProtection.php';
+$adminProtection = protectAdminPage();
+// Fim da proteção automática
+
+
+session_start();
+require_once '../../config/conexao.php';
+require_once '../../classes/TournamentManager.php';
+
+$pdo = conectar();
+$tournamentManager = new TournamentManager($pdo);
+$tournament = $tournamentManager->getCurrentTournament();
+
+if (!$tournament) {
+    die("Nenhum torneio ativo encontrado.");
+}
+
+$tournament_id = $tournament['id'];
+
+// Diagnóstico completo
+$diagnostics = [];
+
+// 1. Verificar dados em jogos_fase_grupos
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) as total,
+           SUM(CASE WHEN resultado_timeA IS NOT NULL THEN 1 ELSE 0 END) as finalizados
+    FROM jogos_fase_grupos jfg
+    LEFT JOIN grupos g ON jfg.grupo_id = g.id
+    WHERE g.tournament_id = ?
+");
+$stmt->execute([$tournament_id]);
+$jogos_fase_grupos = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// 2. Verificar dados em matches
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) as total,
+           SUM(CASE WHEN status = 'finalizado' THEN 1 ELSE 0 END) as finalizados
+    FROM matches
+    WHERE tournament_id = ? AND phase IN ('grupos', 'Fase de Grupos')
+");
+$stmt->execute([$tournament_id]);
+$matches = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// 3. Verificar grupos e times
+$stmt = $pdo->prepare("SELECT COUNT(*) as count FROM grupos WHERE tournament_id = ?");
+$stmt->execute([$tournament_id]);
+$grupos_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+
+$stmt = $pdo->prepare("SELECT COUNT(*) as count FROM times WHERE tournament_id = ?");
+$stmt->execute([$tournament_id]);
+$times_count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
+
+// 4. Testar consulta da tabela de classificação (versão antiga)
+$stmt = $pdo->prepare("
+    SELECT t.id, t.nome,
+           COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND t.id = j.timeA_id THEN j.gols_marcados_timeA
+                            WHEN j.resultado_timeB IS NOT NULL AND t.id = j.timeB_id THEN j.gols_marcados_timeB
+                            ELSE 0 END),0) AS gm_old
+    FROM times t
+    LEFT JOIN jogos_fase_grupos j ON (t.id = j.timeA_id OR t.id = j.timeB_id) AND t.grupo_id = j.grupo_id
+    WHERE t.tournament_id = ?
+    GROUP BY t.id
+    HAVING gm_old > 0
+    LIMIT 5
+");
+$stmt->execute([$tournament_id]);
+$old_query_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// 5. Testar consulta da tabela de classificação (versão nova)
+$stmt = $pdo->prepare("
+    SELECT t.id, t.nome,
+           COALESCE(SUM(CASE WHEN m.status = 'finalizado' AND t.id = m.team1_id THEN m.team1_goals
+                            WHEN m.status = 'finalizado' AND t.id = m.team2_id THEN m.team2_goals
+                            ELSE 0 END),0) AS gm_new
+    FROM times t
+    LEFT JOIN matches m ON (t.id = m.team1_id OR t.id = m.team2_id) AND t.grupo_id = m.group_id AND m.phase IN ('grupos', 'Fase de Grupos')
+    WHERE t.tournament_id = ?
+    GROUP BY t.id
+    HAVING gm_new > 0
+    LIMIT 5
+");
+$stmt->execute([$tournament_id]);
+$new_query_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+?>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico - Problema na Classificação</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .diagnostic-box {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #ccc;
+        }
+        .success { border-left-color: #4caf50; background-color: #e8f5e8; }
+        .warning { border-left-color: #ff9800; background-color: #fff3e0; }
+        .error { border-left-color: #f44336; background-color: #ffebee; }
+        .info { border-left-color: #2196f3; background-color: #e3f2fd; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th { background-color: #f8f9fa; }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+        .btn:hover { background-color: #0056b3; }
+        .code {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnóstico - Problema na Classificação</h1>
+        
+        <div class="diagnostic-box info">
+            <h3>📊 Torneio Ativo</h3>
+            <p><strong>Nome:</strong> <?= htmlspecialchars($tournament['name']) ?></p>
+            <p><strong>ID:</strong> <?= $tournament_id ?></p>
+            <p><strong>Status:</strong> <?= htmlspecialchars($tournament['status']) ?></p>
+        </div>
+        
+        <div class="diagnostic-box info">
+            <h3>📈 Estrutura do Torneio</h3>
+            <table>
+                <tr><th>Item</th><th>Quantidade</th></tr>
+                <tr><td>Grupos</td><td><?= $grupos_count ?></td></tr>
+                <tr><td>Times</td><td><?= $times_count ?></td></tr>
+            </table>
+        </div>
+        
+        <div class="diagnostic-box <?= $jogos_fase_grupos['total'] > 0 ? 'warning' : 'info' ?>">
+            <h3>🗃️ Tabela: jogos_fase_grupos (ANTIGA)</h3>
+            <table>
+                <tr><th>Métrica</th><th>Valor</th></tr>
+                <tr><td>Total de jogos</td><td><?= $jogos_fase_grupos['total'] ?></td></tr>
+                <tr><td>Jogos finalizados</td><td><?= $jogos_fase_grupos['finalizados'] ?></td></tr>
+            </table>
+            <?php if ($jogos_fase_grupos['total'] > 0): ?>
+                <p><strong>⚠️ ATENÇÃO:</strong> Esta tabela contém dados, mas pode estar desatualizada.</p>
+            <?php endif; ?>
+        </div>
+        
+        <div class="diagnostic-box <?= $matches['total'] > 0 ? 'success' : 'error' ?>">
+            <h3>🗃️ Tabela: matches (NOVA)</h3>
+            <table>
+                <tr><th>Métrica</th><th>Valor</th></tr>
+                <tr><td>Total de jogos</td><td><?= $matches['total'] ?></td></tr>
+                <tr><td>Jogos finalizados</td><td><?= $matches['finalizados'] ?></td></tr>
+            </table>
+            <?php if ($matches['total'] == 0): ?>
+                <p><strong>❌ PROBLEMA:</strong> Esta tabela está vazia, mas deveria conter os jogos.</p>
+            <?php endif; ?>
+        </div>
+        
+        <div class="diagnostic-box <?= count($old_query_results) > 0 ? 'warning' : 'error' ?>">
+            <h3>🔍 Teste: Consulta Antiga (jogos_fase_grupos)</h3>
+            <?php if (count($old_query_results) > 0): ?>
+                <p><strong>✅ Retornou dados:</strong> <?= count($old_query_results) ?> times com gols</p>
+                <table>
+                    <tr><th>Time ID</th><th>Nome</th><th>Gols Marcados</th></tr>
+                    <?php foreach ($old_query_results as $result): ?>
+                        <tr>
+                            <td><?= $result['id'] ?></td>
+                            <td><?= htmlspecialchars($result['nome']) ?></td>
+                            <td><?= $result['gm_old'] ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php else: ?>
+                <p><strong>❌ Nenhum dado retornado</strong> - A consulta antiga não encontrou resultados.</p>
+            <?php endif; ?>
+        </div>
+        
+        <div class="diagnostic-box <?= count($new_query_results) > 0 ? 'success' : 'error' ?>">
+            <h3>🔍 Teste: Consulta Nova (matches)</h3>
+            <?php if (count($new_query_results) > 0): ?>
+                <p><strong>✅ Retornou dados:</strong> <?= count($new_query_results) ?> times com gols</p>
+                <table>
+                    <tr><th>Time ID</th><th>Nome</th><th>Gols Marcados</th></tr>
+                    <?php foreach ($new_query_results as $result): ?>
+                        <tr>
+                            <td><?= $result['id'] ?></td>
+                            <td><?= htmlspecialchars($result['nome']) ?></td>
+                            <td><?= $result['gm_new'] ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php else: ?>
+                <p><strong>❌ Nenhum dado retornado</strong> - A consulta nova não encontrou resultados.</p>
+            <?php endif; ?>
+        </div>
+        
+        <div class="diagnostic-box info">
+            <h3>💡 Diagnóstico e Soluções</h3>
+            
+            <?php if ($matches['total'] == 0 && $jogos_fase_grupos['total'] > 0): ?>
+                <div class="diagnostic-box error">
+                    <h4>❌ PROBLEMA IDENTIFICADO</h4>
+                    <p>Os dados estão na tabela antiga <code>jogos_fase_grupos</code>, mas a tabela de classificação foi atualizada para usar a tabela <code>matches</code>.</p>
+                    <p><strong>Solução:</strong> Sincronizar os dados das tabelas.</p>
+                    <a href="sync_match_tables.php" class="btn">🔄 Ir para Sincronização</a>
+                </div>
+            <?php elseif ($matches['total'] > 0 && count($new_query_results) == 0): ?>
+                <div class="diagnostic-box warning">
+                    <h4>⚠️ PROBLEMA PARCIAL</h4>
+                    <p>A tabela <code>matches</code> tem dados, mas a consulta não retorna resultados. Possível problema na consulta SQL.</p>
+                </div>
+            <?php elseif ($matches['total'] > 0 && count($new_query_results) > 0): ?>
+                <div class="diagnostic-box success">
+                    <h4>✅ SISTEMA FUNCIONANDO</h4>
+                    <p>A tabela <code>matches</code> tem dados e a consulta retorna resultados corretamente.</p>
+                </div>
+            <?php else: ?>
+                <div class="diagnostic-box error">
+                    <h4>❌ SEM DADOS</h4>
+                    <p>Não há jogos cadastrados em nenhuma das tabelas.</p>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <a href="dashboard_simple.php" class="btn">← Voltar ao Dashboard</a>
+            <a href="../tabela_de_classificacao.php" class="btn">📊 Ver Classificação</a>
+            <a href="../rodadas.php" class="btn">📅 Ver Rodadas</a>
+        </div>
+    </div>
+</body>
+</html>

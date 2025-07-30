@@ -86,12 +86,22 @@ body {
 }
 
 /* Colunas */
-.small-col, .larger-col {
+.small-col {
     min-width: 70px;
     text-align: center;
     align-items: center;
     display: flex;
     justify-content: center;
+}
+
+.larger-col {
+    min-width: 70px;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2px;
 }
 
 /* Logo */
@@ -138,17 +148,43 @@ body {
     white-space: nowrap;
 }
 
-/* Bolinhas dos últimos jogos */
-.resultado-vitoria {
-    background-color: green;
+/* Bolinhas dos últimos jogos - Cores específicas */
+.larger-col .inf,
+.tabela-flex-row .inf,
+div.inf {
+    background-color: #28a745 !important; /* Verde para vitórias */
 }
-.resultado-derrota {
+
+.larger-col .inf2,
+.tabela-flex-row .inf2,
+div.inf2 {
+    background-color: #dc3545 !important; /* Vermelho para derrotas */
+}
+
+.larger-col .inf3,
+.tabela-flex-row .inf3,
+div.inf3 {
+    background-color: #6c757d !important; /* Cinza escuro para empates */
+}
+
+.larger-col .inf4,
+.tabela-flex-row .inf4,
+div.inf4 {
+    background-color: #e9ecef !important; /* Cinza claro para sem jogo */
+}
+
+/* Fallback para compatibilidade */
+.resultado-vitoria { background-color: #28a745 !important; }
+.resultado-derrota { background-color: #dc3545 !important; }
+.resultado-empate { background-color: #6c757d !important; }
+.resultado-indefinido { background-color: #e9ecef !important; }
+.resultado-derrota, .inf2 {
     background-color: rgb(148, 0, 0);
 }
-.resultado-empate {
+.resultado-empate, .inf3 {
     background-color: gray;
 }
-.resultado-indefinido {
+.resultado-indefinido, .inf4 {
     background-color: lightgray;
 }
 
@@ -158,10 +194,11 @@ body {
 .resultado-indefinido,
 .inf, .inf2, .inf3, .inf4 {
     display: inline-block;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    margin-right: 2px;
+    margin: 1px;
+    flex-shrink: 0;
 }
 
 /* Legenda */

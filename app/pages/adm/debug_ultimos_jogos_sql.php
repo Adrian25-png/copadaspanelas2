@@ -1,0 +1,235 @@
+<?php
+/**
+ * PROTEÇÃO AUTOMÁTICA - NÃO REMOVER
+ * Aplicada automaticamente em 2025-07-30 16:47:18
+ */
+require_once '../../includes/AdminProtection.php';
+$adminProtection = protectAdminPage();
+// Fim da proteção automática
+
+
+session_start();
+require_once '../../config/conexao.php';
+require_once '../../classes/TournamentManager.php';
+
+$pdo = conectar();
+$tournamentManager = new TournamentManager($pdo);
+$tournament = $tournamentManager->getCurrentTournament();
+
+if (!$tournament) {
+    die("Nenhum torneio ativo encontrado.");
+}
+
+$tournament_id = $tournament['id'];
+
+// Pegar um time específico para testar
+$stmt = $pdo->prepare("SELECT id, nome FROM times WHERE tournament_id = ? LIMIT 1");
+$stmt->execute([$tournament_id]);
+$time_teste = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$time_teste) {
+    die("Nenhum time encontrado no torneio ativo.");
+}
+
+$timeId = $time_teste['id'];
+
+echo "<h1>🔍 Debug SQL - Últimos Jogos</h1>";
+echo "<p><strong>Torneio:</strong> {$tournament['name']} (ID: {$tournament_id})</p>";
+echo "<p><strong>Time de teste:</strong> {$time_teste['nome']} (ID: {$timeId})</p>";
+
+echo "<hr>";
+
+// 1. Verificar se existem jogos na tabela matches
+echo "<h2>1. Verificar jogos na tabela 'matches'</h2>";
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) as total,
+           SUM(CASE WHEN status = 'finalizado' THEN 1 ELSE 0 END) as finalizados,
+           SUM(CASE WHEN phase = 'grupos' THEN 1 ELSE 0 END) as fase_grupos,
+           SUM(CASE WHEN phase = 'Fase de Grupos' THEN 1 ELSE 0 END) as fase_grupos_2
+    FROM matches 
+    WHERE tournament_id = ?
+");
+$stmt->execute([$tournament_id]);
+$stats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+echo "<table border='1' style='border-collapse: collapse;'>";
+echo "<tr><th>Total de jogos</th><td>{$stats['total']}</td></tr>";
+echo "<tr><th>Jogos finalizados</th><td>{$stats['finalizados']}</td></tr>";
+echo "<tr><th>Phase = 'grupos'</th><td>{$stats['fase_grupos']}</td></tr>";
+echo "<tr><th>Phase = 'Fase de Grupos'</th><td>{$stats['fase_grupos_2']}</td></tr>";
+echo "</table>";
+
+echo "<hr>";
+
+// 2. Verificar jogos específicos do time de teste
+echo "<h2>2. Jogos do time '{$time_teste['nome']}'</h2>";
+$stmt = $pdo->prepare("
+    SELECT m.id, m.team1_id, m.team2_id, m.team1_goals, m.team2_goals, 
+           m.status, m.phase, m.match_date,
+           t1.nome as team1_name, t2.nome as team2_name
+    FROM matches m
+    LEFT JOIN times t1 ON m.team1_id = t1.id
+    LEFT JOIN times t2 ON m.team2_id = t2.id
+    WHERE (m.team1_id = ? OR m.team2_id = ?)
+    AND m.tournament_id = ?
+    ORDER BY m.match_date DESC
+");
+$stmt->execute([$timeId, $timeId, $tournament_id]);
+$jogos_time = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+if (count($jogos_time) > 0) {
+    echo "<table border='1' style='border-collapse: collapse;'>";
+    echo "<tr><th>ID</th><th>Time 1</th><th>Gols 1</th><th>Time 2</th><th>Gols 2</th><th>Status</th><th>Phase</th><th>Data</th></tr>";
+    foreach ($jogos_time as $jogo) {
+        echo "<tr>";
+        echo "<td>{$jogo['id']}</td>";
+        echo "<td>{$jogo['team1_name']}</td>";
+        echo "<td>{$jogo['team1_goals']}</td>";
+        echo "<td>{$jogo['team2_name']}</td>";
+        echo "<td>{$jogo['team2_goals']}</td>";
+        echo "<td>{$jogo['status']}</td>";
+        echo "<td>{$jogo['phase']}</td>";
+        echo "<td>{$jogo['match_date']}</td>";
+        echo "</tr>";
+    }
+    echo "</table>";
+} else {
+    echo "<p style='color: red;'>❌ Nenhum jogo encontrado para este time!</p>";
+}
+
+echo "<hr>";
+
+// 3. Testar a consulta exata da função gerarUltimosJogos
+echo "<h2>3. Teste da consulta SQL exata</h2>";
+$sqlJogos = "SELECT CASE
+                    WHEN team1_id = :timeId AND team1_goals > team2_goals THEN 'V'
+                    WHEN team1_id = :timeId AND team1_goals < team2_goals THEN 'D'
+                    WHEN team1_id = :timeId AND team1_goals = team2_goals THEN 'E'
+                    WHEN team2_id = :timeId AND team2_goals > team1_goals THEN 'V'
+                    WHEN team2_id = :timeId AND team2_goals < team1_goals THEN 'D'
+                    WHEN team2_id = :timeId AND team2_goals = team1_goals THEN 'E'
+                    ELSE 'G'
+                END AS resultado,
+                team1_id, team2_id, team1_goals, team2_goals, status, phase
+            FROM matches
+            WHERE (team1_id = :timeId OR team2_id = :timeId)
+            AND status = 'finalizado'
+            AND phase IN ('grupos', 'Fase de Grupos')
+            ORDER BY match_date DESC
+            LIMIT 5";
+
+echo "<p><strong>SQL usado:</strong></p>";
+echo "<pre style='background: #f5f5f5; padding: 10px;'>" . htmlspecialchars($sqlJogos) . "</pre>";
+
+$stmtJogos = $pdo->prepare($sqlJogos);
+$stmtJogos->execute(['timeId' => $timeId]);
+$resultJogos = $stmtJogos->fetchAll(PDO::FETCH_ASSOC);
+
+echo "<p><strong>Resultados encontrados:</strong> " . count($resultJogos) . "</p>";
+
+if (count($resultJogos) > 0) {
+    echo "<table border='1' style='border-collapse: collapse;'>";
+    echo "<tr><th>Resultado</th><th>Team1 ID</th><th>Team2 ID</th><th>Gols 1</th><th>Gols 2</th><th>Status</th><th>Phase</th></tr>";
+    foreach ($resultJogos as $resultado) {
+        echo "<tr>";
+        echo "<td><strong>{$resultado['resultado']}</strong></td>";
+        echo "<td>{$resultado['team1_id']}</td>";
+        echo "<td>{$resultado['team2_id']}</td>";
+        echo "<td>{$resultado['team1_goals']}</td>";
+        echo "<td>{$resultado['team2_goals']}</td>";
+        echo "<td>{$resultado['status']}</td>";
+        echo "<td>{$resultado['phase']}</td>";
+        echo "</tr>";
+    }
+    echo "</table>";
+} else {
+    echo "<p style='color: red;'>❌ A consulta não retornou nenhum resultado!</p>";
+}
+
+echo "<hr>";
+
+// 4. Verificar se há dados na tabela antiga jogos_fase_grupos
+echo "<h2>4. Verificar tabela antiga 'jogos_fase_grupos'</h2>";
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) as total,
+           SUM(CASE WHEN resultado_timeA IS NOT NULL THEN 1 ELSE 0 END) as finalizados
+    FROM jogos_fase_grupos jfg
+    LEFT JOIN grupos g ON jfg.grupo_id = g.id
+    WHERE g.tournament_id = ?
+");
+$stmt->execute([$tournament_id]);
+$stats_old = $stmt->fetch(PDO::FETCH_ASSOC);
+
+echo "<table border='1' style='border-collapse: collapse;'>";
+echo "<tr><th>Total de jogos (tabela antiga)</th><td>{$stats_old['total']}</td></tr>";
+echo "<tr><th>Jogos finalizados (tabela antiga)</th><td>{$stats_old['finalizados']}</td></tr>";
+echo "</table>";
+
+if ($stats_old['total'] > 0) {
+    echo "<p style='color: orange;'>⚠️ Há dados na tabela antiga! Pode ser necessário sincronizar.</p>";
+    echo "<p><a href='sync_match_tables.php' style='background: #007bff; color: white; padding: 10px; text-decoration: none; border-radius: 5px;'>🔄 Sincronizar Tabelas</a></p>";
+}
+
+echo "<hr>";
+
+// 5. Verificar valores únicos de phase
+echo "<h2>5. Valores únicos de 'phase' na tabela matches</h2>";
+$stmt = $pdo->prepare("
+    SELECT DISTINCT phase, COUNT(*) as count 
+    FROM matches 
+    WHERE tournament_id = ? 
+    GROUP BY phase
+");
+$stmt->execute([$tournament_id]);
+$phases = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+if (count($phases) > 0) {
+    echo "<table border='1' style='border-collapse: collapse;'>";
+    echo "<tr><th>Phase</th><th>Quantidade</th></tr>";
+    foreach ($phases as $phase) {
+        echo "<tr><td>'" . htmlspecialchars($phase['phase']) . "'</td><td>{$phase['count']}</td></tr>";
+    }
+    echo "</table>";
+} else {
+    echo "<p>Nenhuma fase encontrada.</p>";
+}
+
+echo "<hr>";
+
+// 6. Sugestões de correção
+echo "<h2>6. 💡 Diagnóstico e Soluções</h2>";
+
+if ($stats['total'] == 0) {
+    echo "<div style='background: #ffebee; padding: 15px; border-left: 4px solid #f44336;'>";
+    echo "<h3>❌ Problema: Nenhum jogo na tabela 'matches'</h3>";
+    echo "<p>Não há jogos cadastrados na tabela 'matches' para este torneio.</p>";
+    echo "<p><strong>Soluções:</strong></p>";
+    echo "<ul>";
+    echo "<li>Gerar jogos da fase de grupos</li>";
+    echo "<li>Sincronizar dados da tabela antiga se existirem</li>";
+    echo "</ul>";
+    echo "</div>";
+} elseif ($stats['finalizados'] == 0) {
+    echo "<div style='background: #fff3e0; padding: 15px; border-left: 4px solid #ff9800;'>";
+    echo "<h3>⚠️ Problema: Nenhum jogo finalizado</h3>";
+    echo "<p>Há jogos cadastrados, mas nenhum com status 'finalizado'.</p>";
+    echo "<p><strong>Solução:</strong> Finalizar alguns jogos inserindo resultados.</p>";
+    echo "</div>";
+} elseif (count($resultJogos) == 0 && $stats['finalizados'] > 0) {
+    echo "<div style='background: #fff3e0; padding: 15px; border-left: 4px solid #ff9800;'>";
+    echo "<h3>⚠️ Problema: Jogos finalizados existem, mas consulta não encontra</h3>";
+    echo "<p>Possíveis causas:</p>";
+    echo "<ul>";
+    echo "<li>Valor do campo 'phase' diferente de 'grupos' ou 'Fase de Grupos'</li>";
+    echo "<li>Time não participou de jogos finalizados</li>";
+    echo "</ul>";
+    echo "</div>";
+} else {
+    echo "<div style='background: #e8f5e8; padding: 15px; border-left: 4px solid #4caf50;'>";
+    echo "<h3>✅ Consulta funcionando!</h3>";
+    echo "<p>A consulta retornou " . count($resultJogos) . " resultado(s). O problema pode estar na exibição HTML/CSS.</p>";
+    echo "</div>";
+}
+
+echo "<p><a href='../tabela_de_classificacao.php' style='background: #007bff; color: white; padding: 10px; text-decoration: none; border-radius: 5px;'>📊 Voltar para Classificação</a></p>";
+?>

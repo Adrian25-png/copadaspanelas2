@@ -1,20 +1,29 @@
 <?php
 session_start();
 
+// Verificar se está logado
+if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
+    header('Location: login_simple.php');
+    exit;
+}
+
 try {
     require_once '../../config/conexao.php';
+    require_once '../../includes/PermissionManager.php';
+
     $pdo = conectar();
-    
+    $permissionManager = getPermissionManager($pdo);
+
     // Estatísticas básicas
     $stmt = $pdo->query("SELECT COUNT(*) FROM tournaments");
     $total_tournaments = $stmt->fetchColumn();
-    
+
     $stmt = $pdo->query("SELECT COUNT(*) FROM times");
     $total_teams = $stmt->fetchColumn();
-    
+
     $stmt = $pdo->query("SELECT COUNT(*) FROM matches");
     $total_matches = $stmt->fetchColumn();
-    
+
 } catch (Exception $e) {
     $total_tournaments = $total_teams = $total_matches = 0;
     $error = $e->getMessage();
@@ -330,6 +339,56 @@ try {
             </div>
         <?php endif; ?>
 
+        <?php if (isset($_SESSION['permission_error'])): ?>
+        <div class="permission-error-alert fade-in" style="animation-delay: 0.1s;">
+            <div style="background: rgba(231, 76, 60, 0.2); border: 2px solid #e74c3c; border-radius: 10px; padding: 20px; margin: 20px 0;">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #e74c3c; font-size: 24px; margin-right: 15px;"></i>
+                    <div>
+                        <h3 style="color: #e74c3c; margin: 0;">Acesso Negado</h3>
+                        <p style="margin: 5px 0 0 0; color: #e74c3c;">
+                            <?= htmlspecialchars($_SESSION['permission_error']['message']) ?>
+                        </p>
+                    </div>
+                </div>
+
+                <?php if (isset($_SESSION['permission_error']['required_permission'])): ?>
+                <p style="margin-bottom: 15px; color: #e74c3c;">
+                    <strong>Permissão necessária:</strong>
+                    <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px;">
+                        <?= htmlspecialchars($_SESSION['permission_error']['required_permission']) ?>
+                    </code>
+                </p>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['permission_error']['required_permissions'])): ?>
+                <p style="margin-bottom: 15px; color: #e74c3c;">
+                    <strong>Permissões necessárias (qualquer uma):</strong><br>
+                    <?php foreach ($_SESSION['permission_error']['required_permissions'] as $perm): ?>
+                        <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px; margin: 2px;">
+                            <?= htmlspecialchars($perm) ?>
+                        </code>
+                    <?php endforeach; ?>
+                </p>
+                <?php endif; ?>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="test_permissions.php" style="background: #3498db; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+                        <i class="fas fa-list"></i> Ver Minhas Permissões
+                    </a>
+                    <?php if ($permissionManager->hasPermission('manage_permissions')): ?>
+                    <a href="admin_permissions.php" style="background: #f39c12; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+                        <i class="fas fa-key"></i> Solicitar Permissões
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <?php
+        unset($_SESSION['permission_error']); // Limpar o erro após exibir
+        endif;
+        ?>
+
         <div class="stats-grid">
             <div class="stat-card fade-in" style="animation-delay: 0.1s;">
                 <i class="fas fa-trophy stat-icon"></i>
@@ -349,64 +408,91 @@ try {
         </div>
 
         <div class="actions-grid">
+            <?php if ($permissionManager->hasAnyPermission(['view_tournament', 'create_tournament', 'edit_tournament'])): ?>
             <div class="action-card fade-in" style="animation-delay: 0.4s;">
                 <div class="action-header">
                     <i class="fas fa-trophy"></i>
                     <h3 class="action-title">Torneios</h3>
                 </div>
                 <div class="action-links">
+                    <?php if ($permissionManager->hasPermission('view_tournament')): ?>
                     <a href="tournament_list.php" class="action-link">
                         <i class="fas fa-list"></i>
                         <span>Lista de Torneios</span>
                     </a>
+                    <?php endif; ?>
+
+                    <?php if ($permissionManager->hasPermission('create_tournament')): ?>
                     <a href="create_tournament.php" class="action-link">
                         <i class="fas fa-plus"></i>
                         <span>Criar Torneio</span>
                     </a>
+                    <?php endif; ?>
+
+                    <?php if ($permissionManager->hasPermission('view_tournament')): ?>
                     <a href="tournament_templates.php" class="action-link">
                         <i class="fas fa-file-alt"></i>
                         <span>Templates</span>
                     </a>
+                    <?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
 
+            <?php if ($permissionManager->hasAnyPermission(['view_team', 'create_team', 'edit_team'])): ?>
             <div class="action-card fade-in" style="animation-delay: 0.5s;">
                 <div class="action-header">
                     <i class="fas fa-users"></i>
                     <h3 class="action-title">Times</h3>
                 </div>
                 <div class="action-links">
+                    <?php if ($permissionManager->hasPermission('view_team')): ?>
                     <a href="all_teams.php" class="action-link">
                         <i class="fas fa-users"></i>
                         <span>Todos os Times</span>
                     </a>
+                    <?php endif; ?>
+
+                    <?php if ($permissionManager->hasAnyPermission(['create_team', 'edit_team'])): ?>
                     <a href="select_tournament_for_team_management.php" class="action-link">
                         <i class="fas fa-cog"></i>
                         <span>Gerenciar Times</span>
                     </a>
+                    <?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
 
+            <?php if ($permissionManager->hasAnyPermission(['view_match', 'create_match', 'edit_match', 'edit_results'])): ?>
             <div class="action-card fade-in" style="animation-delay: 0.6s;">
                 <div class="action-header">
                     <i class="fas fa-futbol"></i>
                     <h3 class="action-title">Jogos</h3>
                 </div>
                 <div class="action-links">
+                    <?php if ($permissionManager->hasPermission('view_match')): ?>
                     <a href="global_calendar.php" class="action-link">
                         <i class="fas fa-calendar"></i>
                         <span>Calendário</span>
                     </a>
+                    <?php endif; ?>
+
+                    <?php if ($permissionManager->hasPermission('edit_results')): ?>
                     <a href="bulk_results.php" class="action-link">
                         <i class="fas fa-edit"></i>
                         <span>Resultados</span>
                     </a>
+                    <?php endif; ?>
+
+                    <?php if ($permissionManager->hasPermission('view_match')): ?>
                     <a href="match_reports.php" class="action-link">
                         <i class="fas fa-file-alt"></i>
                         <span>Relatórios</span>
                     </a>
+                    <?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
 
             <div class="action-card fade-in" style="animation-delay: 0.7s;">
                 <div class="action-header">
@@ -425,49 +511,121 @@ try {
                 </div>
             </div>
 
+            <?php if ($permissionManager->hasAnyPermission(['view_admin', 'create_admin', 'edit_admin', 'manage_permissions'])): ?>
             <div class="action-card fade-in" style="animation-delay: 0.8s;">
                 <div class="action-header">
                     <i class="fas fa-user-shield"></i>
                     <h3 class="action-title">Administradores</h3>
                 </div>
                 <div class="action-links">
+                    <?php if ($permissionManager->hasAnyPermission(['view_admin', 'edit_admin'])): ?>
                     <a href="admin_manager.php" class="action-link">
                         <i class="fas fa-users-cog"></i>
                         <span>Gerenciar Admins</span>
                     </a>
+                    <?php endif; ?>
+
+                    <?php if ($permissionManager->hasPermission('create_admin')): ?>
                     <a href="create_admin.php" class="action-link">
                         <i class="fas fa-user-plus"></i>
                         <span>Cadastrar Admin</span>
                     </a>
+                    <?php endif; ?>
+
+                    <?php if ($permissionManager->hasPermission('manage_permissions')): ?>
                     <a href="admin_permissions.php" class="action-link">
                         <i class="fas fa-key"></i>
                         <span>Permissões</span>
                     </a>
+                    <?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
 
+            <?php if ($permissionManager->hasAnyPermission(['view_statistics', 'system_settings', 'backup_restore', 'view_logs'])): ?>
             <div class="action-card fade-in" style="animation-delay: 0.9s;">
                 <div class="action-header">
                     <i class="fas fa-chart-line"></i>
                     <h3 class="action-title">Sistema</h3>
                 </div>
                 <div class="action-links">
+                    <?php if ($permissionManager->hasPermission('view_statistics')): ?>
                     <a href="statistics.php" class="action-link">
                         <i class="fas fa-chart-bar"></i>
                         <span>Estatísticas</span>
                     </a>
+                    <?php endif; ?>
+
+                    <?php if ($permissionManager->hasAnyPermission(['system_settings', 'view_logs'])): ?>
                     <a href="system_health.php" class="action-link">
                         <i class="fas fa-heartbeat"></i>
                         <span>Status do Sistema</span>
                     </a>
+                    <?php endif; ?>
+
+                    <?php if ($permissionManager->hasPermission('view_logs')): ?>
+                    <a href="system_logs.php" class="action-link">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Logs do Sistema</span>
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+
+        <?php
+        // Verificar se o usuário tem poucas permissões
+        $total_permissions = [
+            'create_tournament', 'edit_tournament', 'delete_tournament', 'view_tournament',
+            'create_team', 'edit_team', 'delete_team', 'view_team',
+            'create_match', 'edit_match', 'delete_match', 'view_match', 'edit_results',
+            'create_admin', 'edit_admin', 'delete_admin', 'view_admin', 'manage_permissions',
+            'view_statistics', 'system_settings', 'backup_restore', 'view_logs'
+        ];
+
+        $user_permissions = $permissionManager->getUserPermissions();
+        $permission_count = count($user_permissions);
+        $total_count = count($total_permissions);
+        $is_super_admin = $permissionManager->isSuperAdmin();
+
+        if (!$is_super_admin && $permission_count < $total_count):
+        ?>
+        <div class="permission-info fade-in" style="animation-delay: 1.1s;">
+            <div style="background: rgba(255, 193, 7, 0.2); border: 2px solid #ffc107; border-radius: 10px; padding: 20px; margin: 20px 0; text-align: center;">
+                <i class="fas fa-info-circle" style="color: #ffc107; font-size: 24px; margin-bottom: 10px;"></i>
+                <h3 style="color: #ffc107; margin-bottom: 10px;">Acesso Limitado</h3>
+                <p style="margin-bottom: 15px;">
+                    Você tem acesso a <strong><?= $permission_count ?></strong> de <strong><?= $total_count ?></strong> funcionalidades disponíveis.
+                    <br>Apenas as seções permitidas são exibidas acima.
+                </p>
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                    <a href="test_permissions.php" style="background: #ffc107; color: #000; padding: 8px 16px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+                        <i class="fas fa-list"></i> Ver Minhas Permissões
+                    </a>
+                    <?php if ($permissionManager->hasPermission('manage_permissions')): ?>
+                    <a href="admin_permissions.php" style="background: #28a745; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+                        <i class="fas fa-key"></i> Gerenciar Permissões
+                    </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
+        <?php endif; ?>
 
         <div class="footer-info fade-in" style="animation-delay: 1s;">
             <p>
                 <i class="fas fa-trophy" style="color: #7B1FA2; margin-right: 8px;"></i>
                 Sistema Copa das Panelas - Painel Administrativo
+                <?php if ($is_super_admin): ?>
+                    <span style="color: #27ae60; margin-left: 10px;">
+                        <i class="fas fa-shield-alt"></i> Super Admin
+                    </span>
+                <?php else: ?>
+                    <span style="color: #ffc107; margin-left: 10px;">
+                        <i class="fas fa-user"></i> <?= htmlspecialchars($_SESSION['admin_username']) ?>
+                    </span>
+                <?php endif; ?>
             </p>
         </div>
     </div>

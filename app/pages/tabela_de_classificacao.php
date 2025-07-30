@@ -62,7 +62,9 @@
     <div class="wrapper-container">
         <h1 class="fade-in">FASE DE GRUPOS</h1>
         <div id="tabela-wrapper" class="fade-in">
-            <h4 class="fade-in">Tabela de Classificação</h4>
+            <div style="margin-bottom: 20px;">
+                <h4 class="fade-in">Tabela de Classificação</h4>
+            </div>
             <?php mostrarGrupos(); ?>
             <?php
                 function mostrarGrupos() {
@@ -113,21 +115,29 @@
                             echo '</div>';
 
                             $sqlTimes = "SELECT t.id, t.nome, t.logo,
-                                            COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND t.id = j.timeA_id THEN j.gols_marcados_timeA
-                                                             WHEN j.resultado_timeB IS NOT NULL AND t.id = j.timeB_id THEN j.gols_marcados_timeB
+                                            COALESCE(SUM(CASE WHEN m.status = 'finalizado' AND t.id = m.team1_id THEN m.team1_goals
+                                                             WHEN m.status = 'finalizado' AND t.id = m.team2_id THEN m.team2_goals
                                                              ELSE 0 END),0) AS gm,
-                                            COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND t.id = j.timeA_id THEN j.gols_marcados_timeB
-                                                             WHEN j.resultado_timeB IS NOT NULL AND t.id = j.timeB_id THEN j.gols_marcados_timeA
+                                            COALESCE(SUM(CASE WHEN m.status = 'finalizado' AND t.id = m.team1_id THEN m.team2_goals
+                                                             WHEN m.status = 'finalizado' AND t.id = m.team2_id THEN m.team1_goals
                                                              ELSE 0 END),0) AS gc,
-                                            COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND ((t.id = j.timeA_id AND j.gols_marcados_timeA > j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB > j.gols_marcados_timeA)) THEN 1 ELSE 0 END),0) AS vitorias,
-                                            COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND j.gols_marcados_timeA = j.gols_marcados_timeB THEN 1 ELSE 0 END),0) AS empates,
-                                            COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND ((t.id = j.timeA_id AND j.gols_marcados_timeA < j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB < j.gols_marcados_timeA)) THEN 1 ELSE 0 END),0) AS derrotas,
-                                            COUNT(CASE WHEN j.resultado_timeA IS NOT NULL THEN j.id END) AS partidas
+                                            COALESCE(SUM(CASE WHEN m.status = 'finalizado' AND ((t.id = m.team1_id AND m.team1_goals > m.team2_goals) OR (t.id = m.team2_id AND m.team2_goals > m.team1_goals)) THEN 1 ELSE 0 END),0) AS vitorias,
+                                            COALESCE(SUM(CASE WHEN m.status = 'finalizado' AND m.team1_goals = m.team2_goals THEN 1 ELSE 0 END),0) AS empates,
+                                            COALESCE(SUM(CASE WHEN m.status = 'finalizado' AND ((t.id = m.team1_id AND m.team1_goals < m.team2_goals) OR (t.id = m.team2_id AND m.team2_goals < m.team1_goals)) THEN 1 ELSE 0 END),0) AS derrotas,
+                                            COUNT(CASE WHEN m.status = 'finalizado' THEN m.id END) AS partidas,
+                                            (COALESCE(SUM(CASE WHEN m.status = 'finalizado' AND ((t.id = m.team1_id AND m.team1_goals > m.team2_goals) OR (t.id = m.team2_id AND m.team2_goals > m.team1_goals)) THEN 1 ELSE 0 END),0) * 3 +
+                                             COALESCE(SUM(CASE WHEN m.status = 'finalizado' AND m.team1_goals = m.team2_goals THEN 1 ELSE 0 END),0)) AS pontos,
+                                            (COALESCE(SUM(CASE WHEN m.status = 'finalizado' AND t.id = m.team1_id THEN m.team1_goals
+                                                             WHEN m.status = 'finalizado' AND t.id = m.team2_id THEN m.team2_goals
+                                                             ELSE 0 END),0) -
+                                             COALESCE(SUM(CASE WHEN m.status = 'finalizado' AND t.id = m.team1_id THEN m.team2_goals
+                                                             WHEN m.status = 'finalizado' AND t.id = m.team2_id THEN m.team1_goals
+                                                             ELSE 0 END),0)) AS saldo_gols
                                         FROM times t
-                                        LEFT JOIN jogos_fase_grupos j ON (t.id = j.timeA_id OR t.id = j.timeB_id) AND t.grupo_id = j.grupo_id
+                                        LEFT JOIN matches m ON (t.id = m.team1_id OR t.id = m.team2_id) AND t.grupo_id = m.group_id AND m.phase = 'grupos'
                                         WHERE t.grupo_id = :grupoId AND t.tournament_id = :tournament_id
-                                        GROUP BY t.id
-                                        ORDER BY (vitorias*3 + empates) DESC, (gm - gc) DESC, gm DESC";
+                                        GROUP BY t.id, t.nome, t.logo
+                                        ORDER BY pontos DESC, saldo_gols DESC, gm DESC, t.nome ASC";
 
                             $stmtTimes = $pdo->prepare($sqlTimes);
                             $stmtTimes->execute(['grupoId' => $grupoId, 'tournament_id' => $tournament_id]);
@@ -189,47 +199,73 @@
                 }
 
                 function gerarUltimosJogos($pdo, $timeId) {
-                    $sqlJogos = "SELECT CASE
-                                        WHEN timeA_id = :timeId THEN resultado_timeA
-                                        WHEN timeB_id = :timeId THEN resultado_timeB
-                                        ELSE 'G'
-                                    END AS resultado
-                                FROM jogos_fase_grupos
-                                WHERE (timeA_id = :timeId OR timeB_id = :timeId)
-                                AND resultado_timeA IS NOT NULL
-                                ORDER BY data_jogo DESC
-                                LIMIT 5";
+                    // Nova função do zero - mais simples e direta
+                    $sql = "SELECT team1_id, team2_id, team1_goals, team2_goals, match_date
+                            FROM matches
+                            WHERE (team1_id = ? OR team2_id = ?)
+                            AND status = 'finalizado'
+                            AND phase = 'grupos'
+                            ORDER BY match_date DESC
+                            LIMIT 5";
 
-                    $stmtJogos = $pdo->prepare($sqlJogos);
-                    $stmtJogos->execute(['timeId' => $timeId]);
-                    $resultJogos = $stmtJogos->fetchAll(PDO::FETCH_ASSOC);
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([$timeId, $timeId]);
+                    $jogos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    $ultimosJogos = [];
+                    $resultados = [];
 
-                    if ($resultJogos) {
-                        foreach ($resultJogos as $rowJogos) {
-                            $ultimosJogos[] = $rowJogos['resultado'];
-                        }
-                    }
+                    foreach ($jogos as $jogo) {
+                        $team1_id = $jogo['team1_id'];
+                        $team2_id = $jogo['team2_id'];
+                        $gols1 = $jogo['team1_goals'];
+                        $gols2 = $jogo['team2_goals'];
 
-                    while (count($ultimosJogos) < 5) {
-                        $ultimosJogos[] = 'G';
-                    }
-
-                    $output = '';
-                    foreach ($ultimosJogos as $resultado) {
-                        if ($resultado == 'V') {
-                            $output .= '<div class="inf fade-in"></div>';
-                        } elseif ($resultado == 'D') {
-                            $output .= '<div class="inf2 fade-in"></div>';
-                        } elseif ($resultado == 'E') {
-                            $output .= '<div class="inf3 fade-in"></div>';
+                        if ($team1_id == $timeId) {
+                            // Time jogou como team1
+                            if ($gols1 > $gols2) {
+                                $resultados[] = 'V'; // Vitória
+                            } elseif ($gols1 < $gols2) {
+                                $resultados[] = 'D'; // Derrota
+                            } else {
+                                $resultados[] = 'E'; // Empate
+                            }
                         } else {
-                            $output .= '<div class="inf4 fade-in"></div>';
+                            // Time jogou como team2
+                            if ($gols2 > $gols1) {
+                                $resultados[] = 'V'; // Vitória
+                            } elseif ($gols2 < $gols1) {
+                                $resultados[] = 'D'; // Derrota
+                            } else {
+                                $resultados[] = 'E'; // Empate
+                            }
                         }
                     }
 
-                    return $output;
+                    // Completar com 'G' até ter 5 resultados
+                    while (count($resultados) < 5) {
+                        $resultados[] = 'G';
+                    }
+
+                    // Gerar HTML com círculos perfeitos (tamanho reduzido)
+                    $html = '';
+                    foreach ($resultados as $resultado) {
+                        switch ($resultado) {
+                            case 'V':
+                                $html .= '<div style="background-color: #28a745; display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin: 2px; border: 1px solid #1e7e34; flex-shrink: 0; min-width: 12px; min-height: 12px; box-sizing: border-box;" title="Vitória"></div>';
+                                break;
+                            case 'D':
+                                $html .= '<div style="background-color: #dc3545; display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin: 2px; border: 1px solid #bd2130; flex-shrink: 0; min-width: 12px; min-height: 12px; box-sizing: border-box;" title="Derrota"></div>';
+                                break;
+                            case 'E':
+                                $html .= '<div style="background-color: #6c757d; display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin: 2px; border: 1px solid #545b62; flex-shrink: 0; min-width: 12px; min-height: 12px; box-sizing: border-box;" title="Empate"></div>';
+                                break;
+                            default:
+                                $html .= '<div style="background-color: #f8f9fa; display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin: 2px; border: 1px solid #dee2e6; flex-shrink: 0; min-width: 12px; min-height: 12px; box-sizing: border-box;" title="Sem jogo"></div>';
+                                break;
+                        }
+                    }
+
+                    return $html;
                 }
             ?>
 
@@ -244,11 +280,24 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        document.querySelectorAll('.fade-in').forEach(function(el, i) {
-            setTimeout(() => el.classList.add('visible'), i * 20);
-        });
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Animações fade-in
+    document.querySelectorAll('.fade-in').forEach(function(el, i) {
+        setTimeout(() => el.classList.add('visible'), i * 20);
     });
+
+    // Verificar automaticamente se deve criar eliminatórias (silencioso)
+    fetch('../actions/funcoes/auto_classificacao.php?ajax=1')
+        .then(response => response.json())
+        .then(data => {
+            // Execução silenciosa - sem notificação
+        })
+        .catch(error => {
+            console.log('Verificação automática silenciosa falhou:', error);
+        });
+});
 </script>
 
 <?php include 'footer.php'; ?>
