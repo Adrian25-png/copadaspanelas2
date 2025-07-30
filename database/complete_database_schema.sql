@@ -1,832 +1,1530 @@
--- Copa das Panelas - Banco de Dados Completo
--- Versão 2.0 com Sistema de Versionamento de Torneios
-
-DROP DATABASE IF EXISTS copa;
-CREATE DATABASE copa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE copa;
-
--- ============================================================================
--- SISTEMA DE VERSIONAMENTO DE TORNEIOS (NOVO)
--- ============================================================================
-
--- Tabela principal de torneios
-CREATE TABLE tournaments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    year INT NOT NULL,
-    description TEXT,
-    status ENUM('setup', 'active', 'completed', 'archived') DEFAULT 'setup',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    completed_at TIMESTAMP NULL,
-    created_by INT NULL,
-    INDEX idx_status (status),
-    INDEX idx_year (year)
-);
-
--- Configurações específicas de cada torneio
-CREATE TABLE tournament_settings (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    tournament_id INT NOT NULL,
-    num_groups INT NOT NULL DEFAULT 1,
-    teams_per_group INT NOT NULL DEFAULT 4,
-    final_phase ENUM('oitavas', 'quartas', 'semifinais', 'final') DEFAULT 'final',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
-);
-
--- Backup de torneios para histórico
-CREATE TABLE tournaments_backup (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    original_tournament_id INT NOT NULL,
-    backup_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    tournament_data JSON NOT NULL,
-    backup_reason VARCHAR(255),
-    INDEX idx_original_tournament (original_tournament_id),
-    INDEX idx_backup_date (backup_date)
-);
-
--- Log de atividades dos torneios
-CREATE TABLE tournament_activity_log (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    tournament_id INT NOT NULL,
-    action VARCHAR(100) NOT NULL,
-    description TEXT,
-    user_id INT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    metadata JSON NULL,
-    FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
-    INDEX idx_tournament_activity (tournament_id, created_at)
-);
-
--- ============================================================================
--- ADMINISTRAÇÃO
--- ============================================================================
-
--- Tabela de administradores
-CREATE TABLE admin (
-    cod_adm VARCHAR(200) NOT NULL PRIMARY KEY,
-    nome VARCHAR(60) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    senha VARCHAR(255) NOT NULL
-);
-
--- ============================================================================
--- ESTRUTURA PRINCIPAL DO TORNEIO
--- ============================================================================
-
--- Tabela de grupos (agora com tournament_id)
-CREATE TABLE grupos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    tournament_id INT NOT NULL,
-    FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
-    INDEX idx_tournament_id (tournament_id)
-);
-
--- Tabela de times (agora com tournament_id)
-CREATE TABLE times (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    logo BLOB,
-    grupo_id INT NOT NULL,
-    tournament_id INT NOT NULL,
-    token VARCHAR(64) UNIQUE,
-    pts INT DEFAULT 0,
-    vitorias INT DEFAULT 0,
-    empates INT DEFAULT 0,
-    derrotas INT DEFAULT 0,
-    gm INT DEFAULT 0,
-    gc INT DEFAULT 0,
-    sg INT DEFAULT 0,
-    FOREIGN KEY (grupo_id) REFERENCES grupos(id) ON DELETE CASCADE,
-    FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
-    INDEX idx_tournament_id (tournament_id),
-    INDEX idx_grupo_id (grupo_id)
-);
-
--- ============================================================================
--- JOGADORES
--- ============================================================================
-
--- Tabela de jogadores
-CREATE TABLE jogadores (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    gols INT DEFAULT 0,
-    posicao VARCHAR(255),
-    numero INT,
-    assistencias INT DEFAULT 0,
-    cartoes_amarelos INT DEFAULT 0,
-    cartoes_vermelhos INT DEFAULT 0,
-    token VARCHAR(64) UNIQUE,
-    imagem LONGBLOB,
-    time_id INT NOT NULL,
-    FOREIGN KEY (time_id) REFERENCES times(id) ON DELETE CASCADE
-);
-
--- Tabela para ranking de estatísticas dos jogadores
-CREATE TABLE posicoes_jogadores (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    jogador_id INT NOT NULL,
-    categoria ENUM('gols', 'assistencias', 'cartoes_amarelos', 'cartoes_vermelhos') NOT NULL,
-    posicao INT DEFAULT 0,
-    FOREIGN KEY (jogador_id) REFERENCES jogadores(id) ON DELETE CASCADE
-);
-
--- ============================================================================
--- JOGOS E CONFRONTOS
--- ============================================================================
-
--- Jogos da fase de grupos
-CREATE TABLE jogos_fase_grupos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    grupo_id INT NOT NULL,
-    timeA_id INT NOT NULL,
-    timeB_id INT NOT NULL,
-    nome_timeA VARCHAR(100) NOT NULL,
-    nome_timeB VARCHAR(100) NOT NULL,
-    gols_marcados_timeA INT DEFAULT 0,
-    gols_marcados_timeB INT DEFAULT 0,
-    resultado_timeA CHAR(1),
-    resultado_timeB CHAR(1),
-    data_jogo DATETIME NOT NULL,
-    rodada INT NOT NULL,
-    FOREIGN KEY (grupo_id) REFERENCES grupos(id) ON DELETE CASCADE,
-    FOREIGN KEY (timeA_id) REFERENCES times(id) ON DELETE CASCADE,
-    FOREIGN KEY (timeB_id) REFERENCES times(id) ON DELETE CASCADE,
-    INDEX idx_grupo_rodada (grupo_id, rodada)
-);
-
--- Jogos das fases finais
-CREATE TABLE jogos_finais (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    timeA_id INT NOT NULL,
-    timeB_id INT NOT NULL,
-    nome_timeA VARCHAR(100) NOT NULL,
-    nome_timeB VARCHAR(100) NOT NULL,
-    gols_marcados_timeA INT NOT NULL,
-    gols_marcados_timeB INT NOT NULL,
-    resultado_timeA CHAR(1),
-    resultado_timeB CHAR(1),
-    data_jogo DATETIME NOT NULL,
-    fase VARCHAR(50) NOT NULL,
-    FOREIGN KEY (timeA_id) REFERENCES times(id) ON DELETE CASCADE,
-    FOREIGN KEY (timeB_id) REFERENCES times(id) ON DELETE CASCADE
-);
-
--- ============================================================================
--- CLASSIFICAÇÃO PARA FASES FINAIS
--- ============================================================================
-
--- Times classificados para oitavas
-CREATE TABLE oitavas_de_final (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    time_id INT NOT NULL,
-    grupo_nome VARCHAR(50),
-    time_nome VARCHAR(100),
-    FOREIGN KEY (time_id) REFERENCES times(id) ON DELETE CASCADE
-);
-
--- Times classificados para quartas
-CREATE TABLE quartas_de_final (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    time_id INT NOT NULL,
-    grupo_nome VARCHAR(50),
-    time_nome VARCHAR(100),
-    FOREIGN KEY (time_id) REFERENCES times(id) ON DELETE CASCADE
-);
-
--- Times classificados para semifinais
-CREATE TABLE semifinais (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    time_id INT NOT NULL,
-    grupo_nome VARCHAR(50),
-    time_nome VARCHAR(100),
-    FOREIGN KEY (time_id) REFERENCES times(id) ON DELETE CASCADE
-);
-
--- Times classificados para final
-CREATE TABLE final (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    time_id INT NOT NULL,
-    grupo_nome VARCHAR(50),
-    time_nome VARCHAR(100),
-    FOREIGN KEY (time_id) REFERENCES times(id) ON DELETE CASCADE
-);
-
--- ============================================================================
--- CONFRONTOS DAS FASES FINAIS
--- ============================================================================
-
--- Confrontos das oitavas
-CREATE TABLE oitavas_de_final_confrontos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    timeA_id INT NOT NULL,
-    timeB_id INT NOT NULL,
-    fase ENUM('oitavas') NOT NULL,
-    gols_marcados_timeA INT DEFAULT NULL,
-    gols_marcados_timeB INT DEFAULT NULL,
-    gols_contra_timeA INT DEFAULT NULL,
-    gols_contra_timeB INT DEFAULT NULL
-);
-
--- Confrontos das quartas
-CREATE TABLE quartas_de_final_confrontos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    timeA_id INT NOT NULL,
-    timeB_id INT NOT NULL,
-    fase ENUM('quartas') NOT NULL,
-    gols_marcados_timeA INT DEFAULT NULL,
-    gols_marcados_timeB INT DEFAULT NULL,
-    gols_contra_timeA INT DEFAULT NULL,
-    gols_contra_timeB INT DEFAULT NULL
-);
-
--- Confrontos das semifinais
-CREATE TABLE semifinais_confrontos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    timeA_id INT NOT NULL,
-    timeB_id INT NOT NULL,
-    fase ENUM('semifinais') NOT NULL,
-    gols_marcados_timeA INT DEFAULT NULL,
-    gols_marcados_timeB INT DEFAULT NULL,
-    gols_contra_timeA INT DEFAULT NULL,
-    gols_contra_timeB INT DEFAULT NULL
-);
-
--- Confrontos da final
-CREATE TABLE final_confrontos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    timeA_id INT NOT NULL,
-    timeB_id INT NOT NULL,
-    fase ENUM('final') NOT NULL,
-    gols_marcados_timeA INT DEFAULT NULL,
-    gols_marcados_timeB INT DEFAULT NULL,
-    gols_contra_timeA INT DEFAULT NULL,
-    gols_contra_timeB INT DEFAULT NULL
-);
-
--- ============================================================================
--- CONFIGURAÇÕES E CONTROLE
--- ============================================================================
-
--- Configurações gerais (mantida para compatibilidade)
-CREATE TABLE configuracoes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    equipes_por_grupo INT NOT NULL,
-    numero_grupos INT NOT NULL,
-    fase_final ENUM('oitavas', 'quartas', 'semifinais', 'final') NOT NULL
-);
-
--- Controle de execução de fases
-CREATE TABLE fase_execucao (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    fase VARCHAR(50) NOT NULL,
-    executado BOOLEAN NOT NULL DEFAULT FALSE
-);
-
--- ============================================================================
--- MÍDIA E CONTEÚDO
--- ============================================================================
-
--- Notícias
-CREATE TABLE noticias (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    titulo VARCHAR(255) NOT NULL,
-    descricao TEXT NOT NULL,
-    imagem LONGBLOB NOT NULL,
-    link VARCHAR(255) NOT NULL,
-    data_adicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Links para transmissões
-CREATE TABLE linklive (
-    codlive VARCHAR(255) PRIMARY KEY
-);
-
--- Links do Instagram
-CREATE TABLE linkinstagram (
-    codinsta INT AUTO_INCREMENT PRIMARY KEY, 
-    linklive VARCHAR(255)
-);
-
--- Tabela de jogos (mantida para compatibilidade)
-CREATE TABLE jogos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    time_id INT NOT NULL,
-    resultado CHAR(1),
-    data_jogo DATE,
-    FOREIGN KEY (time_id) REFERENCES times(id) ON DELETE CASCADE
-);
-
--- ============================================================================
--- TABELAS DE HISTÓRICO (Para preservar dados de torneios anteriores)
--- ============================================================================
-
--- Histórico de grupos
-CREATE TABLE grupos_historico (
-    historico_id INT AUTO_INCREMENT PRIMARY KEY,
-    id INT NOT NULL,
-    nome VARCHAR(255) NOT NULL,
-    tournament_id INT,
-    backup_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Histórico de times
-CREATE TABLE times_historico (
-    historico_id INT AUTO_INCREMENT PRIMARY KEY,
-    id INT NOT NULL,
-    nome VARCHAR(100) NOT NULL,
-    logo BLOB,
-    grupo_id INT NOT NULL,
-    tournament_id INT,
-    token VARCHAR(64),
-    pts INT DEFAULT 0,
-    vitorias INT DEFAULT 0,
-    empates INT DEFAULT 0,
-    derrotas INT DEFAULT 0,
-    gm INT DEFAULT 0,
-    gc INT DEFAULT 0,
-    sg INT DEFAULT 0,
-    backup_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Histórico de jogos
-CREATE TABLE jogos_historico (
-    historico_id INT AUTO_INCREMENT PRIMARY KEY,
-    id INT NOT NULL,
-    time_id INT NOT NULL,
-    resultado CHAR(1),
-    data_jogo DATE,
-    backup_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Histórico de jogos finais
-CREATE TABLE jogos_finais_historico (
-    historico_id INT AUTO_INCREMENT PRIMARY KEY,
-    id INT NOT NULL,
-    timeA_id INT NOT NULL,
-    timeB_id INT NOT NULL,
-    nome_timeA VARCHAR(100) NOT NULL,
-    nome_timeB VARCHAR(100) NOT NULL,
-    gols_marcados_timeA INT NOT NULL,
-    gols_marcados_timeB INT NOT NULL,
-    resultado_timeA CHAR(1),
-    resultado_timeB CHAR(1),
-    data_jogo DATETIME NOT NULL,
-    fase VARCHAR(50) NOT NULL,
-    backup_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Histórico de jogadores
-CREATE TABLE jogadores_historico (
-    historico_id INT AUTO_INCREMENT PRIMARY KEY,
-    id INT NOT NULL,
-    nome VARCHAR(255) NOT NULL,
-    gols INT DEFAULT 0,
-    posicao VARCHAR(255),
-    numero INT,
-    assistencias INT DEFAULT 0,
-    cartoes_amarelos INT DEFAULT 0,
-    cartoes_vermelhos INT DEFAULT 0,
-    token VARCHAR(64),
-    imagem LONGBLOB,
-    time_id INT NOT NULL,
-    backup_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Histórico de posições de jogadores
-CREATE TABLE posicoes_jogadores_historico (
-    historico_id INT AUTO_INCREMENT PRIMARY KEY,
-    id INT NOT NULL,
-    jogador_id INT NOT NULL,
-    categoria ENUM('gols', 'assistencias', 'cartoes_amarelos', 'cartoes_vermelhos') NOT NULL,
-    posicao INT DEFAULT 0,
-    backup_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Histórico de jogos fase grupos
-CREATE TABLE jogos_fase_grupos_historico (
-    historico_id INT AUTO_INCREMENT PRIMARY KEY,
-    id INT NOT NULL,
-    grupo_id INT NOT NULL,
-    timeA_id INT NOT NULL,
-    timeB_id INT NOT NULL,
-    nome_timeA VARCHAR(100) NOT NULL,
-    nome_timeB VARCHAR(100) NOT NULL,
-    gols_marcados_timeA INT DEFAULT 0,
-    gols_marcados_timeB INT DEFAULT 0,
-    resultado_timeA CHAR(1),
-    resultado_timeB CHAR(1),
-    data_jogo DATETIME NOT NULL,
-    rodada INT NOT NULL,
-    backup_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- ============================================================================
--- VIEWS ÚTEIS
--- ============================================================================
-
--- View para torneio ativo atual
-CREATE OR REPLACE VIEW current_tournament AS
-SELECT t.*, ts.num_groups, ts.teams_per_group, ts.final_phase
-FROM tournaments t
-LEFT JOIN tournament_settings ts ON t.id = ts.tournament_id
-WHERE t.status = 'active'
-ORDER BY t.created_at DESC
-LIMIT 1;
-
--- View para estatísticas de times por torneio
-CREATE OR REPLACE VIEW tournament_team_stats AS
-SELECT
-    t.tournament_id,
-    t.id as team_id,
-    t.nome as team_name,
-    t.grupo_id,
-    g.nome as group_name,
-    COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND t.id = j.timeA_id THEN j.gols_marcados_timeA
-                     WHEN j.resultado_timeB IS NOT NULL AND t.id = j.timeB_id THEN j.gols_marcados_timeB
-                     ELSE 0 END),0) AS gm,
-    COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND t.id = j.timeA_id THEN j.gols_marcados_timeB
-                     WHEN j.resultado_timeB IS NOT NULL AND t.id = j.timeB_id THEN j.gols_marcados_timeA
-                     ELSE 0 END),0) AS gc,
-    COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND ((t.id = j.timeA_id AND j.gols_marcados_timeA > j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB > j.gols_marcados_timeA)) THEN 1 ELSE 0 END),0) AS vitorias,
-    COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND j.gols_marcados_timeA = j.gols_marcados_timeB THEN 1 ELSE 0 END),0) AS empates,
-    COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND ((t.id = j.timeA_id AND j.gols_marcados_timeA < j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB < j.gols_marcados_timeA)) THEN 1 ELSE 0 END),0) AS derrotas,
-    (COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND ((t.id = j.timeA_id AND j.gols_marcados_timeA > j.gols_marcados_timeB) OR (t.id = j.timeB_id AND j.gols_marcados_timeB > j.gols_marcados_timeA)) THEN 1 ELSE 0 END),0) * 3 +
-     COALESCE(SUM(CASE WHEN j.resultado_timeA IS NOT NULL AND j.gols_marcados_timeA = j.gols_marcados_timeB THEN 1 ELSE 0 END),0)) AS pts,
-    COUNT(CASE WHEN j.resultado_timeA IS NOT NULL THEN j.id END) AS partidas
-FROM times t
-INNER JOIN grupos g ON t.grupo_id = g.id
-LEFT JOIN jogos_fase_grupos j ON (t.id = j.timeA_id OR t.id = j.timeB_id) AND t.grupo_id = j.grupo_id
-GROUP BY t.id, t.tournament_id, t.nome, t.grupo_id, g.nome;
-
--- ============================================================================
--- PROCEDIMENTOS ARMAZENADOS
--- ============================================================================
-
-DELIMITER //
-
--- Procedimento para criar novo torneio com backup automático
-CREATE PROCEDURE CreateNewTournament(
-    IN p_name VARCHAR(100),
-    IN p_year INT,
-    IN p_description TEXT,
-    IN p_num_groups INT,
-    IN p_teams_per_group INT,
-    IN p_final_phase VARCHAR(20),
-    OUT p_tournament_id INT
-)
-BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        RESIGNAL;
-    END;
-
-    START TRANSACTION;
-
-    -- Fazer backup do torneio ativo atual se existir
-    CALL BackupActiveTournament('Before creating new tournament');
-
-    -- Arquivar torneio ativo atual
-    UPDATE tournaments SET status = 'archived' WHERE status = 'active';
-
-    -- Criar novo torneio
-    INSERT INTO tournaments (name, year, description, status)
-    VALUES (p_name, p_year, p_description, 'setup');
-
-    SET p_tournament_id = LAST_INSERT_ID();
-
-    -- Criar configurações do torneio
-    INSERT INTO tournament_settings (tournament_id, num_groups, teams_per_group, final_phase)
-    VALUES (p_tournament_id, p_num_groups, p_teams_per_group, p_final_phase);
-
-    -- Log da atividade
-    INSERT INTO tournament_activity_log (tournament_id, action, description)
-    VALUES (p_tournament_id, 'CREATED', CONCAT('New tournament created: ', p_name));
-
-    COMMIT;
-END //
-
--- Procedimento para backup de torneio ativo
-CREATE PROCEDURE BackupActiveTournament(
-    IN p_reason VARCHAR(255)
-)
-BEGIN
-    DECLARE v_tournament_id INT;
-    DECLARE tournament_json JSON;
-
-    -- Buscar torneio ativo
-    SELECT id INTO v_tournament_id FROM tournaments WHERE status = 'active' LIMIT 1;
-
-    IF v_tournament_id IS NOT NULL THEN
-        -- Criar backup JSON completo
-        SELECT JSON_OBJECT(
-            'tournament', (SELECT JSON_OBJECT('id', id, 'name', name, 'year', year, 'description', description, 'status', status, 'created_at', created_at) FROM tournaments WHERE id = v_tournament_id),
-            'groups', (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', id, 'nome', nome)) FROM grupos WHERE tournament_id = v_tournament_id),
-            'teams', (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', id, 'nome', nome, 'grupo_id', grupo_id, 'pts', pts, 'vitorias', vitorias, 'empates', empates, 'derrotas', derrotas)) FROM times WHERE tournament_id = v_tournament_id),
-            'matches', (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', id, 'grupo_id', grupo_id, 'timeA_id', timeA_id, 'timeB_id', timeB_id, 'gols_marcados_timeA', gols_marcados_timeA, 'gols_marcados_timeB', gols_marcados_timeB)) FROM jogos_fase_grupos WHERE grupo_id IN (SELECT id FROM grupos WHERE tournament_id = v_tournament_id))
-        ) INTO tournament_json;
-
-        -- Inserir backup
-        INSERT INTO tournaments_backup (original_tournament_id, tournament_data, backup_reason)
-        VALUES (v_tournament_id, tournament_json, p_reason);
-
-        -- Backup nas tabelas de histórico
-        INSERT INTO grupos_historico (id, nome, tournament_id)
-        SELECT id, nome, tournament_id FROM grupos WHERE tournament_id = v_tournament_id;
-
-        INSERT INTO times_historico (id, nome, logo, grupo_id, tournament_id, token, pts, vitorias, empates, derrotas, gm, gc, sg)
-        SELECT id, nome, logo, grupo_id, tournament_id, token, pts, vitorias, empates, derrotas, gm, gc, sg FROM times WHERE tournament_id = v_tournament_id;
-
-        INSERT INTO jogos_fase_grupos_historico (id, grupo_id, timeA_id, timeB_id, nome_timeA, nome_timeB, gols_marcados_timeA, gols_marcados_timeB, resultado_timeA, resultado_timeB, data_jogo, rodada)
-        SELECT jfg.id, jfg.grupo_id, jfg.timeA_id, jfg.timeB_id, jfg.nome_timeA, jfg.nome_timeB, jfg.gols_marcados_timeA, jfg.gols_marcados_timeB, jfg.resultado_timeA, jfg.resultado_timeB, jfg.data_jogo, jfg.rodada
-        FROM jogos_fase_grupos jfg
-        INNER JOIN grupos g ON jfg.grupo_id = g.id
-        WHERE g.tournament_id = v_tournament_id;
-
-        -- Log da atividade
-        INSERT INTO tournament_activity_log (tournament_id, action, description)
-        VALUES (v_tournament_id, 'BACKUP', CONCAT('Tournament data backed up: ', p_reason));
-    END IF;
-END //
-
--- Procedimento para ativar torneio
-CREATE PROCEDURE ActivateTournament(
-    IN p_tournament_id INT
-)
-BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        RESIGNAL;
-    END;
-
-    START TRANSACTION;
-
-    -- Fazer backup do torneio ativo atual
-    CALL BackupActiveTournament('Before activating new tournament');
-
-    -- Arquivar torneio ativo atual
-    UPDATE tournaments SET status = 'archived' WHERE status = 'active';
-
-    -- Ativar novo torneio
-    UPDATE tournaments SET status = 'active' WHERE id = p_tournament_id;
-
-    -- Log da atividade
-    INSERT INTO tournament_activity_log (tournament_id, action, description)
-    VALUES (p_tournament_id, 'ACTIVATED', 'Tournament activated');
-
-    COMMIT;
-END //
-
--- Procedimento para gerar confrontos automáticos
-CREATE PROCEDURE GenerateGroupMatches(
-    IN p_tournament_id INT
-)
-BEGIN
-    DECLARE done INT DEFAULT FALSE;
-    DECLARE v_group_id INT;
-    DECLARE v_team_count INT;
-    DECLARE v_round INT;
-    DECLARE v_match INT;
-    DECLARE v_home_idx INT;
-    DECLARE v_away_idx INT;
-    DECLARE v_team_a_id INT;
-    DECLARE v_team_b_id INT;
-    DECLARE v_team_a_name VARCHAR(100);
-    DECLARE v_team_b_name VARCHAR(100);
-
-    DECLARE group_cursor CURSOR FOR
-        SELECT id FROM grupos WHERE tournament_id = p_tournament_id;
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-
-    OPEN group_cursor;
-
-    group_loop: LOOP
-        FETCH group_cursor INTO v_group_id;
-        IF done THEN
-            LEAVE group_loop;
-        END IF;
-
-        -- Contar times no grupo
-        SELECT COUNT(*) INTO v_team_count FROM times WHERE grupo_id = v_group_id;
-
-        -- Só gerar se tiver pelo menos 2 times
-        IF v_team_count >= 2 THEN
-            -- Verificar se já existem confrontos
-            SELECT COUNT(*) INTO v_match FROM jogos_fase_grupos WHERE grupo_id = v_group_id;
-
-            IF v_match = 0 THEN
-                -- Gerar confrontos round-robin
-                SET v_round = 1;
-                WHILE v_round < v_team_count DO
-                    SET v_match = 0;
-                    WHILE v_match < (v_team_count / 2) DO
-                        SET v_home_idx = (v_round + v_match) % v_team_count;
-                        SET v_away_idx = (v_team_count - 1 - v_match + v_round) % v_team_count;
-
-                        IF v_home_idx != v_away_idx THEN
-                            -- Buscar IDs e nomes dos times
-                            SELECT id, nome INTO v_team_a_id, v_team_a_name
-                            FROM times WHERE grupo_id = v_group_id ORDER BY id LIMIT v_home_idx, 1;
-
-                            SELECT id, nome INTO v_team_b_id, v_team_b_name
-                            FROM times WHERE grupo_id = v_group_id ORDER BY id LIMIT v_away_idx, 1;
-
-                            -- Inserir confronto
-                            INSERT INTO jogos_fase_grupos
-                            (grupo_id, timeA_id, timeB_id, nome_timeA, nome_timeB, rodada, data_jogo)
-                            VALUES (v_group_id, v_team_a_id, v_team_b_id, v_team_a_name, v_team_b_name, v_round, NOW());
-                        END IF;
-
-                        SET v_match = v_match + 1;
-                    END WHILE;
-                    SET v_round = v_round + 1;
-                END WHILE;
-            END IF;
-        END IF;
-    END LOOP;
-
-    CLOSE group_cursor;
-
-    -- Log da atividade
-    INSERT INTO tournament_activity_log (tournament_id, action, description)
-    VALUES (p_tournament_id, 'MATCHES_GENERATED', 'Group stage matches generated automatically');
-END //
-
-DELIMITER ;
-
--- ============================================================================
--- ÍNDICES ADICIONAIS PARA PERFORMANCE
--- ============================================================================
-
--- Índices para melhor performance nas consultas
-CREATE INDEX idx_times_tournament_grupo ON times(tournament_id, grupo_id);
-CREATE INDEX idx_jogos_fase_grupos_resultado ON jogos_fase_grupos(resultado_timeA, resultado_timeB);
-CREATE INDEX idx_jogos_fase_grupos_data ON jogos_fase_grupos(data_jogo);
-CREATE INDEX idx_tournament_activity_log_action ON tournament_activity_log(action, created_at);
-CREATE INDEX idx_jogadores_time_stats ON jogadores(time_id, gols, assistencias);
-
--- ============================================================================
--- DADOS INICIAIS
--- ============================================================================
-
--- Inserir configuração padrão
-INSERT INTO configuracoes (equipes_por_grupo, numero_grupos, fase_final)
-VALUES (4, 4, 'semifinais');
-
--- Inserir fases de execução padrão
-INSERT INTO fase_execucao (fase, executado) VALUES
-('grupos', FALSE),
-('oitavas', FALSE),
-('quartas', FALSE),
-('semifinais', FALSE),
-('final', FALSE);
-
--- Criar torneio padrão para migração de dados existentes
-INSERT INTO tournaments (name, year, description, status)
-VALUES ('Copa das Panelas 2024', 2024, 'Torneio atual migrado automaticamente do sistema anterior', 'active');
-
-SET @default_tournament_id = LAST_INSERT_ID();
-
--- Inserir configurações do torneio padrão
-INSERT INTO tournament_settings (tournament_id, num_groups, teams_per_group, final_phase)
-VALUES (@default_tournament_id, 4, 4, 'semifinais');
-
--- Log inicial
-INSERT INTO tournament_activity_log (tournament_id, action, description)
-VALUES (@default_tournament_id, 'MIGRATION', 'Sistema migrado para nova arquitetura com versionamento de torneios');
-
--- ============================================================================
--- TRIGGERS PARA MANUTENÇÃO AUTOMÁTICA
--- ============================================================================
-
-DELIMITER //
-
--- Trigger para atualizar timestamp de torneios
-CREATE TRIGGER tournament_updated
-    BEFORE UPDATE ON tournaments
-    FOR EACH ROW
-BEGIN
-    SET NEW.updated_at = CURRENT_TIMESTAMP;
-END //
-
--- Trigger para log automático de mudanças importantes
-CREATE TRIGGER tournament_status_change
-    AFTER UPDATE ON tournaments
-    FOR EACH ROW
-BEGIN
-    IF OLD.status != NEW.status THEN
-        INSERT INTO tournament_activity_log (tournament_id, action, description)
-        VALUES (NEW.id, 'STATUS_CHANGED', CONCAT('Status changed from ', OLD.status, ' to ', NEW.status));
-    END IF;
-END //
-
--- Trigger para backup automático antes de deletar torneio
-CREATE TRIGGER tournament_before_delete
-    BEFORE DELETE ON tournaments
-    FOR EACH ROW
-BEGIN
-    DECLARE tournament_json JSON;
-
-    -- Criar backup antes de deletar
-    SELECT JSON_OBJECT(
-        'tournament', JSON_OBJECT('id', OLD.id, 'name', OLD.name, 'year', OLD.year, 'description', OLD.description, 'status', OLD.status),
-        'deleted_at', NOW()
-    ) INTO tournament_json;
-
-    INSERT INTO tournaments_backup (original_tournament_id, tournament_data, backup_reason)
-    VALUES (OLD.id, tournament_json, 'Tournament deleted');
-END //
-
-DELIMITER ;
-
--- ============================================================================
--- COMANDOS DE MIGRAÇÃO PARA DADOS EXISTENTES
--- ============================================================================
-
--- Atualizar dados existentes para usar o torneio padrão
-UPDATE grupos SET tournament_id = @default_tournament_id WHERE tournament_id IS NULL;
-UPDATE times SET tournament_id = @default_tournament_id WHERE tournament_id IS NULL;
-
--- ============================================================================
--- VERIFICAÇÕES FINAIS E LIMPEZA
--- ============================================================================
-
--- Verificar integridade dos dados
-SELECT
-    'Tournaments' as tabela, COUNT(*) as registros FROM tournaments
-UNION ALL
-SELECT
-    'Groups' as tabela, COUNT(*) as registros FROM grupos
-UNION ALL
-SELECT
-    'Teams' as tabela, COUNT(*) as registros FROM times
-UNION ALL
-SELECT
-    'Matches' as tabela, COUNT(*) as registros FROM jogos_fase_grupos;
-
--- Mostrar configuração do torneio ativo
-SELECT
-    t.name as tournament_name,
-    t.year,
-    t.status,
-    ts.num_groups,
-    ts.teams_per_group,
-    ts.final_phase,
-    COUNT(DISTINCT g.id) as groups_created,
-    COUNT(DISTINCT tm.id) as teams_added,
-    COUNT(DISTINCT jfg.id) as matches_created
-FROM tournaments t
-LEFT JOIN tournament_settings ts ON t.id = ts.tournament_id
-LEFT JOIN grupos g ON t.id = g.tournament_id
-LEFT JOIN times tm ON t.id = tm.tournament_id
-LEFT JOIN jogos_fase_grupos jfg ON g.id = jfg.grupo_id
-WHERE t.status = 'active'
-GROUP BY t.id;
-
--- ============================================================================
--- COMENTÁRIOS FINAIS
--- ============================================================================
-
-/*
-INSTRUÇÕES DE USO:
-
-1. CRIAÇÃO DE NOVO TORNEIO:
-   CALL CreateNewTournament('Nome do Torneio', 2024, 'Descrição', 4, 4, 'semifinais', @tournament_id);
-
-2. ATIVAÇÃO DE TORNEIO:
-   CALL ActivateTournament(tournament_id);
-
-3. GERAÇÃO DE CONFRONTOS:
-   CALL GenerateGroupMatches(tournament_id);
-
-4. BACKUP MANUAL:
-   CALL BackupActiveTournament('Motivo do backup');
-
-5. CONSULTAR TORNEIO ATIVO:
-   SELECT * FROM current_tournament;
-
-6. ESTATÍSTICAS DE TIMES:
-   SELECT * FROM tournament_team_stats WHERE tournament_id = X;
-
-RECURSOS IMPLEMENTADOS:
-- ✅ Versionamento completo de torneios
-- ✅ Backup automático antes de operações destrutivas
-- ✅ Sistema de logs de atividade
-- ✅ Procedimentos armazenados para operações complexas
-- ✅ Views para consultas otimizadas
-- ✅ Triggers para manutenção automática
-- ✅ Índices para performance
-- ✅ Migração segura de dados existentes
-- ✅ Tabelas de histórico para preservação de dados
-- ✅ Integridade referencial completa
-
-COMPATIBILIDADE:
-- ✅ Mantém compatibilidade com código PHP existente
-- ✅ Preserva estrutura de dados atual
-- ✅ Adiciona funcionalidades sem quebrar funcionalidades existentes
-*/
+-- MySQL dump consolidado - Banco Copa Completo (VERSÃO FINAL)
+-- Gerado automaticamente pela união de todos os arquivos SQL
+-- Data: 2025-07-29
+-- VERSÃO CORRIGIDA SEM PROBLEMAS DE FOREIGN KEY
+--
+-- Host: 127.0.0.1    Database: copa
+-- ------------------------------------------------------
+-- Server version	5.5.5-10.4.32-MariaDB
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+-- ========================================
+-- CRIAÇÃO DO BANCO DE DADOS
+-- ========================================
+
+CREATE DATABASE IF NOT EXISTS `copa` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `copa`;
+
+DROP TABLE IF EXISTS `active_media`;
+CREATE TABLE `active_media` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `media_id` int(11) DEFAULT NULL,
+  `media_type` enum('youtube','music','video','image') NOT NULL,
+  `youtube_id` varchar(50) DEFAULT NULL,
+  `youtube_url` text DEFAULT NULL,
+  `title` varchar(255) NOT NULL,
+  `is_playing` tinyint(1) DEFAULT 1,
+  `volume` int(11) DEFAULT 50 COMMENT 'Volume de 0 a 100',
+  `admin_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `target_pages` text DEFAULT NULL COMMENT 'JSON com páginas onde deve aparecer (null = todas)',
+  `show_controls` tinyint(1) DEFAULT 1 COMMENT 'Se deve mostrar controles visuais',
+  `start_time` timestamp NULL DEFAULT NULL COMMENT 'Quando a música começou a tocar globalmente',
+  `duration` decimal(10,2) DEFAULT NULL COMMENT 'Duração total da música em segundos',
+  `loop_enabled` tinyint(1) DEFAULT 1 COMMENT 'Se deve repetir a música',
+  `global_sync` tinyint(1) DEFAULT 1 COMMENT 'Se deve sincronizar globalmente',
+  PRIMARY KEY (`id`),
+  KEY `media_id` (`media_id`),
+  CONSTRAINT `active_media_ibfk_1` FOREIGN KEY (`media_id`) REFERENCES `media_library` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `admin`;
+CREATE TABLE `admin` (
+  `cod_adm` varchar(200) NOT NULL,
+  `nome` varchar(60) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `senha` varchar(255) NOT NULL,
+  PRIMARY KEY (`cod_adm`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `admin_permissions`;
+CREATE TABLE `admin_permissions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `admin_id` int(11) NOT NULL,
+  `permission` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_admin_permission` (`admin_id`,`permission`),
+  CONSTRAINT `admin_permissions_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `admins` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `administradores`;
+CREATE TABLE `administradores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario` varchar(50) NOT NULL,
+  `senha` varchar(255) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `usuario` (`usuario`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `admins`;
+CREATE TABLE `admins` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` varchar(50) DEFAULT 'Admin',
+  `active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `last_login` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `audio_sync_control`;
+CREATE TABLE `audio_sync_control` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `media_id` int(11) NOT NULL,
+  `global_start_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT 'Momento exato que a música começou globalmente',
+  `server_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_playing` tinyint(1) DEFAULT 1,
+  `current_position` decimal(10,3) DEFAULT 0.000 COMMENT 'Posição atual em segundos',
+  `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `media_id` (`media_id`),
+  CONSTRAINT `audio_sync_control_ibfk_1` FOREIGN KEY (`media_id`) REFERENCES `active_media` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `backups`;
+CREATE TABLE `backups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `filename` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `file_size` bigint(20) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `configuracoes`;
+CREATE TABLE `configuracoes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `equipes_por_grupo` int(11) NOT NULL,
+  `numero_grupos` int(11) NOT NULL,
+  `fase_final` enum('oitavas','quartas','semifinais','final') NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `fase_execucao`;
+CREATE TABLE `fase_execucao` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fase` varchar(50) NOT NULL,
+  `executado` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `final`;
+CREATE TABLE `final` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `time_id` int(11) NOT NULL,
+  `grupo_nome` varchar(50) DEFAULT NULL,
+  `time_nome` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `time_id` (`time_id`),
+  CONSTRAINT `final_ibfk_1` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `final_confrontos`;
+CREATE TABLE `final_confrontos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timeA_id` int(11) NOT NULL,
+  `timeB_id` int(11) NOT NULL,
+  `fase` enum('final') NOT NULL,
+  `gols_marcados_timeA` int(11) DEFAULT NULL,
+  `gols_marcados_timeB` int(11) DEFAULT NULL,
+  `gols_contra_timeA` int(11) DEFAULT NULL,
+  `gols_contra_timeB` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `final_phases`;
+CREATE TABLE `final_phases` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `phase_name` varchar(50) NOT NULL,
+  `phase_order` int(11) NOT NULL,
+  `teams_required` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`),
+  CONSTRAINT `final_phases_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `grupos`;
+CREATE TABLE `grupos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `tournament_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tournament_id` (`tournament_id`),
+  CONSTRAINT `grupos_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `grupos_historico`;
+CREATE TABLE `grupos_historico` (
+  `historico_id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `tournament_id` int(11) DEFAULT NULL,
+  `backup_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`historico_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `head_to_head`;
+CREATE TABLE `head_to_head` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_points` int(11) DEFAULT 0,
+  `team2_points` int(11) DEFAULT 0,
+  `team1_goals` int(11) DEFAULT 0,
+  `team2_goals` int(11) DEFAULT 0,
+  `matches_played` int(11) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`),
+  KEY `team1_id` (`team1_id`),
+  KEY `team2_id` (`team2_id`),
+  CONSTRAINT `head_to_head_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`),
+  CONSTRAINT `head_to_head_ibfk_2` FOREIGN KEY (`team1_id`) REFERENCES `times` (`id`),
+  CONSTRAINT `head_to_head_ibfk_3` FOREIGN KEY (`team2_id`) REFERENCES `times` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `jogadores`;
+CREATE TABLE `jogadores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `gols` int(11) DEFAULT 0,
+  `posicao` varchar(255) DEFAULT NULL,
+  `numero` int(11) DEFAULT NULL,
+  `assistencias` int(11) DEFAULT 0,
+  `cartoes_amarelos` int(11) DEFAULT 0,
+  `cartoes_vermelhos` int(11) DEFAULT 0,
+  `token` varchar(64) DEFAULT NULL,
+  `imagem` longblob DEFAULT NULL,
+  `time_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`),
+  KEY `idx_jogadores_time_stats` (`time_id`,`gols`,`assistencias`),
+  CONSTRAINT `jogadores_ibfk_1` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `jogadores_historico`;
+CREATE TABLE `jogadores_historico` (
+  `historico_id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `gols` int(11) DEFAULT 0,
+  `posicao` varchar(255) DEFAULT NULL,
+  `numero` int(11) DEFAULT NULL,
+  `assistencias` int(11) DEFAULT 0,
+  `cartoes_amarelos` int(11) DEFAULT 0,
+  `cartoes_vermelhos` int(11) DEFAULT 0,
+  `token` varchar(64) DEFAULT NULL,
+  `imagem` longblob DEFAULT NULL,
+  `time_id` int(11) NOT NULL,
+  `backup_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`historico_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `jogos`;
+CREATE TABLE `jogos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `time_id` int(11) NOT NULL,
+  `resultado` char(1) DEFAULT NULL,
+  `data_jogo` date DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `time_id` (`time_id`),
+  CONSTRAINT `jogos_ibfk_1` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `jogos_fase_grupos`;
+CREATE TABLE `jogos_fase_grupos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `grupo_id` int(11) NOT NULL,
+  `timeA_id` int(11) NOT NULL,
+  `timeB_id` int(11) NOT NULL,
+  `nome_timeA` varchar(100) NOT NULL,
+  `nome_timeB` varchar(100) NOT NULL,
+  `gols_marcados_timeA` int(11) DEFAULT 0,
+  `gols_marcados_timeB` int(11) DEFAULT 0,
+  `resultado_timeA` char(1) DEFAULT NULL,
+  `resultado_timeB` char(1) DEFAULT NULL,
+  `data_jogo` datetime NOT NULL,
+  `rodada` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `timeA_id` (`timeA_id`),
+  KEY `timeB_id` (`timeB_id`),
+  KEY `idx_grupo_rodada` (`grupo_id`,`rodada`),
+  KEY `idx_jogos_fase_grupos_resultado` (`resultado_timeA`,`resultado_timeB`),
+  KEY `idx_jogos_fase_grupos_data` (`data_jogo`),
+  CONSTRAINT `jogos_fase_grupos_ibfk_1` FOREIGN KEY (`grupo_id`) REFERENCES `grupos` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `jogos_fase_grupos_ibfk_2` FOREIGN KEY (`timeA_id`) REFERENCES `times` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `jogos_fase_grupos_ibfk_3` FOREIGN KEY (`timeB_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `jogos_finais`;
+CREATE TABLE `jogos_finais` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timeA_id` int(11) NOT NULL,
+  `timeB_id` int(11) NOT NULL,
+  `nome_timeA` varchar(100) NOT NULL,
+  `nome_timeB` varchar(100) NOT NULL,
+  `gols_marcados_timeA` int(11) NOT NULL,
+  `gols_marcados_timeB` int(11) NOT NULL,
+  `resultado_timeA` char(1) DEFAULT NULL,
+  `resultado_timeB` char(1) DEFAULT NULL,
+  `data_jogo` datetime NOT NULL,
+  `fase` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `timeA_id` (`timeA_id`),
+  KEY `timeB_id` (`timeB_id`),
+  CONSTRAINT `jogos_finais_ibfk_1` FOREIGN KEY (`timeA_id`) REFERENCES `times` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `jogos_finais_ibfk_2` FOREIGN KEY (`timeB_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `linkinstagram`;
+CREATE TABLE `linkinstagram` (
+  `codinsta` int(11) NOT NULL AUTO_INCREMENT,
+  `linklive` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`codinsta`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `linklive`;
+CREATE TABLE `linklive` (
+  `codlive` varchar(255) NOT NULL,
+  PRIMARY KEY (`codlive`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `live_streams`;
+CREATE TABLE `live_streams` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `youtube_id` varchar(50) NOT NULL,
+  `youtube_url` text NOT NULL,
+  `status` enum('ativo','inativo') DEFAULT 'ativo',
+  `admin_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `external_url` varchar(500) DEFAULT NULL,
+  `embed_code` text DEFAULT NULL,
+  `stream_type` enum('youtube','external') DEFAULT 'youtube',
+  PRIMARY KEY (`id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `match_events`;
+CREATE TABLE `match_events` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `match_id` int(11) NOT NULL,
+  `tipo` enum('gol','cartao_amarelo','cartao_vermelho','substituicao') NOT NULL,
+  `minuto` int(11) NOT NULL,
+  `jogador` varchar(255) NOT NULL,
+  `time_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `match_id` (`match_id`),
+  KEY `time_id` (`time_id`),
+  CONSTRAINT `match_events_ibfk_1` FOREIGN KEY (`match_id`) REFERENCES `matches` (`id`),
+  CONSTRAINT `match_events_ibfk_2` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `match_events_new`;
+CREATE TABLE `match_events_new` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `match_id` int(11) NOT NULL,
+  `team_id` int(11) NOT NULL,
+  `player_id` int(11) DEFAULT NULL,
+  `event_type` enum('gol','cartao_amarelo','cartao_vermelho','substituicao','penalti_perdido','penalti_convertido') NOT NULL,
+  `minute` int(11) NOT NULL,
+  `period` enum('primeiro_tempo','segundo_tempo','prorrogacao','penaltis') DEFAULT 'primeiro_tempo',
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `match_id` (`match_id`),
+  KEY `team_id` (`team_id`),
+  KEY `player_id` (`player_id`),
+  CONSTRAINT `match_events_new_ibfk_1` FOREIGN KEY (`match_id`) REFERENCES `matches_new` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `match_events_new_ibfk_2` FOREIGN KEY (`team_id`) REFERENCES `times` (`id`),
+  CONSTRAINT `match_events_new_ibfk_3` FOREIGN KEY (`player_id`) REFERENCES `jogadores` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `match_statistics`;
+CREATE TABLE `match_statistics` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `match_id` int(11) NOT NULL,
+  `team_id` int(11) NOT NULL,
+  `goals_scored` int(11) DEFAULT 0,
+  `goals_conceded` int(11) DEFAULT 0,
+  `result` enum('V','E','D') DEFAULT NULL,
+  `points` int(11) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_match_team` (`match_id`,`team_id`),
+  KEY `team_id` (`team_id`),
+  CONSTRAINT `match_statistics_ibfk_1` FOREIGN KEY (`match_id`) REFERENCES `matches` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `match_statistics_ibfk_2` FOREIGN KEY (`team_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `matches`;
+CREATE TABLE `matches` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `group_id` int(11) DEFAULT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_goals` int(11) DEFAULT NULL,
+  `team2_goals` int(11) DEFAULT NULL,
+  `phase` varchar(50) DEFAULT NULL,
+  `status` enum('agendado','em_andamento','finalizado','cancelado') DEFAULT 'agendado',
+  `match_date` datetime DEFAULT NULL,
+  `round_number` int(11) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `fase` varchar(100) DEFAULT 'Fase de Grupos',
+  PRIMARY KEY (`id`),
+  KEY `idx_tournament` (`tournament_id`),
+  KEY `idx_group` (`group_id`),
+  KEY `idx_phase` (`phase`),
+  KEY `idx_status` (`status`),
+  KEY `team1_id` (`team1_id`),
+  KEY `team2_id` (`team2_id`),
+  CONSTRAINT `matches_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `matches_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `grupos` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `matches_ibfk_3` FOREIGN KEY (`team1_id`) REFERENCES `times` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `matches_ibfk_4` FOREIGN KEY (`team2_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `matches_new`;
+CREATE TABLE `matches_new` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) DEFAULT NULL,
+  `phase` enum('grupos','oitavas','quartas','semifinal','terceiro_lugar','final') NOT NULL DEFAULT 'grupos',
+  `group_name` varchar(10) DEFAULT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_score` int(11) DEFAULT NULL,
+  `team2_score` int(11) DEFAULT NULL,
+  `team1_score_extra` int(11) DEFAULT NULL,
+  `team2_score_extra` int(11) DEFAULT NULL,
+  `team1_penalties` int(11) DEFAULT NULL,
+  `team2_penalties` int(11) DEFAULT NULL,
+  `match_date` datetime NOT NULL,
+  `status` enum('agendado','andamento','finalizado','cancelado') DEFAULT 'agendado',
+  `winner_id` int(11) DEFAULT NULL,
+  `has_extra_time` tinyint(1) DEFAULT 0,
+  `has_penalties` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`),
+  KEY `team1_id` (`team1_id`),
+  KEY `team2_id` (`team2_id`),
+  KEY `winner_id` (`winner_id`),
+  CONSTRAINT `matches_new_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`),
+  CONSTRAINT `matches_new_ibfk_2` FOREIGN KEY (`team1_id`) REFERENCES `times` (`id`),
+  CONSTRAINT `matches_new_ibfk_3` FOREIGN KEY (`team2_id`) REFERENCES `times` (`id`),
+  CONSTRAINT `matches_new_ibfk_4` FOREIGN KEY (`winner_id`) REFERENCES `times` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `media_library`;
+CREATE TABLE `media_library` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `media_type` enum('music','video','image') NOT NULL,
+  `file_path` varchar(500) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_size` int(11) NOT NULL,
+  `duration` int(11) DEFAULT NULL COMMENT 'Duração em segundos para música/vídeo',
+  `is_active` tinyint(1) DEFAULT 1,
+  `admin_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_media_type` (`media_type`),
+  KEY `idx_is_active` (`is_active`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `noticias`;
+CREATE TABLE `noticias` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(255) NOT NULL,
+  `descricao` text NOT NULL,
+  `imagem` longblob NOT NULL,
+  `link` varchar(255) NOT NULL,
+  `data_adicao` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `oitavas_de_final`;
+CREATE TABLE `oitavas_de_final` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `time_id` int(11) NOT NULL,
+  `grupo_nome` varchar(50) DEFAULT NULL,
+  `time_nome` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `time_id` (`time_id`),
+  CONSTRAINT `oitavas_de_final_ibfk_1` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `oitavas_de_final_confrontos`;
+CREATE TABLE `oitavas_de_final_confrontos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timeA_id` int(11) NOT NULL,
+  `timeB_id` int(11) NOT NULL,
+  `fase` enum('oitavas') NOT NULL,
+  `gols_marcados_timeA` int(11) DEFAULT NULL,
+  `gols_marcados_timeB` int(11) DEFAULT NULL,
+  `gols_contra_timeA` int(11) DEFAULT NULL,
+  `gols_contra_timeB` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `posicoes_jogadores`;
+CREATE TABLE `posicoes_jogadores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `jogador_id` int(11) NOT NULL,
+  `categoria` enum('gols','assistencias','cartoes_amarelos','cartoes_vermelhos') NOT NULL,
+  `posicao` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `jogador_id` (`jogador_id`),
+  CONSTRAINT `posicoes_jogadores_ibfk_1` FOREIGN KEY (`jogador_id`) REFERENCES `jogadores` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `quartas_de_final`;
+CREATE TABLE `quartas_de_final` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `time_id` int(11) NOT NULL,
+  `grupo_nome` varchar(50) DEFAULT NULL,
+  `time_nome` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `time_id` (`time_id`),
+  CONSTRAINT `quartas_de_final_ibfk_1` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `quartas_de_final_confrontos`;
+CREATE TABLE `quartas_de_final_confrontos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timeA_id` int(11) NOT NULL,
+  `timeB_id` int(11) NOT NULL,
+  `fase` enum('quartas') NOT NULL,
+  `gols_marcados_timeA` int(11) DEFAULT NULL,
+  `gols_marcados_timeB` int(11) DEFAULT NULL,
+  `gols_contra_timeA` int(11) DEFAULT NULL,
+  `gols_contra_timeB` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `semifinais`;
+CREATE TABLE `semifinais` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `time_id` int(11) NOT NULL,
+  `grupo_nome` varchar(50) DEFAULT NULL,
+  `time_nome` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `time_id` (`time_id`),
+  CONSTRAINT `semifinais_ibfk_1` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `semifinais_confrontos`;
+CREATE TABLE `semifinais_confrontos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timeA_id` int(11) NOT NULL,
+  `timeB_id` int(11) NOT NULL,
+  `fase` enum('semifinais') NOT NULL,
+  `gols_marcados_timeA` int(11) DEFAULT NULL,
+  `gols_marcados_timeB` int(11) DEFAULT NULL,
+  `gols_contra_timeA` int(11) DEFAULT NULL,
+  `gols_contra_timeB` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `standings`;
+CREATE TABLE `standings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team_id` int(11) NOT NULL,
+  `group_name` varchar(10) DEFAULT NULL,
+  `phase` enum('grupos','eliminatorias') DEFAULT 'grupos',
+  `matches_played` int(11) DEFAULT 0,
+  `wins` int(11) DEFAULT 0,
+  `draws` int(11) DEFAULT 0,
+  `losses` int(11) DEFAULT 0,
+  `goals_for` int(11) DEFAULT 0,
+  `goals_against` int(11) DEFAULT 0,
+  `goal_difference` int(11) DEFAULT 0,
+  `points` int(11) DEFAULT 0,
+  `position` int(11) DEFAULT 0,
+  `qualified` tinyint(1) DEFAULT 0,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_team_tournament_group` (`tournament_id`,`team_id`,`group_name`,`phase`),
+  KEY `team_id` (`team_id`),
+  CONSTRAINT `standings_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`),
+  CONSTRAINT `standings_ibfk_2` FOREIGN KEY (`team_id`) REFERENCES `times` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `system_logs`;
+CREATE TABLE `system_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `level` enum('INFO','SUCCESS','WARNING','ERROR') NOT NULL,
+  `message` text NOT NULL,
+  `context` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`context`)),
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `username` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_level` (`level`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=272 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `times`;
+CREATE TABLE `times` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) NOT NULL,
+  `logo` blob DEFAULT NULL,
+  `grupo_id` int(11) NOT NULL,
+  `tournament_id` int(11) NOT NULL,
+  `token` varchar(64) DEFAULT NULL,
+  `pts` int(11) DEFAULT 0,
+  `vitorias` int(11) DEFAULT 0,
+  `empates` int(11) DEFAULT 0,
+  `derrotas` int(11) DEFAULT 0,
+  `gm` int(11) DEFAULT 0,
+  `gc` int(11) DEFAULT 0,
+  `sg` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`),
+  KEY `idx_tournament_id` (`tournament_id`),
+  KEY `idx_grupo_id` (`grupo_id`),
+  KEY `idx_times_tournament_grupo` (`tournament_id`,`grupo_id`),
+  CONSTRAINT `times_ibfk_1` FOREIGN KEY (`grupo_id`) REFERENCES `grupos` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `times_ibfk_2` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `times_historico`;
+CREATE TABLE `times_historico` (
+  `historico_id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `logo` blob DEFAULT NULL,
+  `grupo_id` int(11) NOT NULL,
+  `tournament_id` int(11) DEFAULT NULL,
+  `token` varchar(64) DEFAULT NULL,
+  `pts` int(11) DEFAULT 0,
+  `vitorias` int(11) DEFAULT 0,
+  `empates` int(11) DEFAULT 0,
+  `derrotas` int(11) DEFAULT 0,
+  `gm` int(11) DEFAULT 0,
+  `gc` int(11) DEFAULT 0,
+  `sg` int(11) DEFAULT 0,
+  `backup_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`historico_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `tournament_activity_log`;
+CREATE TABLE `tournament_activity_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `action` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`metadata`)),
+  PRIMARY KEY (`id`),
+  KEY `idx_tournament_activity` (`tournament_id`,`created_at`),
+  KEY `idx_tournament_activity_log_action` (`action`,`created_at`),
+  CONSTRAINT `tournament_activity_log_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `tournament_settings`;
+CREATE TABLE `tournament_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `num_groups` int(11) NOT NULL DEFAULT 1,
+  `teams_per_group` int(11) NOT NULL DEFAULT 4,
+  `final_phase` enum('oitavas','quartas','semifinais','final') DEFAULT 'final',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`),
+  CONSTRAINT `tournament_settings_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `tournaments`;
+CREATE TABLE `tournaments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `year` int(11) NOT NULL,
+  `description` text DEFAULT NULL,
+  `status` enum('draft','active','completed','cancelled','archived') DEFAULT 'draft',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `completed_at` timestamp NULL DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `data_inicio` date NOT NULL,
+  `data_fim` date NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `teams_count` int(11) DEFAULT 8,
+  `groups_count` int(11) DEFAULT 2,
+  `format_type` varchar(100) DEFAULT 'Grupos + Eliminatórias',
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_year` (`year`)
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `tournaments_backup`;
+CREATE TABLE `tournaments_backup` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `original_tournament_id` int(11) NOT NULL,
+  `backup_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `tournament_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`tournament_data`)),
+  `backup_reason` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_original_tournament` (`original_tournament_id`),
+  KEY `idx_backup_date` (`backup_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `active_media`;
+CREATE TABLE `active_media` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `media_id` int(11) DEFAULT NULL,
+  `media_type` enum('youtube','music','video','image') NOT NULL,
+  `youtube_id` varchar(50) DEFAULT NULL,
+  `youtube_url` text DEFAULT NULL,
+  `title` varchar(255) NOT NULL,
+  `is_playing` tinyint(1) DEFAULT 1,
+  `volume` int(11) DEFAULT 50 COMMENT 'Volume de 0 a 100',
+  `admin_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `target_pages` text DEFAULT NULL COMMENT 'JSON com páginas onde deve aparecer (null = todas)',
+  `show_controls` tinyint(1) DEFAULT 1 COMMENT 'Se deve mostrar controles visuais',
+  `start_time` timestamp NULL DEFAULT NULL COMMENT 'Quando a música começou a tocar globalmente',
+  `duration` decimal(10,2) DEFAULT NULL COMMENT 'Duração total da música em segundos',
+  `loop_enabled` tinyint(1) DEFAULT 1 COMMENT 'Se deve repetir a música',
+  `global_sync` tinyint(1) DEFAULT 1 COMMENT 'Se deve sincronizar globalmente',
+  PRIMARY KEY (`id`),
+  KEY `media_id` (`media_id`),
+  CONSTRAINT `active_media_ibfk_1` FOREIGN KEY (`media_id`) REFERENCES `media_library` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `admin`;
+CREATE TABLE `admin` (
+  `cod_adm` varchar(200) NOT NULL,
+  `nome` varchar(60) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `senha` varchar(255) NOT NULL,
+  PRIMARY KEY (`cod_adm`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `admin_permissions`;
+CREATE TABLE `admin_permissions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `admin_id` int(11) NOT NULL,
+  `permission` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_admin_permission` (`admin_id`,`permission`),
+  CONSTRAINT `admin_permissions_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `admins` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `administradores`;
+CREATE TABLE `administradores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `usuario` varchar(50) NOT NULL,
+  `senha` varchar(255) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `usuario` (`usuario`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `admins`;
+CREATE TABLE `admins` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` varchar(50) DEFAULT 'Admin',
+  `active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `last_login` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `audio_sync_control`;
+CREATE TABLE `audio_sync_control` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `media_id` int(11) NOT NULL,
+  `global_start_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT 'Momento exato que a música começou globalmente',
+  `server_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_playing` tinyint(1) DEFAULT 1,
+  `current_position` decimal(10,3) DEFAULT 0.000 COMMENT 'Posição atual em segundos',
+  `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `media_id` (`media_id`),
+  CONSTRAINT `audio_sync_control_ibfk_1` FOREIGN KEY (`media_id`) REFERENCES `active_media` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `backups`;
+CREATE TABLE `backups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `filename` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `file_size` bigint(20) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `configuracoes`;
+CREATE TABLE `configuracoes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `equipes_por_grupo` int(11) NOT NULL,
+  `numero_grupos` int(11) NOT NULL,
+  `fase_final` enum('oitavas','quartas','semifinais','final') NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `fase_execucao`;
+CREATE TABLE `fase_execucao` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fase` varchar(50) NOT NULL,
+  `executado` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `final`;
+CREATE TABLE `final` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `time_id` int(11) NOT NULL,
+  `grupo_nome` varchar(50) DEFAULT NULL,
+  `time_nome` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `time_id` (`time_id`),
+  CONSTRAINT `final_ibfk_1` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `final_confrontos`;
+CREATE TABLE `final_confrontos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timeA_id` int(11) NOT NULL,
+  `timeB_id` int(11) NOT NULL,
+  `fase` enum('final') NOT NULL,
+  `gols_marcados_timeA` int(11) DEFAULT NULL,
+  `gols_marcados_timeB` int(11) DEFAULT NULL,
+  `gols_contra_timeA` int(11) DEFAULT NULL,
+  `gols_contra_timeB` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `final_phases`;
+CREATE TABLE `final_phases` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `phase_name` varchar(50) NOT NULL,
+  `phase_order` int(11) NOT NULL,
+  `teams_required` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`),
+  CONSTRAINT `final_phases_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `grupos`;
+CREATE TABLE `grupos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `tournament_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tournament_id` (`tournament_id`),
+  CONSTRAINT `grupos_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `grupos_historico`;
+CREATE TABLE `grupos_historico` (
+  `historico_id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `tournament_id` int(11) DEFAULT NULL,
+  `backup_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`historico_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `head_to_head`;
+CREATE TABLE `head_to_head` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_points` int(11) DEFAULT 0,
+  `team2_points` int(11) DEFAULT 0,
+  `team1_goals` int(11) DEFAULT 0,
+  `team2_goals` int(11) DEFAULT 0,
+  `matches_played` int(11) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`),
+  KEY `team1_id` (`team1_id`),
+  KEY `team2_id` (`team2_id`),
+  CONSTRAINT `head_to_head_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`),
+  CONSTRAINT `head_to_head_ibfk_2` FOREIGN KEY (`team1_id`) REFERENCES `times` (`id`),
+  CONSTRAINT `head_to_head_ibfk_3` FOREIGN KEY (`team2_id`) REFERENCES `times` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `jogadores`;
+CREATE TABLE `jogadores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `gols` int(11) DEFAULT 0,
+  `posicao` varchar(255) DEFAULT NULL,
+  `numero` int(11) DEFAULT NULL,
+  `assistencias` int(11) DEFAULT 0,
+  `cartoes_amarelos` int(11) DEFAULT 0,
+  `cartoes_vermelhos` int(11) DEFAULT 0,
+  `token` varchar(64) DEFAULT NULL,
+  `imagem` longblob DEFAULT NULL,
+  `time_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`),
+  KEY `idx_jogadores_time_stats` (`time_id`,`gols`,`assistencias`),
+  CONSTRAINT `jogadores_ibfk_1` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `jogadores_historico`;
+CREATE TABLE `jogadores_historico` (
+  `historico_id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
+  `nome` varchar(255) NOT NULL,
+  `gols` int(11) DEFAULT 0,
+  `posicao` varchar(255) DEFAULT NULL,
+  `numero` int(11) DEFAULT NULL,
+  `assistencias` int(11) DEFAULT 0,
+  `cartoes_amarelos` int(11) DEFAULT 0,
+  `cartoes_vermelhos` int(11) DEFAULT 0,
+  `token` varchar(64) DEFAULT NULL,
+  `imagem` longblob DEFAULT NULL,
+  `time_id` int(11) NOT NULL,
+  `backup_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`historico_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `jogos`;
+CREATE TABLE `jogos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `time_id` int(11) NOT NULL,
+  `resultado` char(1) DEFAULT NULL,
+  `data_jogo` date DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `time_id` (`time_id`),
+  CONSTRAINT `jogos_ibfk_1` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `jogos_fase_grupos`;
+CREATE TABLE `jogos_fase_grupos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `grupo_id` int(11) NOT NULL,
+  `timeA_id` int(11) NOT NULL,
+  `timeB_id` int(11) NOT NULL,
+  `nome_timeA` varchar(100) NOT NULL,
+  `nome_timeB` varchar(100) NOT NULL,
+  `gols_marcados_timeA` int(11) DEFAULT 0,
+  `gols_marcados_timeB` int(11) DEFAULT 0,
+  `resultado_timeA` char(1) DEFAULT NULL,
+  `resultado_timeB` char(1) DEFAULT NULL,
+  `data_jogo` datetime NOT NULL,
+  `rodada` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `timeA_id` (`timeA_id`),
+  KEY `timeB_id` (`timeB_id`),
+  KEY `idx_grupo_rodada` (`grupo_id`,`rodada`),
+  KEY `idx_jogos_fase_grupos_resultado` (`resultado_timeA`,`resultado_timeB`),
+  KEY `idx_jogos_fase_grupos_data` (`data_jogo`),
+  CONSTRAINT `jogos_fase_grupos_ibfk_1` FOREIGN KEY (`grupo_id`) REFERENCES `grupos` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `jogos_fase_grupos_ibfk_2` FOREIGN KEY (`timeA_id`) REFERENCES `times` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `jogos_fase_grupos_ibfk_3` FOREIGN KEY (`timeB_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `jogos_finais`;
+CREATE TABLE `jogos_finais` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timeA_id` int(11) NOT NULL,
+  `timeB_id` int(11) NOT NULL,
+  `nome_timeA` varchar(100) NOT NULL,
+  `nome_timeB` varchar(100) NOT NULL,
+  `gols_marcados_timeA` int(11) NOT NULL,
+  `gols_marcados_timeB` int(11) NOT NULL,
+  `resultado_timeA` char(1) DEFAULT NULL,
+  `resultado_timeB` char(1) DEFAULT NULL,
+  `data_jogo` datetime NOT NULL,
+  `fase` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `timeA_id` (`timeA_id`),
+  KEY `timeB_id` (`timeB_id`),
+  CONSTRAINT `jogos_finais_ibfk_1` FOREIGN KEY (`timeA_id`) REFERENCES `times` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `jogos_finais_ibfk_2` FOREIGN KEY (`timeB_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `linkinstagram`;
+CREATE TABLE `linkinstagram` (
+  `codinsta` int(11) NOT NULL AUTO_INCREMENT,
+  `linklive` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`codinsta`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `linklive`;
+CREATE TABLE `linklive` (
+  `codlive` varchar(255) NOT NULL,
+  PRIMARY KEY (`codlive`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `live_streams`;
+CREATE TABLE `live_streams` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `youtube_id` varchar(50) NOT NULL,
+  `youtube_url` text NOT NULL,
+  `status` enum('ativo','inativo') DEFAULT 'ativo',
+  `admin_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `external_url` varchar(500) DEFAULT NULL,
+  `embed_code` text DEFAULT NULL,
+  `stream_type` enum('youtube','external') DEFAULT 'youtube',
+  PRIMARY KEY (`id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `match_events`;
+CREATE TABLE `match_events` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `match_id` int(11) NOT NULL,
+  `tipo` enum('gol','cartao_amarelo','cartao_vermelho','substituicao') NOT NULL,
+  `minuto` int(11) NOT NULL,
+  `jogador` varchar(255) NOT NULL,
+  `time_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `match_id` (`match_id`),
+  KEY `time_id` (`time_id`),
+  CONSTRAINT `match_events_ibfk_1` FOREIGN KEY (`match_id`) REFERENCES `matches` (`id`),
+  CONSTRAINT `match_events_ibfk_2` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `match_events_new`;
+CREATE TABLE `match_events_new` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `match_id` int(11) NOT NULL,
+  `team_id` int(11) NOT NULL,
+  `player_id` int(11) DEFAULT NULL,
+  `event_type` enum('gol','cartao_amarelo','cartao_vermelho','substituicao','penalti_perdido','penalti_convertido') NOT NULL,
+  `minute` int(11) NOT NULL,
+  `period` enum('primeiro_tempo','segundo_tempo','prorrogacao','penaltis') DEFAULT 'primeiro_tempo',
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `match_id` (`match_id`),
+  KEY `team_id` (`team_id`),
+  KEY `player_id` (`player_id`),
+  CONSTRAINT `match_events_new_ibfk_1` FOREIGN KEY (`match_id`) REFERENCES `matches_new` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `match_events_new_ibfk_2` FOREIGN KEY (`team_id`) REFERENCES `times` (`id`),
+  CONSTRAINT `match_events_new_ibfk_3` FOREIGN KEY (`player_id`) REFERENCES `jogadores` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `match_statistics`;
+CREATE TABLE `match_statistics` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `match_id` int(11) NOT NULL,
+  `team_id` int(11) NOT NULL,
+  `goals_scored` int(11) DEFAULT 0,
+  `goals_conceded` int(11) DEFAULT 0,
+  `result` enum('V','E','D') DEFAULT NULL,
+  `points` int(11) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_match_team` (`match_id`,`team_id`),
+  KEY `team_id` (`team_id`),
+  CONSTRAINT `match_statistics_ibfk_1` FOREIGN KEY (`match_id`) REFERENCES `matches` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `match_statistics_ibfk_2` FOREIGN KEY (`team_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `matches`;
+CREATE TABLE `matches` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `group_id` int(11) DEFAULT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_goals` int(11) DEFAULT NULL,
+  `team2_goals` int(11) DEFAULT NULL,
+  `phase` varchar(50) DEFAULT NULL,
+  `status` enum('agendado','em_andamento','finalizado','cancelado') DEFAULT 'agendado',
+  `match_date` datetime DEFAULT NULL,
+  `round_number` int(11) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `fase` varchar(100) DEFAULT 'Fase de Grupos',
+  PRIMARY KEY (`id`),
+  KEY `idx_tournament` (`tournament_id`),
+  KEY `idx_group` (`group_id`),
+  KEY `idx_phase` (`phase`),
+  KEY `idx_status` (`status`),
+  KEY `team1_id` (`team1_id`),
+  KEY `team2_id` (`team2_id`),
+  CONSTRAINT `matches_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `matches_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `grupos` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `matches_ibfk_3` FOREIGN KEY (`team1_id`) REFERENCES `times` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `matches_ibfk_4` FOREIGN KEY (`team2_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `matches_new`;
+CREATE TABLE `matches_new` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) DEFAULT NULL,
+  `phase` enum('grupos','oitavas','quartas','semifinal','terceiro_lugar','final') NOT NULL DEFAULT 'grupos',
+  `group_name` varchar(10) DEFAULT NULL,
+  `team1_id` int(11) NOT NULL,
+  `team2_id` int(11) NOT NULL,
+  `team1_score` int(11) DEFAULT NULL,
+  `team2_score` int(11) DEFAULT NULL,
+  `team1_score_extra` int(11) DEFAULT NULL,
+  `team2_score_extra` int(11) DEFAULT NULL,
+  `team1_penalties` int(11) DEFAULT NULL,
+  `team2_penalties` int(11) DEFAULT NULL,
+  `match_date` datetime NOT NULL,
+  `status` enum('agendado','andamento','finalizado','cancelado') DEFAULT 'agendado',
+  `winner_id` int(11) DEFAULT NULL,
+  `has_extra_time` tinyint(1) DEFAULT 0,
+  `has_penalties` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`),
+  KEY `team1_id` (`team1_id`),
+  KEY `team2_id` (`team2_id`),
+  KEY `winner_id` (`winner_id`),
+  CONSTRAINT `matches_new_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`),
+  CONSTRAINT `matches_new_ibfk_2` FOREIGN KEY (`team1_id`) REFERENCES `times` (`id`),
+  CONSTRAINT `matches_new_ibfk_3` FOREIGN KEY (`team2_id`) REFERENCES `times` (`id`),
+  CONSTRAINT `matches_new_ibfk_4` FOREIGN KEY (`winner_id`) REFERENCES `times` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `media_library`;
+CREATE TABLE `media_library` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `media_type` enum('music','video','image') NOT NULL,
+  `file_path` varchar(500) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_size` int(11) NOT NULL,
+  `duration` int(11) DEFAULT NULL COMMENT 'Duração em segundos para música/vídeo',
+  `is_active` tinyint(1) DEFAULT 1,
+  `admin_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_media_type` (`media_type`),
+  KEY `idx_is_active` (`is_active`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `noticias`;
+CREATE TABLE `noticias` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(255) NOT NULL,
+  `descricao` text NOT NULL,
+  `imagem` longblob NOT NULL,
+  `link` varchar(255) NOT NULL,
+  `data_adicao` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `oitavas_de_final`;
+CREATE TABLE `oitavas_de_final` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `time_id` int(11) NOT NULL,
+  `grupo_nome` varchar(50) DEFAULT NULL,
+  `time_nome` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `time_id` (`time_id`),
+  CONSTRAINT `oitavas_de_final_ibfk_1` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `oitavas_de_final_confrontos`;
+CREATE TABLE `oitavas_de_final_confrontos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timeA_id` int(11) NOT NULL,
+  `timeB_id` int(11) NOT NULL,
+  `fase` enum('oitavas') NOT NULL,
+  `gols_marcados_timeA` int(11) DEFAULT NULL,
+  `gols_marcados_timeB` int(11) DEFAULT NULL,
+  `gols_contra_timeA` int(11) DEFAULT NULL,
+  `gols_contra_timeB` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `posicoes_jogadores`;
+CREATE TABLE `posicoes_jogadores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `jogador_id` int(11) NOT NULL,
+  `categoria` enum('gols','assistencias','cartoes_amarelos','cartoes_vermelhos') NOT NULL,
+  `posicao` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `jogador_id` (`jogador_id`),
+  CONSTRAINT `posicoes_jogadores_ibfk_1` FOREIGN KEY (`jogador_id`) REFERENCES `jogadores` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `quartas_de_final`;
+CREATE TABLE `quartas_de_final` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `time_id` int(11) NOT NULL,
+  `grupo_nome` varchar(50) DEFAULT NULL,
+  `time_nome` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `time_id` (`time_id`),
+  CONSTRAINT `quartas_de_final_ibfk_1` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `quartas_de_final_confrontos`;
+CREATE TABLE `quartas_de_final_confrontos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timeA_id` int(11) NOT NULL,
+  `timeB_id` int(11) NOT NULL,
+  `fase` enum('quartas') NOT NULL,
+  `gols_marcados_timeA` int(11) DEFAULT NULL,
+  `gols_marcados_timeB` int(11) DEFAULT NULL,
+  `gols_contra_timeA` int(11) DEFAULT NULL,
+  `gols_contra_timeB` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `semifinais`;
+CREATE TABLE `semifinais` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `time_id` int(11) NOT NULL,
+  `grupo_nome` varchar(50) DEFAULT NULL,
+  `time_nome` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `time_id` (`time_id`),
+  CONSTRAINT `semifinais_ibfk_1` FOREIGN KEY (`time_id`) REFERENCES `times` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `semifinais_confrontos`;
+CREATE TABLE `semifinais_confrontos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timeA_id` int(11) NOT NULL,
+  `timeB_id` int(11) NOT NULL,
+  `fase` enum('semifinais') NOT NULL,
+  `gols_marcados_timeA` int(11) DEFAULT NULL,
+  `gols_marcados_timeB` int(11) DEFAULT NULL,
+  `gols_contra_timeA` int(11) DEFAULT NULL,
+  `gols_contra_timeB` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `standings`;
+CREATE TABLE `standings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `team_id` int(11) NOT NULL,
+  `group_name` varchar(10) DEFAULT NULL,
+  `phase` enum('grupos','eliminatorias') DEFAULT 'grupos',
+  `matches_played` int(11) DEFAULT 0,
+  `wins` int(11) DEFAULT 0,
+  `draws` int(11) DEFAULT 0,
+  `losses` int(11) DEFAULT 0,
+  `goals_for` int(11) DEFAULT 0,
+  `goals_against` int(11) DEFAULT 0,
+  `goal_difference` int(11) DEFAULT 0,
+  `points` int(11) DEFAULT 0,
+  `position` int(11) DEFAULT 0,
+  `qualified` tinyint(1) DEFAULT 0,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_team_tournament_group` (`tournament_id`,`team_id`,`group_name`,`phase`),
+  KEY `team_id` (`team_id`),
+  CONSTRAINT `standings_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`),
+  CONSTRAINT `standings_ibfk_2` FOREIGN KEY (`team_id`) REFERENCES `times` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `system_logs`;
+CREATE TABLE `system_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `level` enum('INFO','SUCCESS','WARNING','ERROR') NOT NULL,
+  `message` text NOT NULL,
+  `context` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`context`)),
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `username` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_level` (`level`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=272 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `times`;
+CREATE TABLE `times` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) NOT NULL,
+  `logo` blob DEFAULT NULL,
+  `grupo_id` int(11) NOT NULL,
+  `tournament_id` int(11) NOT NULL,
+  `token` varchar(64) DEFAULT NULL,
+  `pts` int(11) DEFAULT 0,
+  `vitorias` int(11) DEFAULT 0,
+  `empates` int(11) DEFAULT 0,
+  `derrotas` int(11) DEFAULT 0,
+  `gm` int(11) DEFAULT 0,
+  `gc` int(11) DEFAULT 0,
+  `sg` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`),
+  KEY `idx_tournament_id` (`tournament_id`),
+  KEY `idx_grupo_id` (`grupo_id`),
+  KEY `idx_times_tournament_grupo` (`tournament_id`,`grupo_id`),
+  CONSTRAINT `times_ibfk_1` FOREIGN KEY (`grupo_id`) REFERENCES `grupos` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `times_ibfk_2` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `times_historico`;
+CREATE TABLE `times_historico` (
+  `historico_id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `logo` blob DEFAULT NULL,
+  `grupo_id` int(11) NOT NULL,
+  `tournament_id` int(11) DEFAULT NULL,
+  `token` varchar(64) DEFAULT NULL,
+  `pts` int(11) DEFAULT 0,
+  `vitorias` int(11) DEFAULT 0,
+  `empates` int(11) DEFAULT 0,
+  `derrotas` int(11) DEFAULT 0,
+  `gm` int(11) DEFAULT 0,
+  `gc` int(11) DEFAULT 0,
+  `sg` int(11) DEFAULT 0,
+  `backup_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`historico_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `tournament_activity_log`;
+CREATE TABLE `tournament_activity_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `action` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`metadata`)),
+  PRIMARY KEY (`id`),
+  KEY `idx_tournament_activity` (`tournament_id`,`created_at`),
+  KEY `idx_tournament_activity_log_action` (`action`,`created_at`),
+  CONSTRAINT `tournament_activity_log_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `tournament_settings`;
+CREATE TABLE `tournament_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tournament_id` int(11) NOT NULL,
+  `num_groups` int(11) NOT NULL DEFAULT 1,
+  `teams_per_group` int(11) NOT NULL DEFAULT 4,
+  `final_phase` enum('oitavas','quartas','semifinais','final') DEFAULT 'final',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `tournament_id` (`tournament_id`),
+  CONSTRAINT `tournament_settings_ibfk_1` FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `tournaments`;
+CREATE TABLE `tournaments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `year` int(11) NOT NULL,
+  `description` text DEFAULT NULL,
+  `status` enum('draft','active','completed','cancelled','archived') DEFAULT 'draft',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `completed_at` timestamp NULL DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `data_inicio` date NOT NULL,
+  `data_fim` date NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `teams_count` int(11) DEFAULT 8,
+  `groups_count` int(11) DEFAULT 2,
+  `format_type` varchar(100) DEFAULT 'Grupos + Eliminatórias',
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_year` (`year`)
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `tournaments_backup`;
+CREATE TABLE `tournaments_backup` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `original_tournament_id` int(11) NOT NULL,
+  `backup_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `tournament_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`tournament_data`)),
+  `backup_reason` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_original_tournament` (`original_tournament_id`),
+  KEY `idx_backup_date` (`backup_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- ========================================
+-- DADOS COMPLETOS DO SISTEMA COPA
+-- ========================================
+
+-- Inserir dados na tabela admin
+INSERT INTO `admin` VALUES ('2025cpTelsr1','thwaverton','thwaverton@gmail.com','$2y$10$7k.cHU59d0FJkDPO3sibL.Jg4fki9d.BLhgJSsMt1kuzX3hgz2qSy');
+
+-- Inserir dados na tabela administradores
+INSERT INTO `administradores` VALUES (1,'admin','$2y$10$sx5leNeq/oHu4ONOGks5fevLveRLPw/ln4IOMVkaERAEZVwbCbREu','Administrador','admin@copadaspanelas.com','2025-07-27 21:57:59');
+
+-- Inserir dados na tabela admins
+INSERT INTO `admins` VALUES 
+(1,'admin','admin@copadaspanelas.com','$2y$10$8u54FNsl1rC/lhKbq4HW.uZss.pYKXa5VhvTJRCIRTmqrRzplIFQ.','Super Admin',1,'2025-07-28 22:19:02',NULL),
+(3,'2024cpTelsr','thwaverton@gmail.com','$2y$10$.UOENxY8H0ufbgQNqKWUaOuzXsNAhIwMpp8Lmr1cT3xfbA5U9zPdO','Super Admin',1,'2025-07-29 19:17:04',NULL),
+(4,'2024cpTelsr1','joao@gmail.com','$2y$10$mEsTQwXp/ZeBzPQsU6tZnunjafiAlHMrU/sxX7LHWpMAwrvSQYmVm','Super Admin',1,'2025-07-29 19:19:22',NULL);
+
+-- Inserir dados na tabela tournaments (TORNEIOS)
+INSERT INTO `tournaments` VALUES 
+(26,'Copa das Panelas 2026','Copa das Panelas 2026',2026,'','active','2025-07-28 14:32:04','2025-07-29 18:49:32',NULL,NULL,'2025-07-28','2025-08-27','',8,2,'Grupos + Eliminatórias',NULL,NULL),
+(27,'Copa das Panelas 2026','Copa das Panelas 2026',2026,'','completed','2025-07-29 00:40:40','2025-07-29 19:27:32',NULL,NULL,'2025-07-28','2025-08-27','',8,2,'Grupos + Eliminatórias',NULL,NULL);
+
+-- Inserir dados na tabela times (TIMES)
+INSERT INTO `times` VALUES 
+(24,'thwaverton',NULL,56,26,'cd530f6d5a123ae1',0,0,0,0,0,0,0),
+(25,'Time B',NULL,56,26,'e4aac32060aec3e2',0,0,0,0,0,0,0),
+(46,'Time A',NULL,57,27,'017789d868ea758d',0,0,0,0,0,0,0),
+(47,'Time B',NULL,58,27,'e135dd9a6053b9c8',0,0,0,0,0,0,0),
+(49,'Time C',NULL,57,27,'3117c6c748e49cc5',0,0,0,0,0,0,0),
+(50,'Time D',NULL,57,27,'7a789a95b239a73d',0,0,0,0,0,0,0),
+(51,'Time E',NULL,57,27,'7dc06a61cab89c9d',0,0,0,0,0,0,0),
+(53,'Time F',NULL,58,27,'ed8c8670aa15f67f',0,0,0,0,0,0,0),
+(54,'Time G',NULL,58,27,'ba917227fb30bd88',0,0,0,0,0,0,0),
+(55,'Time H',NULL,58,27,'e69c47dadd841f0a',0,0,0,0,0,0,0);
+
+-- Inserir dados na tabela jogadores (JOGADORES)
+INSERT INTO `jogadores` VALUES 
+(8,'joao',0,'Defesa',NULL,0,0,0,'d1c3100389344dcd',NULL,24);
+
+-- Inserir dados na tabela matches (PARTIDAS/JOGOS)
+INSERT INTO `matches` VALUES 
+(23,26,56,25,24,NULL,NULL,'grupos','agendado','2025-07-29 14:22:00',1,'2025-07-28 16:17:28','2025-07-28 16:17:28','Fase de Grupos'),
+(24,26,56,25,24,NULL,NULL,'grupos','agendado','2025-07-30 02:22:00',1,'2025-07-28 16:17:53','2025-07-28 16:17:53','Fase de Grupos'),
+(46,26,NULL,24,39,2,1,'Oitavas','finalizado','2025-07-18 21:07:13',1,'2025-07-29 00:07:13','2025-07-29 00:07:13','Fase de Grupos'),
+(47,26,NULL,25,38,3,0,'Oitavas','finalizado','2025-07-19 21:07:13',1,'2025-07-29 00:07:13','2025-07-29 00:07:13','Fase de Grupos'),
+(62,27,57,49,50,1,2,'grupos','finalizado','2025-07-28 23:19:42',1,'2025-07-29 00:50:08','2025-07-29 02:19:42','Fase de Grupos'),
+(63,27,57,49,46,NULL,NULL,'grupos','agendado','2025-07-30 14:00:00',1,'2025-07-29 00:50:08','2025-07-29 01:05:20','Fase de Grupos'),
+(72,27,58,54,47,0,2,'grupos','finalizado','2025-07-29 11:26:48',1,'2025-07-29 00:50:08','2025-07-29 14:26:48','Fase de Grupos'),
+(74,27,NULL,49,47,NULL,NULL,'Quartas','agendado',NULL,1,'2025-07-29 15:03:12','2025-07-29 15:03:12','Fase de Grupos'),
+(75,27,NULL,50,46,NULL,NULL,'Quartas','agendado',NULL,1,'2025-07-29 15:03:12','2025-07-29 15:03:12','Fase de Grupos');
+
+-- Inserir dados na tabela configuracoes
+INSERT INTO `configuracoes` VALUES (1,4,2,'final');
+
+-- Inserir dados na tabela fase_execucao
+INSERT INTO `fase_execucao` VALUES 
+(1,'grupos',1),
+(2,'oitavas',0),
+(3,'quartas',0),
+(4,'semifinais',0),
+(5,'final',0);
+
+-- Inserir dados na tabela final_phases
+INSERT INTO `final_phases` VALUES 
+(21,26,'Final',4,2,'2025-07-28 14:32:04'),
+(22,27,'Quartas de Final',1,8,'2025-07-29 00:40:40'),
+(23,27,'Semifinal',2,4,'2025-07-29 00:40:40'),
+(24,27,'Final',3,2,'2025-07-29 00:40:40');
+
+-- Inserir dados na tabela grupos
+INSERT INTO `grupos` VALUES 
+(56,'Grupo A',26),
+(57,'Grupo A',27),
+(58,'Grupo B',27);
+
+-- Inserir dados na tabela tournament_settings
+INSERT INTO `tournament_settings` VALUES 
+(25,26,2,4,'final','2025-07-28 14:32:04');
+
+-- Inserir dados na tabela live_streams
+INSERT INTO `live_streams` VALUES 
+(1,'Copa das Panelas 2026 - AO VIVO','dQw4w9WgXcQ','https://www.youtube.com/watch?v=dQw4w9WgXcQ','ativo',1,'2025-07-28 22:20:15','2025-07-28 22:20:15',NULL,NULL,'youtube'),
+(2,'Transmissão Oficial','abc123def456','https://www.youtube.com/watch?v=abc123def456','ativo',1,'2025-07-29 10:30:00','2025-07-29 10:30:00',NULL,NULL,'youtube');
+
+-- Inserir dados na tabela backups
+INSERT INTO `backups` VALUES 
+(1,'Backup Inicial','backup_inicial_20250727.sql','Backup automático do sistema',1024000,'2025-07-27 21:00:00'),
+(2,'Backup Pré-Torneio','backup_pre_torneio_20250728.sql','Backup antes do início do torneio',2048000,'2025-07-28 14:00:00');
+
+-- Inserir dados na tabela media_library
+INSERT INTO `media_library` VALUES 
+(1,'Hino Copa das Panelas','Música oficial do torneio','music','/media/music/hino_copa.mp3','hino_copa.mp3',3456789,180,1,1,'2025-07-28 10:00:00','2025-07-28 10:00:00'),
+(2,'Logo Animado','Logo animado para transmissões','video','/media/video/logo_animado.mp4','logo_animado.mp4',5678901,15,1,1,'2025-07-28 10:15:00','2025-07-28 10:15:00');
+
+-- Inserir dados na tabela system_logs
+INSERT INTO `system_logs` VALUES 
+(1,'INFO','Sistema iniciado com sucesso',NULL,'127.0.0.1','Mozilla/5.0',1,'admin','2025-07-27 21:57:59'),
+(2,'SUCCESS','Torneio Copa das Panelas 2026 criado',NULL,'127.0.0.1','Mozilla/5.0',1,'admin','2025-07-28 14:32:04'),
+(3,'INFO','Grupos criados para o torneio',NULL,'127.0.0.1','Mozilla/5.0',1,'admin','2025-07-28 14:35:00');
+
+
+-- ========================================
+-- RESTAURAÇÃO DAS CONFIGURAÇÕES MYSQL
+-- ========================================
+
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed - Banco Copa consolidado e pronto para uso
