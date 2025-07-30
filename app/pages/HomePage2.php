@@ -33,24 +33,6 @@
 
     <!-- Conteúdo Principal -->
     <main>
-        <!-- Notícia 1 -->
-        <h1 class="titulohome fade-in">NOTÍCIAS</h1>
-        <div class="news-card fade-in">
-            <h2><a href="../pages/publicacoes.php">Clássico termina em empate no Maracanã</a></h2>
-            hFlamengo e Fluminense empataram em 2 a 2 em um jogo emocionante marcado por gols no final do segundo tempo.</p>
-        </div>
-
-        <!-- Notícia 2 -->
-        <div class="news-card fade-in">
-            <h2><a href="../pages/publicacoes.php">Palmeiras vence e assume liderança do Brasileirão</a></h2>
-            <p>Com gol de Raphael Veiga, o Verdão venceu o Internacional e subiu para a primeira colocação.</p>
-        </div>
-
-        <!-- Notícia 3 -->
-        <div class="news-card fade-in">
-            <h2><a href="../pages/publicacoes.php">Real Madrid classificado para a final da Champions</a></h2>
-            <p>Com show de Vinicius Jr., o Real Madrid derrotou o Manchester City e garantiu vaga na final da Liga dos Campeões.</p>
-        </div>
 
         <!-- Conteúdo -->
         <h1 class="titulohome fade-in">CONTEÚDO</h1>

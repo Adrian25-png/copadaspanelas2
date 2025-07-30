@@ -26,11 +26,11 @@
   
   #slider label {
     margin: auto;
-    width: 60%;
+    width: 320%;
     height: 100%;
     border-radius: 4px;
     position: absolute;
-    left: 0; right: 0;
+    left: -100%; right: 0;
     cursor: pointer;
     transition: transform 0.4s ease;
     filter: grayscale(100%);
