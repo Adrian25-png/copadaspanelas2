@@ -13,7 +13,19 @@ body {
     color: #E0E0E0;
     line-height: 1.6;
     padding-top: 5rem;
+    min-height: 100vh;
 }
+
+html, body {
+    height: auto;
+    overflow-x: hidden; /* evita rolagem lateral indesejada */
+    overflow-y: auto;   /* rolagem vertical se necessário */
+}
+
+h1 {
+    text-align: center;
+    margin-top: 40px;
+  }
 
 /* Área principal */
 .main {
@@ -22,8 +34,8 @@ body {
     align-items: center;
     text-align: center;
     flex-direction: column;
-}
 
+}
 
 .container {
     width: 80%;
@@ -32,6 +44,8 @@ body {
     background-color: #1E1E1E;
     box-shadow: 0 4px 8px #7b1fa299;
     margin-bottom: 10%;
+    margin-top: 1%;
+    display: column;
 }
 
 

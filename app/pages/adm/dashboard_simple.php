@@ -1,5 +1,6 @@
 <?php
 session_start();
+include 'admin_header.php';
 
 // Verificar se está logado
 if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
@@ -321,7 +322,6 @@ try {
     </style>
 </head>
 <body>
-    <?php include 'admin_header.php'; ?>
 
     <div class="main-container">
         <div class="dashboard-welcome fade-in">

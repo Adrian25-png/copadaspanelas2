@@ -1,7 +1,6 @@
 <?php
 require_once "../config/conexao.php";
 require_once '../classes/TournamentManager.php';
-
 $pdo = conectar();
 $tournamentManager = new TournamentManager($pdo);
 
@@ -68,6 +67,9 @@ if ($tournament) {
 }
 ?>
 
+<!-- Navegação -->
+<?php include 'header_geral.php'; ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -108,11 +110,10 @@ if ($tournament) {
     </style>
 </head>
 <body>
-    <!-- Navegação -->
-    <?php include 'header_geral.php'; ?>
 
     <div class="main">
     <?php if ($tournament): ?>
+    <h1 class="fade-in">ESTATÍSTICAS</h1>
     <div class="container fade-in">
 
         <!-- Seção de Gols -->

@@ -36,6 +36,11 @@
             padding-top: 0 !important; /* Remove o padding-top do CSS externo */
         }
 
+        h1 {
+            text-align: center;
+            margin-top: 40px;
+        }
+
         /* Sobrescrever o position fixed do header externo */
         header {
             position: relative !important;
@@ -47,8 +52,8 @@
 
         .main-content {
             flex: 1;
-            margin-top: 250px; /* Espaço para o header fixo */
-            padding: 20px;
+            margin-top: 25px; /* Espaço para o header fixo */
+            padding: 35px;
             padding-bottom: 60px;
         }
 
@@ -437,9 +442,10 @@
 </head>
 
 <body>
-    
+
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content fade-in">
+        <h1 class="fade-in">FASE DE GRUPOS</h1>
         <?php
             include '../config/conexao.php';
             require_once '../classes/TournamentManager.php';
@@ -607,6 +613,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Página carrega normalmente sem verificações automáticas
             console.log('Página de exibição das finais carregada');
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.fade-in').forEach(function(el, i) {
+                setTimeout(() => el.classList.add('visible'), i * 20);
+            });
         });
     </script>
 </body>

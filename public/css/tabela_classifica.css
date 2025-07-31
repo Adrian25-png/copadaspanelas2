@@ -13,8 +13,8 @@ body {
     color: #E0E0E0;
     line-height: 1.6;
     padding-top: 5rem;
+    overflow-y: auto;
 }
-
 
 
 /* Área principal */

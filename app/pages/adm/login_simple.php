@@ -262,6 +262,10 @@ if ($_POST) {
             }
         }
 
+        a {
+            text-decoration: none;
+        }
+
         /* Responsividade */
         @media (max-width: 480px) {
             .login-container {
@@ -283,7 +287,9 @@ if ($_POST) {
 <body>
     <div class="login-container fade-in">
         <div class="logo-section">
-            <img src="../../../public/img/ESCUDO COPA DAS PANELAS.png" alt="Copa das Panelas" class="logo-img">
+            <a href="../../pages/HomePage2.php">
+                <img src="../../../public/img/ESCUDO COPA DAS PANELAS.png" alt="Copa das Panelas" class="logo-img">
+            <a href="HomePage2.php">
             <h1>Copa das Panelas</h1>
             <p>Sistema Administrativo</p>
         </div>
