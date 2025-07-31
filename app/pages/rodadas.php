@@ -1,3 +1,6 @@
+<!-- Header -->
+<?php include 'header_geral.php'; ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -27,7 +30,7 @@
         .main-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 40px 20px 20px 20px;
+            padding: 0px 20px 20px 20px;
         }
 
 
@@ -161,7 +164,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 20px;
+            margin-top: 40px;
         }
 
         .team {
@@ -355,7 +358,6 @@
 </head>
 <body>
     <?php
-        include 'header_geral.php';
         require_once '../config/conexao.php';
         require_once '../classes/TournamentManager.php';
 

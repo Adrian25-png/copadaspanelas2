@@ -1,3 +1,7 @@
+<?php
+    include 'header_geral.php';
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -18,7 +22,6 @@
 <body>
     <!-- Navegação -->
     <?php
-    include 'header_geral.php';
     include '../config/conexao.php'; // inclui o arquivo com a função conectar()
 
     $pdo = conectar(); // cria a conexão PDO
@@ -33,7 +36,6 @@
 
     <!-- Conteúdo Principal -->
     <main>
-
         <!-- Conteúdo -->
         <h1 class="titulohome fade-in">CONTEÚDO</h1>
         <section id="slider">
@@ -43,14 +45,41 @@
             <input type="radio" name="slider" id="s4">
             <input type="radio" name="slider" id="s5">
             <!-- Apenas UM label por slide -->
+            <!-- Slide 1 -->
             <label for="s1" id="slide1" class="slide">
-                <span class="span_link" onclick="window.location.href='sobreNosHistory.php'"></span>
-                <div class="texto">História da COPA</div>
+                <div class="texto">
+                    <a href="sobreNosHistory.php" class="destaque">História da COPA</a>
+                </div>
             </label>
-            <label for="s2" id="slide2"></label>
-            <label for="s3" id="slide3"></label>
-            <label for="s4" id="slide4"></label>
-            <label for="s5" id="slide5"></label>
+
+            <!-- Slide 2 -->
+            <label for="s2" id="slide2" class="slide">
+                <div class="texto">
+                    <a href="publicacoes.php" class="destaque">Publicações</a>
+                </div>
+            </label>
+
+            <!-- Slide 3 -->
+            <label for="s3" id="slide3" class="slide">
+                <div class="texto">
+                    <a href="tabela_de_classificacao.php" class="destaque">Classificados</a>
+                </div>
+            </label>
+
+            <!-- Slide 4 -->
+            <label for="s4" id="slide4" class="slide">
+                <div class="texto">
+                    <a href="sobreNosTeam.php" class="destaque">Bastidores</a>
+                </div>
+            </label>
+
+            <!-- Slide 5 -->
+            <label for="s5" id="slide5" class="slide">
+                <div class="texto">
+                    <a href="equipedev.php" class="destaque">Equipe Dev</a>
+                </div>
+            </label>
+
         </section>
     </main>
 

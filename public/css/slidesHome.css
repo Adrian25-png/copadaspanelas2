@@ -13,10 +13,11 @@
     text-decoration: none; /* remove sublinhado padrão */
   }
 
+/* Slide 3D */
 [type=radio] {
-    display: none;
-  }
-  
+  display: none;
+}
+
   #slider {
     height: 35vw;
     position: relative;
@@ -26,21 +27,39 @@
   
   #slider label {
     margin: auto;
-    width: 320%;
+    width: 50%;
     height: 100%;
     border-radius: 4px;
     position: absolute;
-    left: -100%; right: 0;
+    left: 0;
+    right: 0;
     cursor: pointer;
-    transition: transform 0.4s ease;
     filter: grayscale(100%);
     transition: filter 0.5s ease, transform 0.4s ease;
-    padding: 0px 25px;
+    padding: 0 25px;
   }
   
-  /*Texto com a imagem*/
+  #slider label:hover {
+    filter: grayscale(0%);
+  }
   
-  #slider label .texto {
+  /* Texto nos slides */
+  .texto {
+    font-weight: 600;
+  }
+  
+  .texto a {
+    pointer-events: auto;
+  }
+  
+  .destaque {
+    color: #ffffff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  
+  #slider label .texto,
+  .slide .texto {
     opacity: 0;
     transform: translateY(20px);
     color: white;
@@ -48,76 +67,14 @@
     font-size: 3rem;
     position: absolute;
     bottom: 10%;
-    left: 0; right: 0;
-    pointer-events: none;
-    text-shadow: 4px 4px 5px rgba(0,0,0,0.7);
+    left: 0;
+    right: 0;
+    pointer-events: auto; /* ✅ Clique permitido */
+    text-shadow: 4px 4px 5px rgba(0, 0, 0, 0.7);
     transition: opacity 0.6s ease, transform 0.6s ease;
   }
-
-  /* Efeito hover para slides NÃO selecionados: quando passar o mouse, fica colorido */
-  #slider label:not(:checked):hover {
-    filter: grayscale(0%);
-  } 
-
-  .span_link{
-    height: 100%;
-    width: 80%;
-  }
-
-  /*Animação dos slides*/
   
-  #s1:checked ~ #slide4, #s2:checked ~ #slide5,
-  #s3:checked ~ #slide1, #s4:checked ~ #slide2,
-  #s5:checked ~ #slide3 {
-    box-shadow: 0 1px 4px 0 rgba(0,0,0,.37);
-    transform: translate3d(-30%,0,-200px);
-    filter: blur(2px) brightness(0.5) grayscale(100%); /* Embaça e escurece */
-  }
-  
-  #s1:checked ~ #slide5, #s2:checked ~ #slide1,
-  #s3:checked ~ #slide2, #s4:checked ~ #slide3,
-  #s5:checked ~ #slide4 {
-    box-shadow: 0 6px 10px 0 rgba(0,0,0,.3), 0 2px 2px 0 rgba(0,0,0,.2);
-    transform: translate3d(-15%,0,-100px);
-    filter: blur(1px) brightness(0.9) grayscale(100%); /* Embaça e escurece */
-  }
-  /* Slide selecionado */
-  #s1:checked ~ #slide1, #s2:checked ~ #slide2,
-  #s3:checked ~ #slide3, #s4:checked ~ #slide4,
-  #s5:checked ~ #slide5 {
-    box-shadow: 0 13px 25px 0 rgba(0,0,0,.3), 0 11px 7px 0 rgba(0,0,0,.19);
-    transform: translate3d(0,0,0);
-
-  }
-  
-  #s1:checked ~ #slide2, #s2:checked ~ #slide3,
-  #s3:checked ~ #slide4, #s4:checked ~ #slide5,
-  #s5:checked ~ #slide1 {
-    box-shadow: 0 6px 10px 0 rgba(0,0,0,.3), 0 2px 2px 0 rgba(0,0,0,.2);
-    transform: translate3d(15%,0,-100px);
-    filter: blur(1px) brightness(0.9) grayscale(100%); /* Embaça e escurece */
-  
-  }
-  
-  #s1:checked ~ #slide3, #s2:checked ~ #slide4,
-  #s3:checked ~ #slide5, #s4:checked ~ #slide1,
-  #s5:checked ~ #slide2 {
-    box-shadow: 0 1px 4px 0 rgba(0,0,0,.37);
-    transform: translate3d(30%,0,-200px);
-    filter: blur(2px) brightness(0.5) grayscale(100%); /* Embaça e escurece */
-  }
-  
-  /*Animação dos textos*/
-  #s1:checked ~ #slide1 .texto,
-  #s2:checked ~ #slide2 .texto,
-  #s3:checked ~ #slide3 .texto,
-  #s4:checked ~ #slide4 .texto,
-  #s5:checked ~ #slide5 .texto {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  
-  /* Aplica a todos os slides com classe .slide */
+  /* Slide base */
   .slide {
     margin: auto;
     width: 60%;
@@ -131,25 +88,85 @@
     justify-content: center;
   }
   
-  /* Texto visível sobre a imagem */
-  .slide .texto {
-    color: white;
-    font-size: 2rem;
-    margin-bottom: 15px;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
-    pointer-events: none;
+  /* Slide selecionado */
+  #s1:checked ~ #slide1,
+  #s2:checked ~ #slide2,
+  #s3:checked ~ #slide3,
+  #s4:checked ~ #slide4,
+  #s5:checked ~ #slide5 {
+    transform: translate3d(0, 0, 0);
+    box-shadow: 0 13px 25px rgba(0, 0, 0, 0.3), 0 11px 7px rgba(0, 0, 0, 0.19);
   }
   
-  /*imagem*/
+  /* Slides intermediários */
+  #s1:checked ~ #slide2,
+  #s2:checked ~ #slide3,
+  #s3:checked ~ #slide4,
+  #s4:checked ~ #slide5,
+  #s5:checked ~ #slide1 {
+    transform: translate3d(15%, 0, -100px);
+    filter: blur(1px) brightness(0.9) grayscale(100%);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3), 0 2px 2px rgba(0, 0, 0, 0.2);
+  }
+  
+  #s1:checked ~ #slide3,
+  #s2:checked ~ #slide4,
+  #s3:checked ~ #slide5,
+  #s4:checked ~ #slide1,
+  #s5:checked ~ #slide2 {
+    transform: translate3d(30%, 0, -200px);
+    filter: blur(2px) brightness(0.5) grayscale(100%);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.37);
+  }
+  
+  #s1:checked ~ #slide4,
+  #s2:checked ~ #slide5,
+  #s3:checked ~ #slide1,
+  #s4:checked ~ #slide2,
+  #s5:checked ~ #slide3 {
+    transform: translate3d(-30%, 0, -200px);
+    filter: blur(2px) brightness(0.5) grayscale(100%);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.37);
+  }
+  
+  #s1:checked ~ #slide5,
+  #s2:checked ~ #slide1,
+  #s3:checked ~ #slide2,
+  #s4:checked ~ #slide3,
+  #s5:checked ~ #slide4 {
+    transform: translate3d(-15%, 0, -100px);
+    filter: blur(1px) brightness(0.9) grayscale(100%);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3), 0 2px 2px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Ativação do texto no slide selecionado */
+  #s1:checked ~ #slide1 .texto,
+  #s2:checked ~ #slide2 .texto,
+  #s3:checked ~ #slide3 .texto,
+  #s4:checked ~ #slide4 .texto,
+  #s5:checked ~ #slide5 .texto {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Imagens dos slides */
   #slide1 {
     background-image: url('../img/sobrenos.jpg');
   }
+  #slide2 {
+    background-image: url('../img/2024.2att.jpg');
+  }
 
-  #slide2 { background: #4CAF50 }
-  #slide3 { background: #CDDC39 }
-  #slide4 { background: #FFC107 }
-  #slide5 { background: #FF5722 }
-
+  #slide3 {
+    background-image: url('../img/2024.1att.jpg');
+  }
+  #slide4 {
+    background-image: url('../img/imgSobreNos/vitoratt.jpg');
+  }
+  #slide5 {
+    background-image: url('../img/Dev_s/luizatt.jpg');
+  }
+  
   @media (max-width: 768px) {
     #slider label .texto {
         font-size: 2rem;  /* Ajusta o texto para telas menores */

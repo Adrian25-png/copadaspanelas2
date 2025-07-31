@@ -1,6 +1,9 @@
 <?php
-session_start(); // Inicie a sessão para verificar a autenticação
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
+
 <header>
     <!--Icone da copa-->
     <div id="Icon">

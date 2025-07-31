@@ -24,43 +24,31 @@
   main {
     padding: 30px;
     max-width: 1200px;
-    margin: auto;
+    margin: 0px;
+    margin-left: 70px;
   }
   
-  /* Cards de notícia */
-  .news-card {
-    background-color: #1E1E1E;
-    border-left: 4px solid #7B1FA2;
-    margin-bottom: 20px;
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .feature {
+    min-height: 250px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .feature-texto {
     padding: 20px;
-    border-radius: 8px;
-    transition: transform 0.2s;
-  }
-  
-  .news-card:hover {
-    transform: translateY(-5px);
-    background-color: #252525;
-  }
-  
-  .news-card h2 {
-    color: #E1BEE7;
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-  }
-  
-  .news-card h2 a {
-    color: #E1BEE7;
-    text-decoration: none; /* opcional, remove o sublinhado */
-  }
-  
-  .news-card h2 a:hover {
-    text-decoration: underline; /* opcional, adiciona efeito ao passar o mouse */
   }
 
-
-  .news-card p {
-    color: #BDBDBD;
+  .feature-texto h2 {
+    font-size: 2rem;
   }
+
+  .feature-texto p {
+    font-size: 1rem;
+  }
+}
 
   /* Rodapé */
   footer {
@@ -71,13 +59,3 @@
     margin-top: 40px;
   }
 
-  /* Responsivo */
-  @media (max-width: 768px) {
-    nav {
-      flex-direction: column;
-    }
-  
-    nav a {
-      margin: 10px 0;
-    }
-}

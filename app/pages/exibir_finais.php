@@ -1,3 +1,6 @@
+<!-- Header -->
+<?php include 'header_geral.php'; ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -434,8 +437,6 @@
 </head>
 
 <body>
-    <!-- Header -->
-    <?php include 'header_geral.php'; ?>
     
     <!-- Main Content -->
     <main class="main-content">

@@ -1,5 +1,6 @@
 <?php
 session_start();
+include 'header_geral.php';
 ?>
 
 <!DOCTYPE html>
@@ -1292,7 +1293,6 @@ session_start();
 </head>
 <body>
     <?php
-        include 'header_geral.php';
         include '../config/conexao.php';
 
         $pdo = conectar();
