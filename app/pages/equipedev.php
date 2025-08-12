@@ -90,6 +90,40 @@
 						<a href="https://www.instagram.com/offx.moreira/"><i class="ri-instagram-fill"></i></a>
 					</div>
 				</div>
+
+				<div class="box">
+					<img src="../../public/img/Dev_s/perfil.jpg">
+					<h3>Rian</h3>
+					<h5>Tec. Informatica</h5>
+					<div class="icons">
+						<a href="#"><i class="ri-twitter-fill"></i></a>
+						<a href="https://github.com/"><i class="fa-brands fa-square-github"></i></i></a>
+						<a href="https://www.instagram.com/"><i class="ri-instagram-fill"></i></a>
+					</div>
+				</div>
+
+				<div class="box">
+					<img src="../../public/img/Dev_s/perfil.jpg">
+					<h3>Eduardo</h3>
+					<h5>Tec. Informatica</h5>
+					<div class="icons">
+						<a href="#"><i class="ri-twitter-fill"></i></a>
+						<a href="https://github.com/"><i class="fa-brands fa-square-github"></i></i></a>
+						<a href="https://www.instagram.com/"><i class="ri-instagram-fill"></i></a>
+					</div>
+				</div>
+
+				<div class="box">
+					<img src="../../public/img/Dev_s/perfil.jpg">
+					<h3>Adrian</h3>
+					<h5>Tec. Informatica</h5>
+					<div class="icons">
+						<a href="#"><i class="ri-twitter-fill"></i></a>
+						<a href="https://github.com/"><i class="fa-brands fa-square-github"></i></i></a>
+						<a href="https://www.instagram.com/"><i class="ri-instagram-fill"></i></a>
+					</div>
+				</div>
+
 			</div>
 		</section>
 	</div> <!-- Fim do wrapper -->

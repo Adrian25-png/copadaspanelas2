@@ -15,12 +15,12 @@ body {
 .team {
     position: relative;
     width: 100%;
-    height: 100vh; /* Mantendo 100vh caso a altura da tela seja muito grande */
+    min-height: 100vh; /* permite crescer se o conteúdo for maior */
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    padding-bottom: 40px; /* Garantindo um pouco de espaço interno também */
+    padding-bottom: 40px; /* espaço interno */
 }
 .team-content{
 	width: 100%;
